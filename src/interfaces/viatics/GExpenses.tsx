@@ -1,0 +1,35 @@
+export class GExpenses  {
+    Currency: string;
+    Date: Date;
+    DateLegalize: Date;
+    DateSync: Date;
+    Description: string;
+    EditedLegalize: boolean;
+    ExpenseCC: number;
+    ExpenseCash: number;
+    IDCategory: number;
+    IDEntity: number;
+    IDEstablishment: string;
+    IDExpense: string;
+    IDGroup: string;
+    IDUser: number;
+    IDUserLegalize: number;
+    LegalizeCash: number;
+    LegalizeNote: string;
+    LegalizeState: string;
+    LocalToTRM: number;
+    PaymentType: string;
+    State: string;
+    TRM: number;
+    TotalTRM: number;
+    Edited?: boolean;
+    Note: string;
+    HasAttach: boolean;
+    TipValue: number;
+    TaxValue: number;
+    nameEstablishment: string;
+    nitEstablishment: string;
+    ManualEstablishment: boolean;
+    DocumentNumber: number;
+    justifyMotiveCode: number;
+}
