@@ -8,23 +8,24 @@ import Modal from 'react-native-modal';
 import { commonStyles } from '../../styles/commonStyles'
 import LinearGradient from 'react-native-linear-gradient'
 import { useForm } from '../../hooks/common/useForm'
-import { ExpenseGroupsEmail } from '../../classes/viatics/ExpensesGroupsEmail'
-import { GActivities } from '../../interfaces/viatics/GActivities';
-import { ExpenseGroupRQ } from '../../interfaces/viatics/ExpenseGroupRQ';
+import { ExpenseGroupsEmail } from '../../model/classes/viatics/ExpensesGroupsEmail'
+import { GActivities } from '../../model/interfaces/viatics/GActivities';
+import { ExpenseGroupRQ } from '../../model/interfaces/viatics/ExpenseGroupRQ';
 import { AuthContext } from '../../contexts/auth/AuthContext'
 import { viaticsApi } from '../../api/viaticsApi'
-import { Establishment } from '../../classes/viatics/Establishment';
-import { ExpenseEstablishmentRQ } from '../../classes/viatics/ExpenseEstablishmentRQ'
-import { ExpenseGroupRS } from '../../interfaces/viatics/ExpenseGroupRS';
+import { Establishment } from '../../model/classes/viatics/Establishment';
+import { ExpenseEstablishmentRQ } from '../../model/classes/viatics/ExpenseEstablishmentRQ'
+import { ExpenseGroupRS } from '../../model/interfaces/viatics/ExpenseGroupRS';
 import { ActivityIndicator } from 'react-native-paper'
-import { GExpenses } from '../../interfaces/viatics/GExpenses'
-import { ExpensesSaveRQ } from '../../interfaces/viatics/ExpensesSaveRQ';
+import { GExpenses } from '../../model/interfaces/viatics/GExpenses'
+import { ExpensesSaveRQ } from '../../model/interfaces/viatics/ExpensesSaveRQ';
 import { useNavigation } from '@react-navigation/native';
 import Toast from 'react-native-toast-message'
 import { ChangeState } from './ChangeState'
 import { useTranslation } from 'react-i18next';
-import { CategoriesEntity } from '../../classes/viatics/CategoriesEntity'
-import { ExpenseCategories } from '../../classes/viatics/ExpenseCategories';
+import { CategoriesEntity } from '../../model/classes/viatics/CategoriesEntity'
+import { ExpenseCategories } from '../../model/classes/viatics/ExpenseCategories';
+import { DynamicText } from '../common/DynamicText';
 
 
 interface Props {
@@ -36,12 +37,13 @@ interface Props {
     
 }
 
+
 export const MenuActivity = ({ activitie, isSentEmail, expenses, isSendLegalized, hideMenu }: Props) => {
     const { t } = useTranslation();
     const navigation = useNavigation();
     const { width } = Dimensions.get('window');
     const { userData, } = useContext( AuthContext );
-    const { theme: { colors, secondary, buttonText } } = useContext( ThemeContext );
+    const { theme: { colors, secondary, buttonText, grayColor } } = useContext( ThemeContext );
     const [establishments, setEstablishments] = useState<Establishment[]>([]);
     const [sentEmail, setSentEmail] = useState(false);
     const [sendLegalized, setSendLegalized] = useState(false);
@@ -264,7 +266,7 @@ export const MenuActivity = ({ activitie, isSentEmail, expenses, isSendLegalized
 
     return (
             <View  style={{ 
-                backgroundColor: '#595953', 
+                backgroundColor: grayColor, 
                 position: 'absolute', 
                 bottom: 50, 
                 left: getDimension(), 
@@ -373,24 +375,25 @@ export const MenuActivity = ({ activitie, isSentEmail, expenses, isSendLegalized
                         sendEmail: !modalButtons.sendEmail
                     })}
                     style={{ alignItems: 'center'}} isVisible={modalButtons.sendEmail}>
-                        <View style={{ borderRadius: 10, width: width, height: 210, backgroundColor: colors.background}}>
-                            <View style={ commonStyles.rightButtonContainer }>
+                        <View style={{ borderRadius: 10, width: width * 0.95, height: 180, backgroundColor: colors.background}}>
+                            <TouchableOpacity style={ commonStyles.rightButtonContainer }
+                                onPress={ () => setModalButtons({
+                                    ...modalButtons,
+                                    sendEmail: !modalButtons.sendEmail
+                                }) }
+                            >
                                 <Icon
-                                    onPress={ () => setModalButtons({
-                                        ...modalButtons,
-                                        sendEmail: !modalButtons.sendEmail
-                                    }) }
                                     name="close-circle"
                                     color={ colors.primary }
                                     size={ 30}
                                 />
-                            </View>
+                            </TouchableOpacity>
                             <View style={{ marginLeft: 10, marginBottom: 20 }}>
-                                <Text style={{ marginLeft: 5, fontWeight: 'bold' }}>{ t( 'resEscribaCorreo' ) }</Text>
+                                <DynamicText headline black style={{ marginLeft: 5 }}>{ t( 'resEscribaCorreo' ) }</DynamicText>
                                 <TextInput 
                                     placeholderTextColor="#666666"
                                     underlineColorAndroid={ colors.primary }
-                                    style={{ ...commonStyles.textInput, fontSize: 20,  marginTop: 8}}
+                                    style={{ ...commonStyles.textInput, fontSize: 18,  marginTop: 8, fontFamily: 'Raleway-Regular'}}
                                     placeholder="email@email.com"
                                     onChangeText={ ( value ) => onChange( value, 'email' ) }
                                     value={ email }
@@ -404,10 +407,11 @@ export const MenuActivity = ({ activitie, isSentEmail, expenses, isSendLegalized
                                         colors={[colors.primary, secondary]}
                                         style={{ 
                                             ...commonStyles.rightButton,
+                                            height: 40,
                                             flexDirection: 'row'
                                         }}
                                     >
-                                        <Text style={{ ...commonStyles.buttonText, color: buttonText }}>{ t( 'resEnviar' ) }</Text>
+                                        <DynamicText style={{ ...commonStyles.buttonText, color: buttonText }}>{ t( 'resEnviar' ) }</DynamicText>
                                     </LinearGradient>
                                 </TouchableOpacity>
                             </View>

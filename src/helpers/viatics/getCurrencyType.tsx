@@ -1,4 +1,4 @@
-import { CurrencyTypes } from "../../classes/viatics/CurrencyTypes";
+import { CurrencyTypes } from "../../model/classes/viatics/CurrencyTypes";
 
 
 export const getCurrencyType = () => {

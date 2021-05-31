@@ -11,9 +11,10 @@ export const registerExpenseStyles = StyleSheet.create({
         justifyContent: 'center'
     },
     textInput: {
-        fontSize: 18,
+        fontSize: 15,
         paddingTop: 20,
-        paddingLeft: 20
+        paddingLeft: 20,
+        fontFamily: 'Raleway-Regular'
     },
     buttonSave: {
         width: 200,

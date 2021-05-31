@@ -22,10 +22,10 @@ export const activitiesStyles = StyleSheet.create({
         flexDirection: 'row'
     },
     activityState: {
-        width: 150, 
-        paddingTop: 6.6, 
-        paddingBottom: 6.6, 
-        borderTopRightRadius: 10, 
+        maxWidth: 130, 
+        padding: 6.6,
+        borderRadius: 5,
+        maxHeight: 25
     }
 
 })

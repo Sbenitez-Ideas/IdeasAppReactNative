@@ -8,7 +8,7 @@ import { Text } from 'react-native-animatable';
 import { ThemeContext } from '../../contexts/theme/ThemeContext';
 import { getHomeViaticsMenu } from '../../helpers/viatics/getHomeViaticsMenu';
 import { commonStyles } from '../../styles/commonStyles';
-import { MenuInfo } from '../../interfaces/common/MenuInfo';
+import { MenuInfo } from '../../model/interfaces/common/MenuInfo';
 import { AuthContext } from '../../contexts/auth/AuthContext';
 import Toast from 'react-native-toast-message';
 
@@ -33,7 +33,6 @@ export const HomeViaticsScreen = ({ navigation }: Props ) => {
                         type: 'info',
                         visibilityTime: 2000,
                         props: { height: 100 }
-                        
                     });
                 }
             } else {

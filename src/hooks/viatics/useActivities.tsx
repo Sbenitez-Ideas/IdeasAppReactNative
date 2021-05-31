@@ -1,13 +1,13 @@
 import { useEffect, useState, useContext } from 'react';
-import { ExpenseActivitiesRS } from '../../interfaces/viatics/ExpenseActivitiesRS';
-import { ExpenseActivitiesRQ } from '../../classes/viatics/ExpenseActivitiesRQ';
+import { ExpenseActivitiesRS } from '../../model/interfaces/viatics/ExpenseActivitiesRS';
+import { ExpenseActivitiesRQ } from '../../model/classes/viatics/ExpenseActivitiesRQ';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { consolidatorApi } from '../../api/consolidatorApi';
 import { ConfigContext } from '../../contexts/config/ConfigContext';
 import axios from 'axios';
 import authApi from '../../api/authApi';
 import { AuthContext } from '../../contexts/auth/AuthContext';
-import { GActivities } from '../../interfaces/viatics/GActivities';
+import { GActivities } from '../../model/interfaces/viatics/GActivities';
 
 
 
@@ -69,7 +69,7 @@ export const useActivities = ( type: 'allActivities' |  'pendingLegalize' | 'pen
                     const dateStart: Date = new Date( dataFilter?.dateStart as string );
                     const dateEnd: Date = new Date( dataFilter?.dateEnd as string );
 
-                if ( dataFilter?.dateStart !== '' && dataFilter?.dateEnd !== '' && dataFilter?.dateStart !== '' ) {
+                if ( dataFilter?.dateStart !== '' && dataFilter?.dateEnd !== '' && dataFilter?.state !== '' ) {
                     return response = response.filter( a => (new Date(a.DateSta) >=  dateStart)  && (new Date(a.DateEnd) <= dateEnd)  && a.State === dataFilter?.state )
                     
                 } else if ( dataFilter?.dateStart !== '' && dataFilter?.dateEnd !== '' ) {

@@ -1,8 +1,8 @@
 import React, { createContext,useReducer } from "react";
 import { configReducer, configState } from './configReducer';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { IFTPEndPointRQ } from "../../interfaces/auth/IFTPEndPointRQ";
-import { IFTPEndPointRS } from "../../interfaces/auth/IFTPEndPointRS";
+import { IFTPEndPointRQ } from "../../model/interfaces/auth/IFTPEndPointRQ";
+import { IFTPEndPointRS } from "../../model/interfaces/auth/IFTPEndPointRS";
 import authApi from "../../api/authApi";
 
 type ConfigContextProps = {
@@ -25,6 +25,8 @@ export const ConfigProvider = ({ children }: any) => {
     const getEndpointData = async(request: IFTPEndPointRQ) => {
         try {
             const { data } = await authApi.post<IFTPEndPointRS>('', request);
+            /* use Temporally */
+            data.AppEndPoint.EndPoint = 'https://serv-rest.kontroltravel.com';
             dispatch({ 
                 type: 'getEndpointData',
                 payload: {

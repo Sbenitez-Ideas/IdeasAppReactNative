@@ -5,22 +5,26 @@ import { View } from 'react-native-animatable';
 import { StackScreenProps } from '@react-navigation/stack';
 import { RootStackParams } from '../../navigator/Navigator';
 import { SearchBar } from 'react-native-elements';
-import { Platform, Text } from 'react-native';
+import { Platform, Text, StyleSheet } from 'react-native';
 import { FlatList, TouchableOpacity } from 'react-native-gesture-handler';
-import { ExpenseActivitiesRQ } from '../../classes/viatics/ExpenseActivitiesRQ';
+import { ExpenseActivitiesRQ } from '../../model/classes/viatics/ExpenseActivitiesRQ';
 import { AuthContext } from '../../contexts/auth/AuthContext';
 import * as Animatable from 'react-native-animatable';
 import { useActivities } from '../../hooks/viatics/useActivities';
 import { viaticsApi } from '../../api/viaticsApi';
-import { ExpenseActivitiesRS } from '../../interfaces/viatics/ExpenseActivitiesRS';
-import { GActivities } from '../../interfaces/viatics/GActivities';
-import { CategoriesEntity } from '../../classes/viatics/CategoriesEntity';
-import { ExpenseCategories } from '../../classes/viatics/ExpenseCategories';
+import { ExpenseActivitiesRS } from '../../model/interfaces/viatics/ExpenseActivitiesRS';
+import { GActivities } from '../../model/interfaces/viatics/GActivities';
+import { CategoriesEntity } from '../../model/classes/viatics/CategoriesEntity';
+import { ExpenseCategories } from '../../model/classes/viatics/ExpenseCategories';
 import { getCurrencyType } from '../../helpers/viatics/getCurrencyType';
-import { CurrencyTypes } from '../../classes/viatics/CurrencyTypes';
-import { ExpenseEstablishmentRQ } from '../../classes/viatics/ExpenseEstablishmentRQ';
-import { Establishment } from '../../classes/viatics/Establishment';
+import { CurrencyTypes } from '../../model/classes/viatics/CurrencyTypes';
+import { ExpenseEstablishmentRQ } from '../../model/classes/viatics/ExpenseEstablishmentRQ';
+import { Establishment } from '../../model/classes/viatics/Establishment';
 import { useTranslation } from 'react-i18next';
+import { Header } from './Header';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { faArrowLeft, faSearch, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { ThemeContext } from '../../contexts/theme/ThemeContext';
 
 interface Props extends StackScreenProps<RootStackParams, 'AutoCompleteSearch'> {};
 
@@ -29,6 +33,7 @@ export const AutoCompleteSearch = ({ route, navigation }: Props) => {
     const [items, setItems] = useState<GActivities[] | ExpenseCategories[] | CurrencyTypes[] | Establishment[]>([]);
     const { getActivities, getCategories, getEstablishments } = viaticsApi();
     const { userData: { IDEntityDefault, IDUser } } = useContext( AuthContext );
+    const {theme:{ colors, fieldColor } } = useContext( ThemeContext );
 
     const getOS = (): 'android' | 'ios' => {
         if (Platform.OS === 'android') {
@@ -185,7 +190,28 @@ export const AutoCompleteSearch = ({ route, navigation }: Props) => {
 
     return (
         <>
+            <Header 
+                title={ 'Búsqueda de Actividades'}
+                onPressLeft={ () => {
+                    navigation.goBack()
+                } }
+                renderLeft={ () => {
+                    return (
+                        <FontAwesomeIcon 
+                            icon={ faTimes }
+                            size={ 20 }
+                            color={ colors?.primary }
+                        />
+                    )
+                } }
+
+            />
+
             <SearchBar
+                containerStyle={{ ...styles.text, backgroundColor: fieldColor, width: '90%', alignSelf: 'center' }}
+                inputStyle={{ fontFamily: 'Raleway-Regular' }}
+                searchIcon={{ color: colors.primary }}
+                clearIcon={{ color: colors.primary }}
                 platform={ getOS() }
                 placeholder={ t( 'resDigiteTresLetras' ) }
                 onChangeText={ ( value ) => setSearchData({
@@ -214,8 +240,8 @@ export const AutoCompleteSearch = ({ route, navigation }: Props) => {
                                         }) }
                                     >
                                         <Text
-                                            style={{ 
-                                                fontSize: 20,
+                                            style={{
+                                                ...styles.text
                                             }}
                                         > 
                                             { item.Description } 
@@ -231,7 +257,7 @@ export const AutoCompleteSearch = ({ route, navigation }: Props) => {
                                     >
                                         <Text
                                             style={{ 
-                                                fontSize: 20,
+                                                ...styles.text
                                             }}
                                         > 
                                             { item.Name } 
@@ -247,7 +273,7 @@ export const AutoCompleteSearch = ({ route, navigation }: Props) => {
                                     >
                                         <Text
                                             style={{ 
-                                                fontSize: 20,
+                                                ...styles.text
                                             }}
                                         > 
                                             { item.label } 
@@ -263,7 +289,7 @@ export const AutoCompleteSearch = ({ route, navigation }: Props) => {
                                     >
                                         <Text
                                             style={{ 
-                                                fontSize: 20,
+                                                ...styles.text
                                             }}
                                         > 
                                             { item.Name } 
@@ -279,3 +305,12 @@ export const AutoCompleteSearch = ({ route, navigation }: Props) => {
         </>
     )
 }
+
+
+const styles = StyleSheet.create({
+    text: {
+        fontFamily: 'Raleway-Regular',
+        marginTop: 10, 
+        fontSize: 18
+    }
+})

@@ -2,13 +2,13 @@ import React, { createContext, useContext, useReducer, useState } from "react";
 import { authReducer, AuthState } from "./AuthReducer";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import authApi from '../../api/authApi';
-import { AuthenticateResponse } from "../../interfaces/auth/AuthenticateResponse";
-import { UserCredentials } from "../../interfaces/auth/UserCredentials";
+import { AuthenticateResponse } from "../../model/interfaces/auth/AuthenticateResponse";
+import { UserCredentials } from "../../model/interfaces/auth/UserCredentials";
 import { ConfigContext } from '../config/ConfigContext';
-import { IFTPEndPointRS } from '../../interfaces/auth/IFTPEndPointRS';
-import { EndPointApp } from '../../interfaces/auth/EndPointApp';
-import { CustomUserSession } from '../../interfaces/auth/CustomUserSession';
-import { EntityParams } from "../../interfaces/common/EntityParams";
+import { IFTPEndPointRS } from '../../model/interfaces/auth/IFTPEndPointRS';
+import { EndPointApp } from '../../model/interfaces/auth/EndPointApp';
+import { CustomUserSession } from '../../model/interfaces/auth/CustomUserSession';
+import { EntityParams } from "../../model/interfaces/common/EntityParams";
 import Toast from 'react-native-toast-message';
 
 type AuthContextProps = {
@@ -226,7 +226,6 @@ export const AuthProvider = ({ children }: any) => {
     }
 
     const signIn = async( request: UserCredentials ) => {
-        console.log('entro context');
         const enpointData = await getEnpointData();
         const tokenUrl = enpointData.AppEndPoint.EndPoint + '/auth/credentials';
         try {
@@ -241,7 +240,6 @@ export const AuthProvider = ({ children }: any) => {
     };
 
     const getUserInfo = async( url: string, dataAuth: AuthenticateResponse ) => {
-        console.log('entra getUserInfo');
         const config = {
             headers: {
                 'Content-Type': 'application/json',
@@ -255,7 +253,7 @@ export const AuthProvider = ({ children }: any) => {
                 text1: 'Bienvenido!',
                 text2: `${ data.CurrentUserSession.FirstName } ${ data.CurrentUserSession.LastName }`,
                 type: 'info',
-                visibilityTime: 2000,
+                visibilityTime: 1000,
             });
             dispatch({ type: 'signUp', payload: {
                 token: dataAuth.BearerToken,

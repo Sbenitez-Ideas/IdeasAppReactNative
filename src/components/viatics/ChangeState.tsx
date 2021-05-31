@@ -7,17 +7,19 @@ import { ActivityIndicator, Dimensions, FlatList, StyleSheet, Text, TextInput, T
 import LinearGradient from 'react-native-linear-gradient';
 import { loginStyles } from '../../styles/loginStyles';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { GExpenses } from '../../interfaces/viatics/GExpenses';
+import { GExpenses } from '../../model/interfaces/viatics/GExpenses';
 import { activitiesStyles } from '../../styles/activitiesStyles';
 import NumberFormat from 'react-number-format';
 import { setStateColor } from '../../helpers/viatics/setStateColor';
 import Moment from 'moment';
 import { setStateActivity } from '../../helpers/viatics/setStateActivity';
 import { getTotalExpense } from '../../helpers/viatics/getTotalExpense';
-import { ExpensesSaveRQ } from '../../interfaces/viatics/ExpensesSaveRQ';
+import { ExpensesSaveRQ } from '../../model/interfaces/viatics/ExpensesSaveRQ';
 import { viaticsApi } from '../../api/viaticsApi';
 import Toast from 'react-native-toast-message';
 import { useTranslation } from 'react-i18next';
+import { DynamicText } from '../common/DynamicText';
+import { useFont } from '../../hooks/common/useFont';
 
 interface Props {
     showHandle: ( status?: string ) => void;
@@ -25,12 +27,12 @@ interface Props {
     expensesSelected: GExpenses[];
     status: string;
     idApprover: number;
-    isSendLegalized: ( legalized: boolean ) => void;
+    isSendLegalized: ( legalized: boolean, status: string ) => void;
 }
 
 export const ChangeState = ({ showHandle, show, expensesSelected, status, idApprover, isSendLegalized }: Props) => {
     const { t } = useTranslation();
-    const { theme: { colors, secondary } } = useContext( ThemeContext );
+    const { theme: { colors, secondary, fieldColor } } = useContext( ThemeContext );
     const [sendLegalized, setSendLegalized] = useState(false);
     const { saveExpenses } = viaticsApi();
     const [changeStateOptions, setChangeStateOptions] = useState({
@@ -39,7 +41,7 @@ export const ChangeState = ({ showHandle, show, expensesSelected, status, idAppr
         error: ''
     })
     const { width } = Dimensions.get('window');
-
+    const { semibold } = useFont();
     const approveNote = ( value: string, id: number ) => {
         const tempData = expensesSelected;
         tempData[ id ].LegalizeNote = value;
@@ -88,10 +90,6 @@ export const ChangeState = ({ showHandle, show, expensesSelected, status, idAppr
                         type: 'error',
                         visibilityTime: 2000,
                     });
-                    /* this.errorMessage = 'La justificacion del aprobador del gasto: ' + row.Description +
-                    ' no ha sido llenada.';
-                    this.showAlert = true;
-                    setTimeout(() => { this.showAlert = false; }, 3400); */
                 }
                 else  {
                     expensesCount = expensesCount + 1;
@@ -100,7 +98,7 @@ export const ChangeState = ({ showHandle, show, expensesSelected, status, idAppr
             if (expensesCount === expensesSelected.length) {
                 canChangeState = true;
             }
-        }
+        }  
         else {
             canChangeState = true;
         }
@@ -118,14 +116,13 @@ export const ChangeState = ({ showHandle, show, expensesSelected, status, idAppr
             request.Data.forEach(row =>{
                 row.State = status
             });
-
             saveExpenses( request )
                 .then(( response ) => {
                     if (response.Success) {
                         setSendLegalized( false );
-                        isSendLegalized( response.Success )
+                        isSendLegalized( response.Success, status )
                     } else {
-                        isSendLegalized( false );
+                        isSendLegalized( false, status );
                     }
                     showHandle()
                 })
@@ -148,7 +145,7 @@ export const ChangeState = ({ showHandle, show, expensesSelected, status, idAppr
                             />
                         </View>
                         <View>
-                        <Text style={{ 
+                        <DynamicText fontFamily={ semibold } style={{ 
                             ...commonStyles.title,
                             marginTop: 0,
                             color: colors.primary,
@@ -156,8 +153,8 @@ export const ChangeState = ({ showHandle, show, expensesSelected, status, idAppr
                             marginBottom: 10
                         }}>
                             { changeStateOptions.title }
-                        </Text>
-                        <Text style={{ 
+                        </DynamicText>
+                        <DynamicText style={{ 
                             ...commonStyles.title,
                             marginTop: 0,
                             color: colors.primary,
@@ -165,58 +162,58 @@ export const ChangeState = ({ showHandle, show, expensesSelected, status, idAppr
                             marginBottom: 10
                         }}>
                             { changeStateOptions.subtitle }
-                        </Text>
+                        </DynamicText>
                         </View>
                         <View style={{  flex: 1, marginTop: 20, bottom: 10, }}>
                         <FlatList 
                                 data={ expensesSelected }
                                 keyExtractor={ ( item: GExpenses )  => item.IDExpense}
                                 renderItem={ ({ item, index }) => (
-                                    <View style={{ marginTop: 10, paddingBottom: 5,  borderWidth: 2,  borderColor: colors.primary, borderBottomLeftRadius: 10, borderBottomRightRadius: 10, borderTopLeftRadius: 10, borderTopRightRadius: 10 }}>
+                                    <View style={{  ...styles.expenseContainer, backgroundColor: fieldColor }}>
                                         <View style={{  ...activitiesStyles.dataContainer, }}>
-                                            <Text style={{color: colors.text, fontWeight: 'bold'}}>{ t( 'resConceptoGasto' ) }:  </Text>
-                                            <Text style={{color: colors.text}}>{ item.Description }</Text>
+                                            <DynamicText fontFamily={ semibold } style={{color: colors.text, fontWeight: 'bold'}}>{ t( 'resConceptoGasto' ) }:  </DynamicText>
+                                            <DynamicText style={{color: colors.text}}>{ item.Description }</DynamicText>
                                         </View>
                                         <View style={{ ...activitiesStyles.dataContainer }}>
-                                            <Text style={{color: colors.text, fontWeight: 'bold'}}>{ t( 'resFecha' ) }:  </Text>
+                                            <DynamicText fontFamily={ semibold } style={{color: colors.text, fontWeight: 'bold'}}>{ t( 'resFecha' ) }:  </DynamicText>
                                             <Text style={{color: colors.text}}>{ Moment( item.Date ).format('ll')  }</Text>
                                         </View>
                                         <View style={{ ...activitiesStyles.dataContainer }}>
-                                            <Text style={{color: colors.text, fontWeight: 'bold'}}>{ t( 'resEstado' ) }:  </Text>
+                                            <DynamicText fontFamily={ semibold } style={{color: colors.text, fontWeight: 'bold'}}>{ t( 'resEstado' ) }:  </DynamicText>
                                             <View style={{ 
                                                 backgroundColor: setStateColor(item.State),
                                                 ...styles.stateContainer
                                             }}>
-                                                <Text style={{ ...styles.stateTitle,  color: 'white' }}>{ setStateActivity(item.State) }</Text>
+                                                <DynamicText style={{ ...styles.stateTitle,  color: 'white' }}>{ t( setStateActivity(item.State) ) }</DynamicText>
                                             </View>
                                         </View>
                                         <View style={{ ...activitiesStyles.dataContainer }}>
-                                            <Text style={{color: colors.text, fontWeight: 'bold'}}>{ t( 'resVImpuestos' ) }:  </Text>
+                                            <DynamicText fontFamily={ semibold } style={{color: colors.text, fontWeight: 'bold'}}>{ t( 'resVImpuestos' ) }:  </DynamicText>
                                             <NumberFormat value={ item.TaxValue } displayType={'text'} thousandSeparator={true} prefix={'$'} 
                                                 renderText={
-                                                    value => <Text>{ value }</Text>
+                                                    value => <DynamicText>{ value }</DynamicText>
                                                 } 
                                             />
                                         </View>
                                         <View style={{ ...activitiesStyles.dataContainer }}>
-                                            <Text style={{color: colors.text, fontWeight: 'bold'}}>{ t( 'resVPropina' ) }:  </Text>
+                                            <DynamicText fontFamily={ semibold } style={{color: colors.text, fontWeight: 'bold'}}>{ t( 'resVPropina' ) }:  </DynamicText>
                                             <NumberFormat value={ item.TipValue } displayType={'text'} thousandSeparator={true} prefix={'$'} 
                                                 renderText={
-                                                    value => <Text>{ value }</Text>
+                                                    value => <DynamicText>{ value }</DynamicText>
                                                 } 
                                             /> 
                                         </View>
                                         <View style={{ ...activitiesStyles.dataContainer }}>
-                                            <Text style={{color: colors.text, fontWeight: 'bold'}}>{ t( 'resTotalGastos' ) }:  </Text>
+                                            <DynamicText fontFamily={ semibold } style={{color: colors.text, fontWeight: 'bold'}}>{ t( 'resTotalGastos' ) }:  </DynamicText>
                                             <NumberFormat value={ getTotalExpense( item ) } displayType={'text'} thousandSeparator={true} prefix={'$'} 
                                                 renderText={
-                                                    value => <Text>{ value }</Text>
+                                                    value => <DynamicText>{ value }</DynamicText>
                                                 } 
                                             /> 
                                         </View>
                                         { status === 'J' &&
                                             <View style={{ ...activitiesStyles.dataContainer }}>
-                                                <Text style={{color: colors.text, fontWeight: 'bold'}}>{ t( 'resNotaAprobador' ) }:  </Text>
+                                                <DynamicText style={{color: colors.text, fontWeight: 'bold'}}>{ t( 'resNotaAprobador' ) }:  </DynamicText>
                                                 <TextInput 
                                                     placeholder={ t( 'resEscribeNota' ) }
                                                     style={{ width: '70%', bottom: 15 }} 
@@ -240,9 +237,9 @@ export const ChangeState = ({ showHandle, show, expensesSelected, status, idAppr
                                         colors={[colors.primary, secondary]}
                                         style={ styles.buttons }
                                     >
-                                        <Text style={[loginStyles.textSign, {
+                                        <DynamicText fontFamily={ semibold } style={[loginStyles.textSign, {
                                             color:'#fff'
-                                        }]}>{ t( 'resConfirmar' ) }</Text>
+                                        }]}>{ t( 'resConfirmar' ) }</DynamicText>
                                     </LinearGradient>
                                 </TouchableOpacity>
                                 <TouchableOpacity 
@@ -252,9 +249,9 @@ export const ChangeState = ({ showHandle, show, expensesSelected, status, idAppr
                                         colors={[colors.primary, secondary]}
                                         style={ styles.buttons }
                                     >
-                                        <Text style={[loginStyles.textSign, {
+                                        <DynamicText fontFamily={ semibold } style={[loginStyles.textSign, {
                                             color:'#fff'
-                                        }]}>{ t( 'resCancelar' ) }</Text>
+                                        }]}>{ t( 'resCancelar' ) }</DynamicText>
                                     </LinearGradient>
                                 </TouchableOpacity>
                             </View>
@@ -306,4 +303,11 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         borderRadius: 10
     },
+    expenseContainer: {
+        marginTop: 10, 
+        paddingBottom: 5, 
+        width: '97%', 
+        alignSelf: 'center',
+        borderRadius: 10,
+    }
 })

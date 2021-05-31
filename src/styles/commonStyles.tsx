@@ -59,11 +59,9 @@ export const commonStyles = StyleSheet.create({
         marginTop: 50
     },
     buttonText: {
-        fontSize: 18,
-        fontWeight: 'bold'
+        fontSize: 15,
     },
     entireButton: {
-        height: 50,
         justifyContent: 'center',
         alignItems: 'center',
         borderRadius: 10
@@ -85,10 +83,11 @@ export const commonStyles = StyleSheet.create({
         justifyContent: "flex-end"
     },
     smallButton: {
-        height: 30,
+        height: 20,
         justifyContent: 'center',
+        padding: 1,
         alignItems: 'center',
-        borderRadius: 10
+        borderRadius: 5
     },
     icon: {
         width: 40,
@@ -110,5 +109,29 @@ export const commonStyles = StyleSheet.create({
         alignItems: 'center',
         borderRadius: 10
     },
+    dataContainer: {
+        flexDirection: 'row',
+        marginTop: 5
+    },
+    infoExpense: {
+        fontSize: 15,
+    },
+    stateContainer: {
+        maxWidth: 130, 
+        padding: 6.6,
+        borderRadius: 5,
+        maxHeight: 35,
+    },
+    basicCard: {
+        justifyContent: 'space-between', 
+        flexDirection: 'row'
+    },
+    reviewContainer: {
+        marginTop: 10, 
+        paddingBottom: 10, 
+        width: '97%', 
+        alignSelf: 'center', 
+        borderRadius: 10
+    }
 
 });

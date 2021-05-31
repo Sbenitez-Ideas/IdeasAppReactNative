@@ -1,4 +1,4 @@
-import { GExpenses } from '../../interfaces/viatics/GExpenses';
+import { GExpenses } from '../../model/interfaces/viatics/GExpenses';
 
 
 export const getTotalExpense =  (data: GExpenses) => {

@@ -1,8 +1,8 @@
 import React ,{ createContext } from "react";
 import { useReducer } from 'react';
 import { useEnpointInfo } from "../../hooks/common/useEnpointInfo";
-import { ExpenseActivitiesRQ } from "../../interfaces/viatics/ExpenseActivitiesRQ";
-import { ExpenseActivitiesRS } from "../../interfaces/viatics/ExpenseActivitiesRS";
+import { ExpenseActivitiesRQ } from "../../model/interfaces/viatics/ExpenseActivitiesRQ";
+import { ExpenseActivitiesRS } from "../../model/interfaces/viatics/ExpenseActivitiesRS";
 import { activitiesReducer } from "./ActivitiesReducer";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getHeader } from '../../helpers/common/getHeaders';

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { CustomUserSession } from '../../interfaces/auth/CustomUserSession';
-import { EntityParams } from '../../interfaces/common/EntityParams';
+import { CustomUserSession } from '../../model/interfaces/auth/CustomUserSession';
+import { EntityParams } from '../../model/interfaces/common/EntityParams';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 

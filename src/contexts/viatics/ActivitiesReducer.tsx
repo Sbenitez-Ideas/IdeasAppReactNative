@@ -1,4 +1,4 @@
-import { ExpenseActivitiesRS } from "../../interfaces/viatics/ExpenseActivitiesRS";
+import { ExpenseActivitiesRS } from "../../model/interfaces/viatics/ExpenseActivitiesRS";
 
 
 export interface ActivitiesState {

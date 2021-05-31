@@ -1,102 +1,116 @@
-import React, { useContext } from 'react';
-import { View, StyleSheet, Text, TouchableOpacity, Image } from 'react-native';
+import React, { useContext, useEffect, useState } from 'react';
+import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import { ThemeContext } from '../../contexts/theme/ThemeContext';
-import Icon from 'react-native-vector-icons/Ionicons';
-import { StackScreenProps } from '@react-navigation/stack';
 import * as RootNavigation from '../../navigator/RootNavigation';
 import { useTranslation } from 'react-i18next';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { faCheckSquare, faForward, faPhoneSquare, faPlane, faUsers } from '@fortawesome/free-solid-svg-icons';
 
-export const BottomMenu = () => {
 
-    const { theme: { colors, secondary, buttonText } } = useContext( ThemeContext );
+interface Props {
+    stateScreen: any
+}
+
+export const BottomMenu = ({stateScreen: {routes}}: Props) => {
+    const { theme: { colors, grayColor } } = useContext( ThemeContext );
     const { t } = useTranslation();
-    
+    const [screenName, setScreenName] = useState('');
+    const [bookingParam, setBookingParam] = useState('');
+    useEffect(() => {
+        setScreenName( routes[ routes.length - 1 ].name );    
+        setBookingParam( routes[ routes.length - 1 ].params?.type );
+    }, [routes[ routes.length - 1 ].name, routes[ routes.length - 1 ].params?.type], )
+
     return (
         <View style={{
 
             position: 'absolute',
-            backgroundColor: colors.primary,
+            backgroundColor: colors.background,
+            borderWidth: .5,
+            borderTopColor: '#9B9B9B' ,
             bottom: 0,
             width: '100%',
             height: 50,
             flexDirection: 'row',
-            borderTopRightRadius: 30,
-            borderTopLeftRadius: 30,
             justifyContent: 'space-between',
             paddingVertical: 10,
-            paddingHorizontal: 25
-
-
+            paddingHorizontal: 25,
+            borderTopLeftRadius: 5,
+            borderTopRightRadius: 5
         }}>
 
-            <TouchableOpacity style={{flexDirection: 'column', alignItems: 'center', justifyContent: 'center'}}>
-                <Icon 
-                    name="airplane-outline"
-                    color={ buttonText }
-                    size={30}
+            <TouchableOpacity style={ styles.container }
+                onPress={ () => RootNavigation.navigate( 'MyServicesScreen') }
+            >
+                <FontAwesomeIcon 
+                    icon={ faPlane }
+                    color={ ( screenName === 'MyServicesScreen') ? colors.primary : grayColor }
+                    size={20}
                 />
                     <Text style={{ 
                 ...styles.textMenus,
-                color: buttonText
-            }}>{ t('resMisViajes') }</Text>
-            </TouchableOpacity>
-        
-            <TouchableOpacity style={{
-            flexDirection: 'column', alignItems: 'center', justifyContent: 'center'
-            }}>
-                <Icon 
-                    name="checkbox-outline"
-                    color={ buttonText }
-                    size={30}
-                />
-                <Text style={{ 
-                    ...styles.textMenus,
-                    color: buttonText
-                }}>{ t('resAprobaciones') }</Text>
+                color: ( screenName === 'MyServicesScreen') ?  colors.primary : grayColor
+            }}>{ /* t('resViajes') */ 'Mis servicios' }</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={{
-                flexDirection: 'column', alignItems: 'center', justifyContent: 'center'
-            }}>
-                <Icon 
-                    name="people-outline"
-                    color={ buttonText }
-                    size={30}
+            <TouchableOpacity 
+                style={ styles.container }
+                onPress={ () => RootNavigation.navigate('BookingListScreen', { type: 'others'}) }
+            >
+                <FontAwesomeIcon 
+                    icon={ faUsers }
+                    color={ ( screenName === 'BookingListScreen' && bookingParam === 'others' ) ? colors.primary : grayColor }
+                    size={20}
                 />
                 <Text style={{ 
                     ...styles.textMenus,
-                    color: buttonText
-                }}>{ t('resTerceros') }</Text>
+                    color: ( screenName === 'BookingListScreen' && bookingParam === 'others' ) ?  colors.primary : grayColor
+                }}>{ /* t('resTerceros') */  'Solicitudes' }</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+                style={ styles.container }
+                onPress={ () => RootNavigation.navigate('BookingListScreen', { type: 'approver'}) }
+            >
+                <FontAwesomeIcon 
+                    icon={ faCheckSquare }
+                    color={ ( screenName === 'BookingListScreen' && bookingParam === 'approver' ) ? colors.primary : grayColor }
+                    size={20}
+                />
+                <Text style={{ 
+                    ...styles.textMenus,
+                    color: ( screenName === 'BookingListScreen' && bookingParam === 'approver' ) ?  colors.primary : grayColor
+                }}
+                >{ t('resAprobacion') }</Text>
             </TouchableOpacity>
                 
-        
-            <TouchableOpacity style={{
-                flexDirection: 'column', alignItems: 'center', justifyContent: 'center'
-            }}>
-                <Icon 
-                    name="call-outline"
-                    color={ buttonText }
-                    size={30}
+            {/* <TouchableOpacity 
+                onPress={ () => RootNavigation.navigate('Chat')  }
+                style={ styles.container }
+            >
+                <FontAwesomeIcon 
+                    icon={ faPhoneSquare }
+                    color={ ( screenName === 'Chat') ? colors.primary : grayColor }
+                    size={20}
                 />
                 <Text style={{ 
                     ...styles.textMenus,
-                    color: buttonText
-                }}>{ t('resAyuda') }</Text>
-            </TouchableOpacity>
+                    color: ( screenName === 'Chat') ?  colors.primary : grayColor
+                }}>{ 'Chat' }</Text>
+            </TouchableOpacity> */}
 
             <TouchableOpacity
                 onPress={ () => RootNavigation.navigate('HomeScreen') } 
-                style={{
-                flexDirection: 'column', alignItems: 'center', justifyContent: 'center'
-            }}>
-                    <Icon 
-                        name="play-forward-outline"
-                        color={ buttonText }
-                        size={30}
+                style={ styles.container }
+            >
+                    <FontAwesomeIcon 
+                        icon={ faForward }
+                        color={ ( screenName === 'HomeScreen' ) ?  colors.primary : grayColor }
+                        size={20}
                     />
                 <Text style={{ 
                     ...styles.textMenus,
-                    color: buttonText
+                    color: ( screenName === 'HomeScreen' ) ?  colors.primary : grayColor
                 }}>{ t('resMenu') }</Text>
             </TouchableOpacity>
 
@@ -107,7 +121,7 @@ export const BottomMenu = () => {
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
+        flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center'
     },
@@ -126,6 +140,6 @@ const styles = StyleSheet.create({
     textMenus: {
         justifyContent:'center',
         alignItems:'center',
-        fontWeight: 'bold'
+        fontFamily: 'Raleway-Regular'
     }
 })

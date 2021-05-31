@@ -12,6 +12,8 @@ import { AuthContext } from '../contexts/auth/AuthContext';
 import Toast from 'react-native-toast-message';
 import i18n from "i18next";
 import { useTranslation, initReactI18next } from "react-i18next";
+import { DynamicText } from '../components/common/DynamicText';
+import { useFont } from '../hooks/common/useFont';
 
 
 
@@ -20,9 +22,10 @@ interface Props extends StackScreenProps<any, any>{};
 export const LoginScreen = ({ navigation }: Props ) => {
     
     const { t } = useTranslation();
+    const { semibold, regular } = useFont()
     const { width } = Dimensions.get('window');
     const { signIn, errorMessage, removeError } = useContext( AuthContext );
-    const { theme: { colors, secondary } } = useContext( ThemeContext );
+    const { theme: { colors, secondary, grayColor } } = useContext( ThemeContext );
     const [loading, setLoading] = useState(false);
     const [data, setData] = useState({
         UserName: '',
@@ -111,6 +114,7 @@ export const LoginScreen = ({ navigation }: Props ) => {
                     Password: '',
                     isValidPassword: false
                 });
+                setLoading( !loading );
             }
         }
         else {
@@ -120,6 +124,7 @@ export const LoginScreen = ({ navigation }: Props ) => {
                 check_textInputChange: false,
                 isValidUser: false
             });
+            setLoading( !loading );
         }
     }
 
@@ -130,26 +135,28 @@ export const LoginScreen = ({ navigation }: Props ) => {
         }}>
             <StatusBar backgroundColor={ colors.primary } barStyle="light-content"/>
             <View style={loginStyles.header}>
-                <Text style={loginStyles.text_header}>{ t('resBienvenido') }!</Text>
+                <DynamicText fontFamily={ semibold } style={loginStyles.text_header}>{ t('resBienvenido') }!</DynamicText>
             </View>
             <Animatable.View 
                 animation="fadeInUpBig"
                 style={[loginStyles.footer, {
                 backgroundColor: colors.background
                 }]}>
-                <Text style={[loginStyles.text_footer, {
+                <DynamicText fontFamily={ semibold } style={[loginStyles.text_footer, {
                     color: colors.text
-                }]}>{ t( 'resUsuario' ) }</Text>
+                }]}>{ t( 'resUsuario' ) }</DynamicText>
                 <View style={loginStyles.action}>
                     <Icon 
                         name="person-outline"
                         color={colors.text}
                         size={20} />
-                    <TextInput 
+                    <TextInput
+                        
                         placeholder={ t( 'resIngresaUsuario' ) }
-                        placeholderTextColor="#666666"
+                        placeholderTextColor={ grayColor }
                         style={[loginStyles.textInput, {
-                            color: colors.text
+                            color: colors.text,
+                            fontFamily:  regular
                         }]}
 
                         onChangeText={ (val) => textInputChange(val) }
@@ -168,14 +175,14 @@ export const LoginScreen = ({ navigation }: Props ) => {
                 </View>
                 { data.isValidUser ? null : 
                     <Animatable.View animation="fadeInLeft" duration={ 500 }>
-                        <Text style={loginStyles.errorMsg}>{ t( 'resIngresaUsuario' ) }</Text>
+                        <DynamicText style={loginStyles.errorMsg}>{ t( 'resIngresaUsuario' ) }</DynamicText>
                     </Animatable.View>
                 }
                
-                <Text style={[loginStyles.text_footer, {
+                <DynamicText fontFamily={ semibold }  style={[loginStyles.text_footer, {
                     color: colors.text,
                     marginTop: 35
-                }]}>{ t( 'resContraseña' ) }</Text>
+                }]}>{ t( 'resContraseña' ) }</DynamicText>
                 <View style={loginStyles.action}>
                     <Icon 
                         name="lock-closed-outline"
@@ -183,9 +190,9 @@ export const LoginScreen = ({ navigation }: Props ) => {
                         size={20}
                     />
                     <TextInput
-                        ref={ ref => ref && ref.setNativeProps({ style: { fontFamily: 'Helvetica' } }) }
+                        ref={ ref => ref && ref.setNativeProps({ style: { fontFamily: regular } }) }
                         placeholder={ t( 'resIngresaContraseña' ) }
-                        placeholderTextColor="#666666"
+                        placeholderTextColor={ grayColor }
                         secureTextEntry={data.secureTextEntry ? true : false}
                         style={[loginStyles.textInput, {
                             color: colors.text,
@@ -199,13 +206,13 @@ export const LoginScreen = ({ navigation }: Props ) => {
                         {data.secureTextEntry ? 
                         <Icon 
                             name="eye-off-outline"
-                            color="grey"
+                            color={ grayColor }
                             size={20}
                         />
                         :
                         <Icon 
                             name="eye-outline"
-                            color="grey"
+                            color={ grayColor }
                             size={20}
                         /> 
                         }
@@ -233,9 +240,9 @@ export const LoginScreen = ({ navigation }: Props ) => {
                             colors={[colors.primary, secondary]}
                             style={{...loginStyles.signIn, width: width * .98}}
                         >
-                            <Text style={[loginStyles.textSign, {
+                            <DynamicText fontFamily={ semibold } style={[loginStyles.textSign, {
                                 color:'#fff'
-                            }]}>{ t('resIngresar') }</Text>
+                            }]}>{ t('resIngresar') }</DynamicText>
                         </LinearGradient>
                     </TouchableOpacity>
                 </View>

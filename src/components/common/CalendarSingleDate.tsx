@@ -6,6 +6,7 @@ import { Calendar, DateObject } from 'react-native-calendars';
 import LinearGradient from 'react-native-linear-gradient';
 import { ThemeContext } from '../../contexts/theme/ThemeContext';
 import { commonStyles } from '../../styles/commonStyles';
+import { DynamicText } from './DynamicText';
 
 interface  Props{
     showCalendar: ( show: boolean ) => void;
@@ -60,9 +61,9 @@ export const CalendarSingleDate = ({ showCalendar, setDate, minDate }: Props) =>
                                             height: 50
                                         }}
                                     >
-                                        <Text style={[commonStyles.buttonText, {
+                                        <DynamicText fontFamily='Raleway-SemiBold' headline style={[commonStyles.buttonText, {
                                             color: buttonText
-                                        }]}>{ t( 'resAceptar' ) }</Text>
+                                        }]}>{ t( 'resAceptar' ) }</DynamicText>
                                     </LinearGradient>
                                 </TouchableOpacity>
                                 <TouchableOpacity
@@ -79,9 +80,9 @@ export const CalendarSingleDate = ({ showCalendar, setDate, minDate }: Props) =>
                                             height: 50
                                         }}
                                     >
-                                        <Text style={[commonStyles.buttonText, {
+                                        <DynamicText fontFamily='Raleway-SemiBold' headline style={[commonStyles.buttonText, {
                                             color: buttonText
-                                        }]}> { t( 'resCancelar' ) } </Text>
+                                        }]}> { t( 'resCancelar' ) } </DynamicText>
                                     </LinearGradient>
                                 </TouchableOpacity>
                             </View>

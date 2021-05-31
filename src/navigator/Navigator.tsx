@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { createStackNavigator, StackScreenProps } from '@react-navigation/stack';
 import { ThemeContext } from '../contexts/theme/ThemeContext';
 import { LoginScreen } from '../screens/LoginScreen';
@@ -16,16 +16,26 @@ import { FilterActivitiesScreen } from '../screens/viatics/FilterActivitiesScree
 import { BottomMenu } from '../components/common/BottomMenu';
 import { navigationRef } from './RootNavigation';
 import { AutoCompleteSearch } from '../components/common/AutoCompleteSearch';
-import { GActivities } from '../interfaces/viatics/GActivities';
-import { ExpenseCategories } from '../classes/viatics/ExpenseCategories';
-import { CurrencyTypes } from '../classes/viatics/CurrencyTypes';
-import { Establishment } from '../classes/viatics/Establishment';
+import { GActivities } from '../model/interfaces/viatics/GActivities';
+import { ExpenseCategories } from '../model/classes/viatics/ExpenseCategories';
+import { CurrencyTypes } from '../model/classes/viatics/CurrencyTypes';
+import { Establishment } from '../model/classes/viatics/Establishment';
 import { RegisterActivityScreen } from '../screens/viatics/RegisterActivityScreen';
-import { GExpenses } from '../interfaces/viatics/GExpenses';
+import { GExpenses } from '../model/interfaces/viatics/GExpenses';
 import { HomeHelpScreen } from '../screens/common/HomeHelpScreen';
 import { HomeToolsScreen } from '../screens/common/HomeToolsScreen';
 import { CheckinScreen } from '../screens/common/CheckinScreen';
 import { useTranslation } from 'react-i18next';
+import { useRef } from 'react';
+import { ExpensesScreen } from '../screens/viatics/ExpensesScreen';
+import { BookingListScreen } from '../screens/flights/BookingListScreen';
+import { ReviewScreen } from '../screens/review/ReviewScreen';
+import { Chat } from '../components/common/Chat';
+import { MoreScreen } from '../screens/common/MoreScreen';
+import { Menu } from '../model/classes/common/Menu';
+import { ChangeLanguageScreen } from '../screens/common/ChangeLanguageScreen';
+import { MyServicesScreen } from '../screens/corporate/MyServicesScreen';
+import { Booking } from '../model/interfaces/flights/Bookings';
 
 
 export type RootStackParams = {
@@ -43,7 +53,14 @@ export type RootStackParams = {
     RegisterActivityScreen: { currencyType?: CurrencyTypes, activity?: GActivities, type?: string},
     HomeHelpScreen: undefined,
     HomeToolsScreen: undefined,
-    CheckinScreen: undefined
+    CheckinScreen: undefined,
+    ExpensesScreen: {currentActivity: GActivities,  type?: 'allActivities' |  'pendingLegalize' | 'pendingApprove' | 'filter' },
+    BookingListScreen: { type: 'flown' | 'approver' | 'others' },
+    ReviewScreen: { loc?: string, products?: string, booking?: Booking },
+    Chat: undefined,
+    MoreScreen: { items: Menu[] },
+    ChangeLanguageScreen: undefined,
+    MyServicesScreen: undefined
     
     
 
@@ -52,28 +69,31 @@ export type RootStackParams = {
 
 const Stack = createStackNavigator<RootStackParams>();
 
-interface Props extends StackScreenProps<any, any>{};
-
-
-export const Navigator = ({ navigation }: any ) => {
+export const Navigator = () => {
     const { t } = useTranslation();
     const { status } = useContext( AuthContext );
     const { theme } = useContext( ThemeContext );
+    const [screenState, setScreenState] = useState<any>();
 
     return (
         <>
         <NavigationContainer
             ref={ navigationRef }
             theme={ theme }
+            onStateChange={ async ( state ) => {
+                setScreenState( state );
+            } }
         >
             <Stack.Navigator
                 screenOptions={ ({navigation }) => ({
+                    headerShown: false,
                     headerTitleAlign: 'center',
-                    headerTintColor: theme.buttonText,
-                    headerStyle: { backgroundColor: theme.colors.primary, elevation: 0,  },
+                    headerTintColor: theme.colors.text,
+                    headerStyle: { backgroundColor: 'white', elevation: 0,  },
                     headerRight: () => (
                         <ProfileNavigation navigation={ navigation } />
                     )
+                    
                 })}
             > 
                 {
@@ -86,18 +106,36 @@ export const Navigator = ({ navigation }: any ) => {
                     )
                     : (
                         <>
-                            <Stack.Screen options={{title: 'Home'}} name="HomeScreen" component={ HomeScreen } />
+                            <Stack.Screen name="HomeScreen" component={ HomeScreen } />
                             <Stack.Screen name="BottomMenu" component={ BottomMenu } />
-                            <Stack.Screen options={{title: t('resViaticos')}}  name="HomeViaticsScreen" component={ HomeViaticsScreen } />
-                            <Stack.Screen options={{title: t( 'resAyudaLinea' )}}  name="HomeHelpScreen" component={ HomeHelpScreen } />
-                            <Stack.Screen options={{title: t( 'resHerramientas' )}}  name="HomeToolsScreen" component={ HomeToolsScreen } />
-                            <Stack.Screen options={{title: 'Check-In'}}  name="CheckinScreen" component={ CheckinScreen } />
-                            <Stack.Screen options={{title: t( 'resRegistroGastos' )}}  name="RegisterExpensesScreen" component={ RegisterExpensesScreen } />
-                            <Stack.Screen options={{title: t('resPerfil') }} name="ProfileScreen" component={ ProfileScreen } />
-                            <Stack.Screen options={{title: t( 'resActividades' ) }} name="ActivitiesListScreen" component={ ActivitiesListScreen } />
-                            <Stack.Screen options={{title: t( 'resFiltrarActividades' ) }} name="FilterActivitiesScreen" component={ FilterActivitiesScreen } />
-                            <Stack.Screen options={{title: t( 'resBusqueda' ) }} name="AutoCompleteSearch" component={ AutoCompleteSearch } />
-                            <Stack.Screen options={{title: t( 'resActividadesManuales' ) }} name="RegisterActivityScreen" component={ RegisterActivityScreen } />
+                            <Stack.Screen name="HomeViaticsScreen" component={ HomeViaticsScreen } />
+                            <Stack.Screen name="HomeHelpScreen" component={ HomeHelpScreen } />
+                            <Stack.Screen name="HomeToolsScreen" component={ HomeToolsScreen } />
+                            <Stack.Screen name="CheckinScreen" component={ CheckinScreen } />
+                            <Stack.Screen name="RegisterExpensesScreen" component={ RegisterExpensesScreen } />
+                            <Stack.Screen name="ProfileScreen" component={ ProfileScreen } />
+                            <Stack.Screen name="ActivitiesListScreen" component={ ActivitiesListScreen } />
+                            <Stack.Screen name="FilterActivitiesScreen" component={ FilterActivitiesScreen } />
+                            <Stack.Screen name="AutoCompleteSearch" component={ AutoCompleteSearch } />
+                            <Stack.Screen name="RegisterActivityScreen" component={ RegisterActivityScreen } />
+                            <Stack.Screen name="ExpensesScreen" component={ ExpensesScreen } />
+                            <Stack.Screen name="BookingListScreen" component={ BookingListScreen } />
+                            <Stack.Screen name="Chat" component={ Chat } />
+                            <Stack.Screen name="MoreScreen" component={ MoreScreen } />
+                            <Stack.Screen name="ChangeLanguageScreen" component={ ChangeLanguageScreen } />
+                            <Stack.Screen name="MyServicesScreen" component={ MyServicesScreen } />
+                            <Stack.Screen 
+                                name="ReviewScreen" 
+                                component={ ReviewScreen }
+                                options={{ 
+                                    headerShown: true,
+                                    headerTitle: '',
+                                    headerBackTitleVisible: false,
+                                    headerTransparent: true,
+                                    headerTintColor: '#fff'
+
+                                }} 
+                            />
                         </>
                     )
                 }                
@@ -106,7 +144,7 @@ export const Navigator = ({ navigation }: any ) => {
         { 
             status === 'authenticated'
             ? (
-                <BottomMenu />
+                <BottomMenu stateScreen={ screenState } />
             )
             : null
         }

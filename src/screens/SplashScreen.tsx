@@ -7,9 +7,12 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import { Dimensions } from 'react-native';
 import { StackScreenProps } from '@react-navigation/stack';
 import { ConfigContext } from '../contexts/config/ConfigContext';
-import { IFTPEndPointRQ } from '../interfaces/auth/IFTPEndPointRQ';
+import { IFTPEndPointRQ } from '../model/interfaces/auth/IFTPEndPointRQ';
 import { NAME_APP } from 'react-native-dotenv';
 import { useTranslation } from 'react-i18next';
+import { DynamicText } from '../components/common/DynamicText';
+import { useFont } from '../hooks/common/useFont';
+import env from 'react-native-dotenv';
 
 interface Props extends StackScreenProps<any, any>{};
 
@@ -17,6 +20,7 @@ interface Props extends StackScreenProps<any, any>{};
 
 export const SplashScreen = ({ navigation }: Props ) => {
     const { t } = useTranslation();
+    const { semibold } = useFont();
     const { theme: { colors, secondary } } = useContext( ThemeContext );
     const { getEndpointData } = useContext( ConfigContext );
     const onStarted = () => {
@@ -39,9 +43,10 @@ export const SplashScreen = ({ navigation }: Props ) => {
             <Animatable.Image 
                 animation="bounceIn"
                 duration={ 1500 }
-                source={require('../../assets/logo.png')}
+                /* source={require('../../assets/images/common/logo.png')} */
+                source={{ uri: `http://ideasfractal.com/wp-content/uploads/2017/04/Logo-IdeasFractal-transpararente.png` }}
                 style={styles.logo}
-                resizeMode="stretch"
+                resizeMode='contain'
             />
         </View>
         <Animatable.View 
@@ -50,16 +55,16 @@ export const SplashScreen = ({ navigation }: Props ) => {
             }]}
             animation="fadeInUpBig"
         >
-            <Text style={[styles.title, {
+            <DynamicText fontFamily={ semibold } style={[styles.title, {
                 color: colors.text
-            }]}>{ t( 'resViajesUnClic' ) }</Text>
+            }]}>{ t( 'resViajesUnClic' ) }</DynamicText>
             <View style={styles.button}>
                 <TouchableOpacity onPress={() => { navigation.navigate('LoginScreen'); onStarted()}}>
                     <LinearGradient
                         colors={[colors.primary, secondary]}
                         style={styles.signIn}
                     >
-                        <Text style={styles.textSign}>{ t( 'resEmpezar' ) }</Text>
+                        <DynamicText fontFamily={ semibold } style={styles.textSign}>{ t( 'resEmpezar' ) }</DynamicText>
                         <Icon 
                             name="chevron-forward-outline"
                             color="#fff"
@@ -73,8 +78,9 @@ export const SplashScreen = ({ navigation }: Props ) => {
     )
 }
 
-const {height} = Dimensions.get("screen");
-const height_logo = height * 0.40;
+const {height, width} = Dimensions.get("screen");
+const width_logo = width;
+const height_logo = height * .15;
 
 const styles = StyleSheet.create({
     container: {
@@ -94,7 +100,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 30
     },
     logo: {
-        width: height_logo,
+        width: width_logo,
         height: height_logo
     },
     title: {

@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useState } from 'react';
-import { IFTPEndPointRS } from '../../interfaces/auth/IFTPEndPointRS';
-import { EndPointApp } from '../../interfaces/auth/EndPointApp';
+import { IFTPEndPointRS } from '../../model/interfaces/auth/IFTPEndPointRS';
+import { EndPointApp } from '../../model/interfaces/auth/EndPointApp';
 import { useEffect } from 'react';
 
 export const useEnpointInfo = ()  => {

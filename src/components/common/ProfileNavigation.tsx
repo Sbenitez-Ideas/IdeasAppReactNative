@@ -6,10 +6,16 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import { AuthContext } from '../../contexts/auth/AuthContext';
 import { ThemeContext } from '../../contexts/theme/ThemeContext';
 
-export const ProfileNavigation = ({ navigation }: any) => {
+
+interface Props {
+    navigation: any,
+    color?: string
+}
+
+export const ProfileNavigation = ({ navigation, color }: Props) => {
 
     const { userData } = useContext( AuthContext );
-    const { theme: { buttonText } } = useContext( ThemeContext );
+    const { theme: { buttonText, colors } } = useContext( ThemeContext );
     
     return (
         <>
@@ -17,11 +23,12 @@ export const ProfileNavigation = ({ navigation }: any) => {
             onPress={ () => navigation.navigate('ProfileScreen') }>
             <Icon
                 style={{ 
-                    color: buttonText,
-                    marginTop: 7
+                    color: (color !== undefined ) ? color : buttonText,
+                    marginTop: 7,
+                    marginHorizontal: 10
+                    
                 }}
                 name="person-circle"
-                color={ buttonText }
                 size={30} />            
             
             </TouchableOpacity>

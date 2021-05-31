@@ -5,7 +5,7 @@ import { commonStyles } from '../../styles/commonStyles'
 import * as Animatable from 'react-native-animatable';
 import { loginStyles } from '../../styles/loginStyles';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faCalendarMinus, faMoneyCheckAlt, faRoute, faSearchDollar } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faCalendarMinus, faMoneyCheckAlt, faRoute, faSearchDollar, faTimes } from '@fortawesome/free-solid-svg-icons';
 import NumberFormat from 'react-number-format';
 import LinearGradient from 'react-native-linear-gradient';
 import { DateObject } from 'react-native-calendars';
@@ -13,13 +13,17 @@ import { CalendarSingleDate } from '../../components/common/CalendarSingleDate';
 import { StackScreenProps } from '@react-navigation/stack';
 import { RootStackParams } from '../../navigator/Navigator';
 import Moment from 'moment';
-import { CurrencyTypes } from '../../classes/viatics/CurrencyTypes';
+import { CurrencyTypes } from '../../model/classes/viatics/CurrencyTypes';
 import Toast from 'react-native-toast-message';
-import { ExpenseGroupUpdateRQ } from '../../classes/viatics/ExpenseGroupUpdateRQ';
+import { ExpenseGroupUpdateRQ } from '../../model/classes/viatics/ExpenseGroupUpdateRQ';
 import { AuthContext } from '../../contexts/auth/AuthContext';
-import { GActivities } from '../../interfaces/viatics/GActivities';
+import { GActivities } from '../../model/interfaces/viatics/GActivities';
 import { viaticsApi } from '../../api/viaticsApi';
 import { useTranslation } from 'react-i18next';
+import { Header } from '../../components/common/Header';
+import { FilledInputText } from '../../components/common/FilledInputText';
+import { DynamicText } from '../../components/common/DynamicText';
+import { useFont } from '../../hooks/common/useFont';
 
 
 interface Props extends StackScreenProps<RootStackParams, 'RegisterActivityScreen'>{};
@@ -63,7 +67,7 @@ export const RegisterActivityScreen = ({ navigation, route }: Props) => {
         setShowcalendar( show );
     }
 
-    
+    const { semibold } = useFont()
 
     const setDate =  ( data: DateObject ) => {
 
@@ -269,305 +273,162 @@ export const RegisterActivityScreen = ({ navigation, route }: Props) => {
     
 
     return (
+        <>
+            <Header 
+                title={ t( 'resRegistroActividad' ) }
+                onPressLeft={ () => {
+                    navigation.goBack()
+                } }
+                renderLeft={ () => {
+                    return (
+                        <FontAwesomeIcon 
+                            icon={ faArrowLeft }
+                            size={ 20 }
+                            color={ colors.primary }
+                        />
+                    )
+                } }
 
-        <ScrollView>            
-            <View style={{ 
-                ...commonStyles.container,
-                alignItems: 'stretch',
-                bottom: 40
-            }}>
-                <Text style={{ 
-                    ...commonStyles.title,
-                    color: colors.primary,
+                renderRight={ () => {
+                    return (
+                        <FontAwesomeIcon 
+                            icon={ faTimes }
+                            size={ 20 }
+                            color={ colors.primary }
+                        />
+                    )
+                } }
+            />
+            <ScrollView>            
+                <View style={{ 
+                    ...commonStyles.container,
+                    alignItems: 'stretch',
+                    bottom: 10,
+                    top: 20
                 }}>
-                    { t( 'resRegistroActividad' ) }
-                </Text>
-                <View 
-                    style={{ 
-                        ...commonStyles.rightButtonContainer,
-                        marginTop: 30
-                    }}
-                >
-                    <TouchableOpacity
-                        onPress={ () => navigation.goBack() }
-                        style={commonStyles.rightButton}>
-                        <LinearGradient
-                            colors={[colors.primary, secondary]}
-                            style={commonStyles.rightButton}
+                    <Animatable.View
+                        style={[loginStyles.footer, {
+                            backgroundColor: colors.background
+                        }]}
+                        animation="fadeInUpBig"
+                    >
+                        <FilledInputText 
+                            label={ t( 'resNombreActividad' ) } 
+                            disabled={ ( openedType === 'edit' ) ? true : false  }  
+                            onChangeText={ ( value ) => setManualActivity({
+                                ...manualActivity,
+                                activityName: value
+                            })}
+                            value={ manualActivity.activityName || dataManualActivity.Description } 
+                        />
+                        <TouchableOpacity
+                            onPress={ () => ( openedType === 'edit' ) ? null : hideCalendar( !showcalendar ) }
                         >
-                            <Text style={[commonStyles.buttonText, {
-                                color:'#fff'
-                            }]}>{ t( 'resCancelar' ) }</Text>
-                        </LinearGradient>
-                    </TouchableOpacity>
-                </View>
-            <Animatable.View
-                style={[loginStyles.footer, {
-                    backgroundColor: colors.background
-                    }]}
-                animation="fadeInUpBig">
-                        <View style={{
-                            ...commonStyles.action,
-                        }}>
-                            <View style={{ 
-                                ...commonStyles.icon,
-                                backgroundColor: colors.primary,
-                                
-                            }}>
-                                <FontAwesomeIcon 
-                                    style={{ 
-                                        color: buttonText
-                                    }}
-                                    icon={ faRoute }
-                                    size={20} />
-                            </View>
-                            <TextInput
-                                editable={ ( openedType === 'edit' ) ? false : true }
-                                onChangeText={ ( value ) => setManualActivity({
-                                    ...manualActivity,
-                                    activityName: value
-                                })}
-                                placeholder={ t( 'resNombreActividad' ) }
-                                placeholderTextColor="#666666"
-                                style={{
-                                    ...commonStyles.textInput,
-                                    ...commonStyles.textInputRegister,
-                                    color: colors.text,
-                                    
-                                }}
-
-                                value={ manualActivity.activityName || dataManualActivity.Description }
+                            <FilledInputText 
+                                label={ t( 'resFechaInicio' ) } 
+                                disabled={ true }  
+                                value={ convertStartDate || Moment(dataManualActivity.DateSta).format('ll') } 
                             />
-                        </View>
+                        </TouchableOpacity>  
 
-                        <View style={{
-                            ...commonStyles.action,
-                            marginTop: 40
-                        }}>
-                            <View style={{ 
-                                ...commonStyles.icon,
-                                backgroundColor: colors.primary,
-                                
-                            }}>
-                                <FontAwesomeIcon 
-                                    style={{ 
-                                        color: buttonText
-                                    }}
-                                    icon={ faCalendarMinus }
-                                    size={20} />
-                            </View>
-                            <TouchableOpacity
-                                onPress={ () => ( openedType === 'edit' ) ? null : hideCalendar( !showcalendar ) }
-                            >
-                                <TextInput
-                                    editable={ false }
-                                    placeholder={ t( 'resFechaInicio' ) }
-                                    placeholderTextColor="#666666"
-                                    style={{
-                                        ...commonStyles.textInput,
-                                        ...commonStyles.textInputRegister,
-                                        color: colors.text,
-                                        
-                                    }}
-                                    value={ convertStartDate || Moment(dataManualActivity.DateSta).format('ll') }
-                                />
-                            </TouchableOpacity>
-                            
-                        </View>
                         { showcalendar &&
                             <CalendarSingleDate minDate={ minDate } showCalendar={ hideCalendar } setDate={ setDate }></CalendarSingleDate>
                         }
+       
+                        <TouchableOpacity
+                            onPress={ () => ( openedType === 'edit' ) ? null :  hideCalendar( !showcalendar ) }
+                        >
+                            <FilledInputText 
+                                label={ t( 'resFechaFin' ) } 
+                                disabled={ true }  
+                                value={ convertEndDate || Moment(dataManualActivity.DateEnd).format('ll') } 
+                            />
+                        </TouchableOpacity>
 
-                        <View style={{
-                            ...commonStyles.action,
-                            marginTop: 40
-                        }}>
-                            <View style={{ 
-                                ...commonStyles.icon,
-                                backgroundColor: colors.primary,
+                        <TouchableOpacity
+                            onPress={ () =>   ( openedType === 'edit' ) ? null : openSearch( 'CurrencyType' ) }
+                        >
+                            <FilledInputText 
+                                label={ t( 'resTipoMoneda' ) } 
+                                disabled={ true }  
+                                value={ currency.label || dataManualActivity.Currency } 
+                            />
+                        </TouchableOpacity>
+
                                 
-                            }}>
-                                <FontAwesomeIcon 
-                                    style={{ 
-                                        color: buttonText
-                                    }}
-                                    icon={ faCalendarMinus }
-                                    size={20} />
-                            </View>
-                            <TouchableOpacity
-                                onPress={ () => ( openedType === 'edit' ) ? null :  hideCalendar( !showcalendar ) }
-                            >
-                                <TextInput
-                                    editable={ false }
-                                    placeholder={ t( 'resFechaFin' ) }
-                                    placeholderTextColor="#666666"
-                                    style={{
-                                        ...commonStyles.textInput,
-                                        ...commonStyles.textInputRegister,
-                                        color: colors.text,
-                                        
-                                    }}
-                                    value={ convertEndDate || Moment(dataManualActivity.DateEnd).format('ll') }
-                                />
-                            </TouchableOpacity>
-                            
-                        </View>
-
-                        <View style={{
-                                ...commonStyles.action,
-                                marginTop: 40,
-                                zIndex: 5
-                            }}>
-                                <View style={{ 
-                                    ...commonStyles.icon,
-                                    backgroundColor: colors.primary,
-                                }}>
-                                    <FontAwesomeIcon 
-                                        style={{ 
-                                            color: buttonText
-                                        }}
-                                        icon={ faSearchDollar }
-                                        size={20} />
-                                </View>
-                                <TouchableOpacity
-                                    onPress={ () =>   ( openedType === 'edit' ) ? null : openSearch( 'CurrencyType' ) }
-                                >
-                                    <TextInput
-                                        editable={ false }                                
-                                        placeholder={ t( 'resTipoMoneda' ) }
-                                        placeholderTextColor="#666666"
-                                        style={{
-                                            ...commonStyles.textInput,
-                                            ...commonStyles.textInputRegister,
-                                            color: colors.text,
+                        <NumberFormat value={ manualActivity.budget || dataManualActivity.Budget } displayType={'text'} thousandSeparator={true} prefix={'$'} 
+                            onValueChange={ ( values ) => {
+                                const {formattedValue, value} = values;
+                                setDataManualActivity({
+                                    ...dataManualActivity,
+                                    Budget: +value,
+                                });
+                            } }
+                            renderText={ valueRender => (
+                                <FilledInputText 
+                                    label={ t( 'resPresupuesto' ) } 
+                                    keyboardType={ 'phone-pad' }
+                                    onChangeText={ ( value ) => 
+                                        {
+                                            setManualActivity({
+                                                ...manualActivity,
+                                                budget: value,
+                                            });
                                             
-                                        }}
-                                        value={ currency.label || dataManualActivity.Currency }
-                                    />   
-                                </TouchableOpacity>                             
-                        </View >
+                                        } 
+                                    }
+                                    disabled={ false }  
+                                    value={ valueRender } 
+                                />
+                            )}
+                        />
 
-                        <View style={{
-                            ...commonStyles.action,
-                            marginTop: 40,
-                        }}>
-                            <View style={{ 
-                                ...commonStyles.icon,
-                                backgroundColor: colors.primary,
-                                
-                            }}>
-                                <FontAwesomeIcon 
-                                    style={{ 
-                                        color: buttonText
-                                    }}
-                                    icon={ faMoneyCheckAlt }
-                                    size={20} />
-                            </View>
-                            <NumberFormat value={ manualActivity.budget || dataManualActivity.Budget } displayType={'text'} thousandSeparator={true} prefix={'$'} 
-                                onValueChange={ ( values ) => {
-                                    const {formattedValue, value} = values;
+                        <FilledInputText 
+                            label={ t( 'resNota' ) } 
+                            disabled={ false }  
+                            value={ manualActivity.note || dataManualActivity.Note }
+                            onChangeText={ ( value ) => {
+                                if ( openedType !== 'edit' ) {
+                                    setManualActivity({
+                                        ...manualActivity,
+                                        note: value
+                                    })
+                                } else {
                                     setDataManualActivity({
                                         ...dataManualActivity,
-                                        Budget: +value,
-                                    });
-                                } }
-                                renderText={ valueRender => (
-                                    <TextInput
-                                        editable={ ( openedType === 'edit' ) ? false : true }
-                                        keyboardType="numeric"
-                                        placeholder={ t( 'resPresupuesto' ) }
-                                        placeholderTextColor="#666666"
-                                        style={{
-                                            ...commonStyles.textInput,
-                                            ...commonStyles.textInputRegister,
-                                            color: colors.text,    
-                                        }}
-                                        onChangeText={ ( value ) => 
-                                            {
-                                                setManualActivity({
-                                                    ...manualActivity,
-                                                    budget: value,
-                                                });
-                                                
-                                            } 
-                                        }
-                                        value={ valueRender }
-                                    />
-                                )}
-                            />
-                        </View>
-
-                        <View style={{
-                            ...commonStyles.action,
-                            marginTop: 40
-                        }}>
-                            <View style={{ 
-                                ...commonStyles.icon,
-                                backgroundColor: colors.primary,
-                                
-                            }}>
-                                <FontAwesomeIcon 
-                                    style={{ 
-                                        color: buttonText
-                                    }}
-                                    icon={ faRoute }
-                                    size={20} />
-                            </View>
-                            <TextInput
-                                onChangeText={ ( value ) => {
-                                    if ( openedType !== 'edit' ) {
-                                        setManualActivity({
-                                            ...manualActivity,
-                                            note: value
-                                        })
-                                    } else {
-                                        setDataManualActivity({
-                                            ...dataManualActivity,
-                                            Note: value
-                                        })
-                                    }
-                                }}
-                                placeholder={ t( 'resNota' ) }
-                                placeholderTextColor="#666666"
-                                style={{
-                                    ...commonStyles.textInput,
-                                    ...commonStyles.textInputRegister,
-                                    color: colors.text,
-                                    
-                                }}
-                                value={ manualActivity.note || dataManualActivity.Note }
-                            />
-                        </View>
-                        
+                                        Note: value
+                                    })
+                                }
+                            }}
+                        />
                         <View style={commonStyles.buttonCenter}>
-                            <TouchableOpacity
-                                onPress={ () => saveActivity() }
-                                style={{
-                                    ...commonStyles.entireButton,
+                    <TouchableOpacity
+                        onPress={ () => saveActivity() }
+                        style={{
+                            ...commonStyles.entireButton,
+                        }}>
+                        <LinearGradient
+                            colors={[colors.primary, secondary]}
+                            style={ commonStyles.buttonSave }
+                        >
+                            <DynamicText fontFamily={ semibold } style={[commonStyles.buttonText, {
+                                color: buttonText
+                            }]}>{ t( 'resGuardar' ) }</DynamicText>
+                        </LinearGradient>
+                    </TouchableOpacity>
+                    {
+                        loading &&  
+                        <ActivityIndicator
+                            size="large"
+                            animating={ true }
+                            color={ colors.primary }
+                        ></ActivityIndicator>
+                    }
                                     
-                                }}>
-                                <LinearGradient
-                                    colors={[colors.primary, secondary]}
-                                    style={ commonStyles.buttonSave }
-                                >
-                                    <Text style={[commonStyles.buttonText, {
-                                        color: buttonText
-                                    }]}>{ t( 'resGuardar' ) }</Text>
-                                </LinearGradient>
-                            </TouchableOpacity>
-                            {
-                                loading &&  
-                                <ActivityIndicator
-                                    size="large"
-                                    animating={ true }
-                                    color={ colors.primary }
-                                ></ActivityIndicator>
-                            }
-                            
-                        </View>
-
-            </Animatable.View>
-            </View>
-        </ScrollView>
+                </View>
+                    </Animatable.View>
+                </View>
+            </ScrollView>
+        </>
     )
 }

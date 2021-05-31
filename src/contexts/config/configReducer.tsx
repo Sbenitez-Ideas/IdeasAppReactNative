@@ -1,4 +1,4 @@
-import { IFTPEndPointRS } from "../../interfaces/auth/IFTPEndPointRS";
+import { IFTPEndPointRS } from "../../model/interfaces/auth/IFTPEndPointRS";
 
 export interface configState {
     AppData: IFTPEndPointRS | null;

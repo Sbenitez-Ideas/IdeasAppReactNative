@@ -20,6 +20,8 @@ target 'consolidatorApp' do
 
   pod 'RNI18n', :path => '../node_modules/react-native-i18n'
 
+  pod 'RNSVG', :path => '../node_modules/react-native-svg'
+
   target 'consolidatorAppTests' do
     inherit! :complete
     # Pods for testing

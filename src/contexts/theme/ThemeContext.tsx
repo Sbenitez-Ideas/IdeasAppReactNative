@@ -1,5 +1,5 @@
 import React, { createContext, useReducer } from 'react';
-import { ThemeState, themeReducer, exitoTheme } from './themeReducer';
+import { ThemeState, themeReducer, exitoTheme, ideasTheme } from './themeReducer';
 
 
 interface ThemeContextProps {
@@ -12,7 +12,7 @@ export const ThemeContext = createContext({} as ThemeContextProps)
 
 export const ThemeProvider = ({ children }: any) => {
 
-    const [theme, dispatch] = useReducer(themeReducer, exitoTheme );
+    const [theme, dispatch] = useReducer(themeReducer, ideasTheme );
 
     const setCustomTheme = () => {
         /* dispatch({type: GLOBAL_THEME }) */

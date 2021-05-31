@@ -12,10 +12,6 @@ const deviceLanguage =
         ? NativeModules.SettingsManager.settings.AppleLocale ||
           NativeModules.SettingsManager.settings.AppleLanguages[0] //iOS 13
         : NativeModules.I18nManager.localeIdentifier;
-
-  
-        console.log('deviceeLanguage', i18next.language);
-
 // the translations
 const resources = {
     en: {

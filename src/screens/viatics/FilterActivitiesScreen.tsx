@@ -1,44 +1,52 @@
 import React, { useContext, useState } from 'react'
-import { Text, View, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { ThemeContext } from '../../contexts/theme/ThemeContext';
-import { commonStyles } from '../../styles/commonStyles'
-import { color } from 'react-native-reanimated';
-import * as Animatable from 'react-native-animatable';
+import { commonStyles } from '../../styles/commonStyles';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { loginStyles } from '../../styles/loginStyles';
-import { faCalendar, faMinusSquare, faThLarge } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faMinusSquare,  } from '@fortawesome/free-solid-svg-icons';
 import LinearGradient from 'react-native-linear-gradient';
 import { StackScreenProps } from '@react-navigation/stack';
 import { RootStackParams } from '../../navigator/Navigator';
-import DropDownPicker from 'react-native-dropdown-picker';
 import { CalendarSingleDate } from '../../components/common/CalendarSingleDate';
 import { DateObject } from 'react-native-calendars';
 import { ScrollView } from 'react-native-gesture-handler';
 import { useTranslation } from 'react-i18next';
-import { GActivities } from '../../interfaces/viatics/GActivities';
+import { GActivities } from '../../model/interfaces/viatics/GActivities';
 import Moment from 'moment';
 import Toast from 'react-native-toast-message';
+import { Header } from '../../components/common/Header';
+import { DynamicText } from '../../components/common/DynamicText';
+import { useUtils } from '../../hooks/common/useUtils';
 
 interface Props extends StackScreenProps<RootStackParams, 'FilterActivitiesScreen'>{};
 
 export const FilterActivitiesScreen = ({ navigation, route }: Props) => {
     const { t } = useTranslation();
     const { theme: { colors, secondary, buttonText } } = useContext( ThemeContext );
+    const [scrollEnable, setScrollEnabled] = useState(true);
     const [minDate, setminDate] = useState('');
     const [formFilter, setFormFilter] = useState({
         dateStart: '',
         dateEnd: '',
         state:''
     })
-
+    const { scrollEnabled } = useUtils();
     const [showcalendar, setShowcalendar] = useState(false);
     const { activities, alreadyFiltered, beforeFiltered } = route.params;
 
     const hideCalendar = ( show: boolean ) => {
         setShowcalendar( show );
     }
-
+    const [state, setState] = useState([
+        { label:  'Todos' , value: 'All', selected: (!beforeFiltered?.state) },
+        { label:  t( 'resEnviadoLegalizar' ) , value: 'R', selected: (beforeFiltered?.state === 'R') },
+        { label: t( 'resPendienteLegalizar' ), value: 'P', selected: (beforeFiltered?.state === 'P') },
+        { label: t( 'resCerrado' ), value: 'F', selected: (beforeFiltered?.state === 'F') },
+        { label: t( 'resPreAprobador' ), value: 'X', selected: (beforeFiltered?.state === 'X') },
+        { label: t( 'resJustificar' ), value: 'J', selected: (beforeFiltered?.state === 'J') },
+        { label: t( 'resAprobado' ), value: 'A', selected: (beforeFiltered?.state === 'A') }
+    ])
     const setDate =  ( data: DateObject ) => {
 
         if ( formFilter.dateStart === '' ) {
@@ -53,14 +61,6 @@ export const FilterActivitiesScreen = ({ navigation, route }: Props) => {
                 dateEnd: data.dateString
             })
         }
-        /* setRegisterForm({
-            ...registerForm,
-            date: data.dateString
-        })
-        setExpense({
-            ...expense,
-            Date: new Date(data.dateString)
-        }) */
     }
 
     const loadToast = ( messageError: string ) => {
@@ -107,24 +107,24 @@ export const FilterActivitiesScreen = ({ navigation, route }: Props) => {
                 case 'start':
                     if ( formFilter.dateStart !== '' && beforeFiltered === undefined ) {
                        return Moment(formFilter.dateStart).format( 'll' )
-                    } else if ( formFilter.dateStart === '' ) {
-                        return formFilter.dateStart;
                     } else if ( beforeFiltered?.dateStart !== '' && alreadyFiltered ) {
                         return Moment(beforeFiltered?.dateStart).format( 'll' )
                     } else if ( beforeFiltered?.dateStart === '' && alreadyFiltered ) {
                         return beforeFiltered.dateStart;
-                    }
+                    } else if ( formFilter.dateStart === '' &&  beforeFiltered === undefined ) {
+                        return formFilter.dateStart;
+                    }  
             
                 case 'end':
                     if ( formFilter.dateEnd !== '' && beforeFiltered === undefined ) {
                         return Moment(formFilter.dateEnd).format( 'll' )
-                    } else if ( formFilter.dateEnd === '' ) {
-                        return formFilter.dateEnd;
                     } else if ( beforeFiltered?.dateEnd !== '' && alreadyFiltered ) {
                         return Moment(beforeFiltered?.dateEnd).format( 'll' )
                     } else if ( beforeFiltered?.dateEnd === '' && alreadyFiltered ) {
                         return beforeFiltered.dateEnd;
-                    }
+                    } else if ( formFilter.dateEnd === '' && alreadyFiltered ) {
+                        return formFilter.dateEnd;
+                    }  
 
                 default:
                     break;
@@ -135,228 +135,137 @@ export const FilterActivitiesScreen = ({ navigation, route }: Props) => {
 
         
     }
+
+    const onSelectedState = (stateData: any, index: number) => {
+        setFormFilter({
+            ...formFilter,
+            state: stateData.value
+        }) 
+        setState(
+            state.map( item  => {
+                return {
+                    ...item,
+                    selected: (state[index].value === item.value) ? !item.selected : (item.selected) ? !item.selected : item.selected
+                }
+            })
+        )
+    }
     
     return (
-        <ScrollView>
-                <View style={{
-            ...commonStyles.container,
-            alignItems: 'stretch',
-        }}>
-            <Text style={{ 
-                    ...commonStyles.title,
-                    color: colors.primary,
-                    marginBottom: 20,
-                }}>
-                   { t( 'resActividadesGastos' ) }     
-            </Text>
-
-            { alreadyFiltered &&
-                <View style={ commonStyles.rightButtonContainer }>
-                    <TouchableOpacity
-                        onPress={ () => navigation.navigate('ActivitiesListScreen',{
-                            type: 'allActivities',
-                            dataFilter: undefined
-                        } )}
-                        style={commonStyles.rightButton}>
-                        <LinearGradient
-                            colors={[colors.primary, secondary]}
-                            style={{ 
-                                ...commonStyles.rightButton,
-                                flexDirection: 'row'
-                            }}
-                        >
-                            <FontAwesomeIcon
-                                style={{ 
-                                    color: buttonText
-                                }}
-                                icon={ faMinusSquare }
-                                size={20} />
-                            <Text style={[commonStyles.buttonText, {
-                                marginLeft: 5,
-                                color:'#fff'
-                            }]}>{ t( 'resLimpiarFiltros' ) }</Text>
-                        </LinearGradient>
-                    </TouchableOpacity>
-                </View>
-            }
-
-            <View style={{ 
-                ...styles.subtitleContainer,
-                borderBottomColor: colors.primary
-            }}>
-
-                <Icon
-                    name="filter"
-                    color={ colors.primary }
-                    size={ 50 }
-                />
-                <Text style={{ 
-                    ...styles.titleFilter,
-                    color: colors.primary
-                }}>{ t( 'resFiltrar' ) }</Text>
-            </View>
-
-            <Animatable.View
-                style={[loginStyles.footer, {
-                    backgroundColor: colors.background,
-                    marginBottom: 60
-                    }]}
-                animation="fadeInUpBig">
-                    <View style={{ flexDirection: 'row' }}>
-                    <View style={{ 
-                            ...styles.icon,
-                            backgroundColor: colors.primary,
-                            
-                        }}>
-                            <FontAwesomeIcon 
-                                style={{ 
-                                    color: buttonText
-                                }}
-                                icon={ faThLarge }
-                                size={20} />
-                        </View>
-                        <DropDownPicker
-                            defaultValue={ beforeFiltered?.state }
-                            dropDownMaxHeight={ 200 }
-                            placeholder={ t( 'resEstado' ) }
-                            labelStyle={{ 
-                                color: '#666666',
-                                fontSize: 20
-                            }}
-                            items={ [
-                                {label:  t( 'resEnviadoLegalizar' ) , value: 'R'},
-                                {label: t( 'resPendienteLegalizar' ), value: 'P'},
-                                {label: t( 'resCerrado' ), value: 'F'},
-                                {label: t( 'resPreAprobador' ), value: 'X'},
-                                {label: t( 'resJustificar' ), value: 'F'},
-                                {label: t( 'resAprobado' ), value: 'A'}
-                            ]}
-                            containerStyle={{ width: 300, height: 40}}
-                            style={{
-                                backgroundColor: colors.background,
-                                borderColor: 'transparent',
-                            }}
-                            itemStyle={{
-                                justifyContent: 'flex-start'
-                            }}
-                            dropDownStyle={{backgroundColor: colors.background}}
-                            onChangeItem={(item) =>  setFormFilter({
-                                ...formFilter,
-                                state: item.value
-                            }) }
+        <>
+            <Header
+                title={ t( 'resFiltrar' ) }
+                onPressLeft={ () => {
+                    navigation.goBack()
+                } }
+                renderLeft={ () => {
+                    return (
+                        <FontAwesomeIcon 
+                            icon={ faArrowLeft }
+                            size={ 20 }
+                            color={ colors.primary }
                         />
-                    </View>
+                    )
+                } }
 
-                    <View style={{
-                        ...commonStyles.action,
-                    }}>
-                        <View style={{ 
-                            ...styles.icon,
-                            backgroundColor: colors.primary,
-                            
-                        }}>
-                            <FontAwesomeIcon 
-                                style={{ 
-                                    color: buttonText
-                                }}
-                                icon={ faCalendar }
-                                size={20} />
-                        </View>
-                        <TouchableOpacity
-                            onPress={ () => hideCalendar( !showcalendar ) }
-                        >
-                            <TextInput
-                                editable={ false }
-                                autoCorrect={ false }
-                                keyboardType="visible-password"
-                                placeholder={ t( 'resFechaInicio' ) }
-                                autoCapitalize="none"
-                                placeholderTextColor="#666666"
-                                style={{
-                                    ...commonStyles.textInput,
-                                    ...styles.textInput,
-                                    color: colors.text,
-                                }}
-                                value={ calculateDatesValues( 'start' ) }
-                            />
-                        </TouchableOpacity>                        
+                renderRight={ () => {
+                    return (
+                        <TouchableOpacity onPress={ () => applyFilters() }>
+                            <DynamicText headline primaryColor numberOfLines={1}>
+                                { t( 'resAplicar' ) }
+                            </DynamicText>
+                        </TouchableOpacity>
                         
-                        
-                    </View>
-
-                    { showcalendar &&
-                        <CalendarSingleDate minDate={ minDate } showCalendar={ hideCalendar } setDate={ setDate }></CalendarSingleDate>
-                    }
-
-                    <View style={{
-                        ...commonStyles.action,
-                    }}>
-                        <View style={{ 
-                            ...styles.icon,
-                            backgroundColor: colors.primary,
-                            
-                        }}>
-                            <FontAwesomeIcon 
-                                style={{ 
-                                    color: buttonText
-                                }}
-                                icon={ faCalendar }
-                                size={20} />
-                        </View>
-                        <TouchableOpacity
-                            onPress={ () => hideCalendar( !showcalendar ) }
-                        >
-                            <TextInput
-                                editable={ false }
-                                autoCorrect={ false }
-                                keyboardType="visible-password"
-                                placeholder={ t( 'resFechaFin' ) }
-                                autoCapitalize="none"
-                                placeholderTextColor="#666666"
-                                style={{
-                                    ...commonStyles.textInput,
-                                    ...styles.textInput,
-                                    color: colors.text,
-                                }}
-
-                                value={ calculateDatesValues( 'end' ) }
-                            />
+                    )
+                } }
+            />
+            
+            <ScrollView
+                scrollEnabled={scrollEnable}
+                onContentSizeChange={(contentWidth, contentHeight) =>
+                    setScrollEnabled(scrollEnabled(contentWidth, contentHeight))
+                }
+            >
+                <View style={{padding: 20}}>
+                    <DynamicText fontFamily='Raleway-SemiBold' headline semibold>
+                        {t('resFecha').toUpperCase()}
+                    </DynamicText>
+                    <View style={styles.contentResultRange}>
+                        <TouchableOpacity onPress={ () => hideCalendar( !showcalendar ) }>
+                            <DynamicText  body1>{ t( 'resFechaInicio' ) }</DynamicText>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={ () => hideCalendar( !showcalendar ) }>
+                            <DynamicText body1>{ t( 'resFechaFin' ) }</DynamicText>
                         </TouchableOpacity>
                     </View>
-
-                    <View style={{
-                        ...styles.buttonsContainer
-                    }}>
-                        <TouchableOpacity 
-                        onPress={ () => applyFilters() }
-                        style={ styles.buttons }>
-                        <LinearGradient
-                            colors={[colors.primary, secondary]}
-                            style={ styles.buttons }
-                        >
-                            <Text style={[loginStyles.textSign, {
-                                color:'#fff'
-                            }]}>{ t( 'resFiltrar' ) }</Text>
-                        </LinearGradient>
-                    </TouchableOpacity>
-                    <TouchableOpacity 
-                        onPress={ () => navigation.goBack() }
-                        style={ styles.buttons }>
-                        <LinearGradient
-                            colors={[colors.primary, secondary]}
-                            style={ styles.buttons }
-                        >
-                            <Text style={[loginStyles.textSign, {
-                                color:'#fff'
-                            }]}>{ t( 'resCancelar' ) }</Text>
-                        </LinearGradient>
-                    </TouchableOpacity>
+                    <View style={styles.contentRange}>
+                        <DynamicText caption1 greyColor>
+                            { calculateDatesValues( 'start' ) }
+                        </DynamicText>
+                        <DynamicText caption1 greyColor>
+                            { calculateDatesValues( 'end' ) }
+                        </DynamicText>
                     </View>
-                </Animatable.View>
-            
-        </View>
-
-        </ScrollView>
+                    <View>
+                        { showcalendar &&
+                            <CalendarSingleDate minDate={ minDate } showCalendar={ hideCalendar } setDate={ setDate }></CalendarSingleDate>
+                        }
+                    </View>
+                    <DynamicText fontFamily='Raleway-SemiBold' headline semibold style={{marginVertical: 20}}>
+                        {t('resEstado').toUpperCase()}
+                    </DynamicText>
+                    { state.map(( item, index ) => {
+                        return (
+                            <TouchableOpacity
+                                key={ index.toString() }
+                                style={styles.lineCategory}
+                                onPress={() => onSelectedState(item, index)}>
+                                
+                                <Icon 
+                                    name={ item.selected ? 'checkmark-circle-outline' :  'ellipse-outline' }
+                                    size={ 24 }
+                                    color={ colors.primary }
+                                />
+                                <DynamicText body1 style={{marginLeft: 10}}>
+                                    { item.label }
+                                </DynamicText>
+                            </TouchableOpacity>
+                        )
+                    })}
+                    { alreadyFiltered &&
+                        <View style={ commonStyles.rightButtonContainer }>
+                            <TouchableOpacity
+                                onPress={ () => navigation.navigate('ActivitiesListScreen',{
+                                    type: 'allActivities',
+                                    dataFilter: undefined
+                                } )}
+                                style={{...commonStyles.rightButton, marginRight: 0,}}>
+                                <LinearGradient
+                                    colors={[colors.primary, secondary]}
+                                    style={{ 
+                                        ...commonStyles.rightButton,
+                                        marginRight: 0,
+                                        flexDirection: 'row'
+                                    }}
+                                >
+                                    <FontAwesomeIcon
+                                        style={{ 
+                                            color: buttonText
+                                        }}
+                                        icon={ faMinusSquare }
+                                        size={20} />
+                                    <DynamicText fontFamily='Raleway-SemiBold' headline style={[commonStyles.buttonText, {
+                                        marginLeft: 5,
+                                        color:'#fff',
+                                        textAlign: 'center'
+                                    }]}>{ t( 'resLimpiarFiltros' ) }</DynamicText>
+                                </LinearGradient>
+                            </TouchableOpacity>
+                        </View>
+                    }
+                </View>
+            </ScrollView>
+        </>
     )
 }
 
@@ -394,4 +303,20 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         borderRadius: 10
     },
+    contentRange: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        marginBottom: 5,
+        marginTop: 10
+      },
+      contentResultRange: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        marginTop: 10
+      },
+      lineCategory: {
+        flexDirection: "row",
+        alignItems: "center",
+        marginBottom: 20
+      }
 })

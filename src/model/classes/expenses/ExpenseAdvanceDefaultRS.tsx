@@ -1,0 +1,42 @@
+export class ExpenseAdvanceDefaultRS {
+
+    Profile: string;
+    BreakfastTime: number;
+    LaunchTime: number;
+    DinnerTime: number;
+    Currency: string;
+    BreakfastValue: number;
+    LaunchValue: number;
+    DinnerValue: number;
+    VariesByFood: boolean;
+    DailyValue: number;
+    LaundryValue: number;
+    InternetValue: number;
+    DailyValueFamilyHome: number;
+    FamilyHomeValuePercentage: number;
+    AlwaysCalculateBreakFast: boolean;
+    AdditionalFixedValue: number;
+    ExpensesValue: number;
+    FoodValue: number;
+    FamilyHomeValue: number;
+    FixedValue: number;
+    TaxisValue: number;
+    NumberOfDays: number;
+    InitialDate: Date;
+    EndDate: Date;
+    AdditionalValue: number;
+    AuxValue: string;
+    Destinations: string;
+    ProfileCode: number;
+    countBreakfast: number;
+    countLunch: number;
+    countDinner: number;
+    totalBreakfast: number;
+    totalLunch: number;
+    totalDinner: number;
+    totalPaymentDest: number;
+    valuePaymentDestInter: number;
+    valuePaymentDestNal: number;
+    feeViatico: number;
+    monedaFeeViatico: string;
+}

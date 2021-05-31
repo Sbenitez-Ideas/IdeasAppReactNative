@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { Dimensions, Text, TextInput, TouchableOpacity, View, Image, ActivityIndicator } from 'react-native';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faRoute, faThLarge, faCalendarMinus, faTable, faCoins, faSearchDollar, faMoneyCheckAlt, faBook, faFileInvoiceDollar, faPaperclip } from '@fortawesome/free-solid-svg-icons';
+import { faRoute, faThLarge, faCalendarMinus, faTable, faCoins, faSearchDollar, faMoneyCheckAlt, faBook, faFileInvoiceDollar, faPaperclip, faTimes } from '@fortawesome/free-solid-svg-icons';
 import * as Animatable from 'react-native-animatable';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { loginStyles } from '../../styles/loginStyles';
@@ -17,23 +17,30 @@ import Moment from 'moment';
 import NumberFormat from 'react-number-format';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { RootStackParams } from '../../navigator/Navigator';
-import { GActivities } from '../../interfaces/viatics/GActivities';
-import { ExpenseCategories } from '../../classes/viatics/ExpenseCategories';
+import { GActivities } from '../../model/interfaces/viatics/GActivities';
+import { ExpenseCategories } from '../../model/classes/viatics/ExpenseCategories';
 import { getPaymentType } from '../../helpers/viatics/getPaymentType';
-import { CurrencyTypes } from '../../classes/viatics/CurrencyTypes';
-import { GExpenses } from '../../interfaces/viatics/GExpenses';
+import { CurrencyTypes } from '../../model/classes/viatics/CurrencyTypes';
+import { GExpenses } from '../../model/interfaces/viatics/GExpenses';
 import Toast from 'react-native-toast-message';
 import { AuthContext } from '../../contexts/auth/AuthContext';
-import { ExpensesSaveRQ } from '../../interfaces/viatics/ExpensesSaveRQ';
+import { ExpensesSaveRQ } from '../../model/interfaces/viatics/ExpensesSaveRQ';
 import { DateObject } from 'react-native-calendars';
-import { Establishment } from '../../classes/viatics/Establishment';
+import { Establishment } from '../../model/classes/viatics/Establishment';
 import { viaticsApi } from '../../api/viaticsApi';
-import { ImagesExpense } from '../../classes/viatics/ImagesExpense';
-import { GetExpenseImage } from '../../classes/viatics/GetExpenseImages';
+import { ImagesExpense } from '../../model/classes/viatics/ImagesExpense';
+import { GetExpenseImage } from '../../model/classes/viatics/GetExpenseImages';
 import { randomGuid } from '../../helpers/common/randomGuid';
-import { ExpenseActivitiesRQ } from '../../classes/viatics/ExpenseActivitiesRQ';
-import { CategoriesEntity } from '../../classes/viatics/CategoriesEntity';
+import { ExpenseActivitiesRQ } from '../../model/classes/viatics/ExpenseActivitiesRQ';
+import { CategoriesEntity } from '../../model/classes/viatics/CategoriesEntity';
 import { useTranslation } from 'react-i18next';
+import { Header } from '../../components/common/Header';
+import { ProfileNavigation } from '../../components/common/ProfileNavigation';
+import { TextField, FilledTextField, OutlinedTextField } from 'rn-material-ui-textfield'
+import { useFont } from '../../hooks/common/useFont';
+import { color } from 'react-native-reanimated';
+import { FilledInputText } from '../../components/common/FilledInputText';
+import { DynamicText } from '../../components/common/DynamicText';
 
 interface Props extends StackScreenProps<RootStackParams, 'RegisterExpensesScreen'>{
     activity: GActivities,
@@ -63,6 +70,8 @@ export const RegisterExpensesScreen = ({ navigation, route }: Props) => {
         description: '',
         currencyType: ''
     });
+
+    const { regular, semibold } = useFont();
 
     const showEstablishment = () => {
         switch (Params.VIATSOLICITARESTABLECIMIENTOS) {
@@ -248,7 +257,7 @@ export const RegisterExpensesScreen = ({ navigation, route }: Props) => {
         return  (total === 0) ? 'Total Gastos' : total.toString();
     }
 
-    const { theme: { colors, secondary, buttonText } } = useContext( ThemeContext );
+    const { theme: { colors, secondary, buttonText, fieldColor, grayColor } } = useContext( ThemeContext );
     const { width } = Dimensions.get('window');
 
 
@@ -368,20 +377,34 @@ export const RegisterExpensesScreen = ({ navigation, route }: Props) => {
 
     return (
         <>
+        <Header 
+            title={  t( 'resRegistraNuevoGasto' ) }
+            onPressLeft={ () => {
+                navigation.goBack()
+            } }
+            renderLeft={ () => {
+                return (
+                    <FontAwesomeIcon 
+                        icon={ faTimes }
+                        size={ 20 }
+                        color={ colors.primary }
+                    />
+                )
+            } }
+
+            renderRight={ () => {
+                return (
+                    <ProfileNavigation navigation={ navigation } />
+                )
+            } }
+        />
         <ScrollView>            
             <View style={{ 
                 ...commonStyles.container,
                 alignItems: 'stretch',
                 bottom: 40
             }}>
-                    <Text style={{ 
-                        ...commonStyles.title,
-                        color: colors.primary,
-                        marginBottom: 20
-                    }}>
-                        { t( 'resRegistraNuevoGasto' ) }
-                    </Text>
-                    <View style={ commonStyles.rightButtonContainer }>
+                    {/* <View style={ commonStyles.rightButtonContainer }>
                         <TouchableOpacity
                             onPress={ () => navigation.goBack() }
                             style={commonStyles.rightButton}>
@@ -394,7 +417,7 @@ export const RegisterExpensesScreen = ({ navigation, route }: Props) => {
                                 }]}>{ t( 'resCancelar' ) }</Text>
                             </LinearGradient>
                         </TouchableOpacity>
-                    </View>
+                    </View> */}
                     <View style={{ top: 50, ...commonStyles.rightButtonContainer, zIndex: 10 }}>
                         <TouchableOpacity
                             onPress={ () => navigation.navigate('RegisterActivityScreen', {}) }
@@ -413,32 +436,30 @@ export const RegisterExpensesScreen = ({ navigation, route }: Props) => {
                             backgroundColor: colors.background
                             }]}
                         animation="fadeInUpBig">
-                        <View style={{
-                            ...commonStyles.action,
-                            marginTop: 0
-                        }}>
-                            <View style={{ 
-                                ...registerExpenseStyles.icon,
-                                backgroundColor: colors.primary,
-                                
-                            }}>
-                                <FontAwesomeIcon 
-                                    style={{ 
-                                        color: buttonText
-                                    }}
-                                    icon={ faRoute }
-                                    size={20} />
-                            </View>
-                            
-                            <TouchableOpacity
-                                onPress={ () => {  
-                                    if ( showToast ) {
-                                        Toast.hide();    
-                                    }
-                                    openSearch('Activities') 
-                                }}
-                            >
-                                <TextInput
+                        <TouchableOpacity
+                            onPress={ () => {  
+                                if ( showToast ) {
+                                    Toast.hide();    
+                                }
+                                openSearch('Activities') 
+                            }}
+                        >
+                            <FilledInputText label={ t( 'resActividadesGastos' ) } disabled={  true }  value={ activity?.Description } />
+                            {/* <FilledTextField
+                                disabled={ true }
+                                label={ t( 'resActividadesGastos' ) }
+                                tintColor={ colors.primary }
+                                baseColor={ accent }
+                                titleTextStyle={{ fontFamily: regular }}
+                                labelTextStyle={{ fontFamily: regular, }}
+                                labelFontSize={ 18 }
+                                inputContainerStyle={{ backgroundColor: fieldColor, borderRadius: 6 }}
+                                activeLineWidth={ 0 }
+                                lineWidth={ 0 }
+                                contentInset={{ top: 10 }}
+
+                            /> */}
+                                {/* <TextInput
                                     editable={ false }
                                     keyboardType="visible-password"
                                     placeholder={ t( 'resActividadesGastos' ) }
@@ -450,466 +471,180 @@ export const RegisterExpensesScreen = ({ navigation, route }: Props) => {
                                         color: colors.text,
                                     }}
                                     value={ activity?.Description }
-                                />
-                            </TouchableOpacity>
-                        </View>
-                        <View style={{
-                            ...commonStyles.action,
-                            marginTop: 40
-                        }}>
-                            <View style={{ 
-                                ...registerExpenseStyles.icon,
-                                backgroundColor: colors.primary,
-                                
-                            }}>
-                                <FontAwesomeIcon 
-                                    style={{ 
-                                        color: buttonText
-                                    }}
-                                    icon={ faThLarge }
-                                    size={20} />
-                            </View>
-                            <TouchableOpacity
-                                onPress={ () => { 
-                                    if ( showToast ) {
-                                        Toast.hide();    
-                                    }
-                                    openSearch(  'Category' ) ;  
-                                }}
-                            >
-                                <TextInput
-                                    editable={ false }
-                                    placeholder={ t( 'resCategorias' ) }
-                                    placeholderTextColor="#666666"
-                                    style={{
-                                        ...commonStyles.textInput,
-                                        ...registerExpenseStyles.textInput,
-                                        color: colors.text,
-                                    }}
-                                    value={ category.Name }
-                                />
-                            </TouchableOpacity>
-                           
-                        </View>
-                        <View style={{
-                            ...commonStyles.action,
-                            marginTop: 40
-                        }}>
-                            <View style={{ 
-                                ...registerExpenseStyles.icon,
-                                backgroundColor: colors.primary,
-                                
-                            }}>
-                                <FontAwesomeIcon 
-                                    style={{ 
-                                        color: buttonText
-                                    }}
-                                    icon={ faCalendarMinus }
-                                    size={20} />
-                            </View>
-                            <TouchableOpacity
-                                onPress={ () => hideCalendar( !showcalendar ) }
-                            >
-                                <TextInput
-                                    editable={ false }
-                                    placeholder={ t( 'resFecha' ) }
-                                    placeholderTextColor="#666666"
-                                    style={{
-                                        ...commonStyles.textInput,
-                                        ...registerExpenseStyles.textInput,
-                                        color: colors.text,
-                                        
-                                    }}
-                                    value={ convertDate || Moment(expense.Date).format('ll')  }
-                                />
-                            </TouchableOpacity>
-                            
-                        </View>
+                                /> */}
+                        </TouchableOpacity>
+                        
+                        <TouchableOpacity
+                            onPress={ () => { 
+                                if ( showToast ) {
+                                    Toast.hide();    
+                                }
+                                openSearch(  'Category' ) ;  
+                            }}
+                        >
+                            <FilledInputText label={ t( 'resCategorias' ) } disabled={ true }  value={ category.Name } />
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            onPress={ () => hideCalendar( !showcalendar ) }
+                        >
+                            <FilledInputText label={ t( 'resFecha' ) } disabled={ true }  value={  convertDate || Moment(expense.Date).format('ll') } />
+                        </TouchableOpacity>
                         { showcalendar &&
                             <CalendarSingleDate showCalendar={ hideCalendar } setDate={ setDate }></CalendarSingleDate>
                         }
-                        
-                        <View style={{
-                            ...commonStyles.action,
-                            marginTop: 40
-                        }}>
-                            <View style={{ 
-                                ...registerExpenseStyles.icon,
-                                backgroundColor: colors.primary,
-                                
-                            }}>
-                                <FontAwesomeIcon 
-                                    style={{ 
-                                        color: buttonText
-                                    }}
-                                    icon={ faTable }
-                                    size={20} />
-                            </View>
-                            <TextInput
-                                onChangeText={ ( value ) => setExpense({
-                                    ...expense,
+                        <FilledInputText label={ t( 'resDescripcion' ) } 
+                            onChangeText={ ( value ) =>  
+                                setExpense({ 
+                                    ...expense, 
                                     Description: value
-                                })}
-                                placeholder={ t( 'resDescripcion' ) }
-                                placeholderTextColor="#666666"
-                                style={{
-                                    ...commonStyles.textInput,
-                                    ...registerExpenseStyles.textInput,
-                                    color: colors.text,
-                                    
-                                }}
-                                value={ expense.Description }
-                            />
-                        </View>
-                       {/*  <View 
+                                }) 
+                            }  
+                            disabled={ false }  value={ expense.Description } 
+                        />
+                        <DropDownPicker
+                            dropDownMaxHeight={ 200 }
+                            defaultValue={ expense.PaymentType }
+                            placeholder={ t( 'resTipoPago' ) }
+                            labelStyle={{ 
+                                color: colors.text,
+                                fontSize: 20,
+                                fontFamily: regular,
+                            }}
+                            items={ getPaymentType() }
+                            containerStyle={{ width:  width / 1.5, borderRadius: 10 }}
                             style={{
-                                ...commonStyles.action,
-                                marginTop: 40,
-                                zIndex: 10
-                            }}>
-                                
-                        </View> */}
-                        <View style={{ flexDirection: 'row', marginTop: 40}}>
-                            <View style={{ 
-                                ...registerExpenseStyles.icon,
-                                backgroundColor: colors.primary,
-                                }}
-                            >
-                                <FontAwesomeIcon 
-                                    style={{ 
-                                        color: buttonText
-                                    }}
-                                    icon={ faCoins }
-                                    size={20} />
-                            </View>
-                            <DropDownPicker
-                                dropDownMaxHeight={ 200 }
-                                defaultValue={ expense.PaymentType }
-                                placeholder={ t( 'resTipoPago' ) }
-                                labelStyle={{ 
-                                    color: colors.text,
-                                    fontSize: 20
-                                }}
-                                items={ getPaymentType() }
-                                containerStyle={{ width:  width / 1.5}}
-                                style={{
-                                    backgroundColor: colors.background,
-                                    borderColor: 'transparent',
-                                }}
-                                itemStyle={{
-                                    justifyContent: 'flex-start'
-                                }}
-                                dropDownStyle={{backgroundColor: colors.background}}
-                                onChangeItem={(item) =>  setExpense({
-                                    ...expense,
-                                    PaymentType: item.value
-                                }) }
-                            />
-                        </View>
-                        <View style={{
-                                ...commonStyles.action,
-                                marginTop: 40,
-                                zIndex: 5
-                            }}>
-                                <View style={{ 
-                                    ...registerExpenseStyles.icon,
-                                    backgroundColor: colors.primary,
-                                }}>
-                                    <FontAwesomeIcon 
-                                        style={{ 
-                                            color: buttonText
-                                        }}
-                                        icon={ faSearchDollar }
-                                        size={20} />
-                                </View>
-                                <TouchableOpacity
-                                    onPress={ () =>  openSearch( 'CurrencyType' ) }
-                                >
-                                    <TextInput
-                                        editable={ false }                                
-                                        placeholder={ t( 'resTipoMoneda' ) }
-                                        placeholderTextColor="#666666"
-                                        style={{
-                                            ...commonStyles.textInput,
-                                            ...registerExpenseStyles.textInput,
-                                            color: colors.text,
-                                            
-                                        }}
-                                        value={ currency.label || expense.Currency }
-                                    />   
-                                </TouchableOpacity>                             
-                        </View >
-                        <View style={ commonStyles.horizontallyAligment }>
-                            { expense.PaymentType !== 'R' &&
-                                <View style={{
-                                    ...commonStyles.action,
-                                    marginTop: 40,
-                                    width: width * 0.5
-                                }}>
-                                    <View style={{ 
-                                        ...registerExpenseStyles.icon,
-                                        backgroundColor: colors.primary,
-                                        
-                                    }}>
-                                        <FontAwesomeIcon 
-                                            style={{ 
-                                                color: buttonText
-                                            }}
-                                            icon={ faMoneyCheckAlt }
-                                            size={20} />
-                                    </View>
-                                    <NumberFormat value={ formatValuesExpenses.expenseCash || expense.ExpenseCash } displayType={'text'} thousandSeparator={true} prefix={'$'} 
-                                        onValueChange={ ( values ) => {
-                                            const {formattedValue, value} = values;
-                                            setExpense({
-                                                ...expense,
-                                                ExpenseCash: +value
-                                            });
-                                        } }
-                                        renderText={ valueRender => (
-                                            <TextInput
-                                                keyboardType="numeric"
-                                                placeholder={ t( 'resVEfectivo' ) }
-                                                placeholderTextColor="#666666"
-                                                style={{
-                                                    ...commonStyles.textInput,
-                                                    ...registerExpenseStyles.textInput,
-                                                    color: colors.text,    
-                                                }}
-                                                onChangeText={ ( value ) => 
-                                                    {
-                                                        setFormatValuesExpenses({
-                                                            ...formatValuesExpenses,
-                                                            expenseCash: value,
-                                                        });
-                                                    } 
-                                                }
-                                                onBlur={ setTotal }
-                                                value={ valueRender }
-                                            />
-                                        )}
-                                    />
-                                </View>
-                            }
-                            {( expense.PaymentType === 'B' || expense.PaymentType === 'R') &&
-                                <View style={{
-                                    ...commonStyles.action,
-                                    marginTop: 40,
-                                    width: width * 0.5
-                                }}>
-                                    <View style={{ 
-                                        ...registerExpenseStyles.icon,
-                                        backgroundColor: colors.primary,
-                                        
-                                    }}>
-                                        <FontAwesomeIcon 
-                                            style={{ 
-                                                color: buttonText
-                                            }}
-                                            icon={ faMoneyCheckAlt }
-                                            size={20} />
-                                    </View>
-                                    <NumberFormat value={ formatValuesExpenses.creditValue } displayType={'text'} thousandSeparator={true} prefix={'$'} 
-                                        onValueChange={ ( values ) => {
-                                            const {formattedValue, value} = values;
-                                            setExpense({
-                                                ...expense,
-                                                ExpenseCC: +value
-                                            });
-                                        } }
-                                        renderText={ valueRender => (
-                                            <TextInput
-                                                keyboardType="numeric"
-                                                placeholder={ t( 'resVCredito' ) }
-                                                placeholderTextColor="#666666"
-                                                style={{
-                                                    ...commonStyles.textInput,
-                                                    ...registerExpenseStyles.textInput,
-                                                    color: colors.text,    
-                                                }}
-                                                onChangeText={ ( value ) => 
-                                                    {
-                                                        setFormatValuesExpenses({
-                                                            ...formatValuesExpenses,
-                                                            creditValue: value,
-                                                        });
-                                                    } 
-                                                }
-                                                onBlur={ setTotal }
-                                                value={ valueRender }
-                                            />
-                                        )}
-                                    />
-                                </View>
-                            }
-                        </View>
-                        <Text style={{ 
-                            ...commonStyles.textSubtitle,
-                            color: colors.primary
-                        }}> { t( 'resGastosMonedaActividad' ) }</Text>
-                        <View style={ commonStyles.horizontallyAligment }>
-                            <View style={{
-                                ...commonStyles.action,
-                                marginTop: 40
-                            }}>
-                                <View style={{ 
-                                    ...registerExpenseStyles.icon,
-                                    backgroundColor: colors.primary,
-                                    
-                                }}>
-                                    <FontAwesomeIcon 
-                                        style={{ 
-                                            color: buttonText
-                                        }}
-                                        icon={ faBook }
-                                        size={20} />
-                                </View>
-                                <NumberFormat value={ formatValuesExpenses.tipValue } displayType={'text'} thousandSeparator={true} prefix={'$'}
-                                    onValueChange={ ( values ) => {
-                                        const {formattedValue, value} = values;
-                                        setExpense({
-                                            ...expense,
-                                            TipValue: +value
-                                        })
-                                    } }
-                                    renderText={ valueRender => (
-                                        <TextInput
-                                            keyboardType="numeric"
-                                            placeholder={ t( 'resVPropina' ) }
-                                            placeholderTextColor="#666666"
-                                            style={{
-                                                ...commonStyles.textInput,
-                                                ...registerExpenseStyles.textInput,
-                                                color: colors.text,
-                                                
-                                            }}
-                                            onChangeText={ ( value ) => setFormatValuesExpenses({
-                                                ...formatValuesExpenses,
-                                                tipValue: value
-                                            }) }
-                                            onBlur={ () =>  setTotal() }
-                                            value={ valueRender }
-                                        />
-                                    )}
-                                />
-                            </View>
-                            <View style={{
-                                ...commonStyles.action,
-                                marginTop: 40
-                            }}>
-                                <View style={{ 
-                                    ...registerExpenseStyles.icon,
-                                    backgroundColor: colors.primary,
-                                
-                                }}>
-                                    <FontAwesomeIcon 
-                                        style={{ 
-                                            color: buttonText
-                                        }}
-                                        icon={ faBook }
-                                        size={20} />
-                                </View>
-                                <NumberFormat value={ formatValuesExpenses.taxValue } displayType={'text'} thousandSeparator={true} prefix={'$'} 
-                                    onValueChange={ ( values ) => {
-                                        const {formattedValue, value} = values;
-                                        setExpense({
-                                            ...expense,
-                                            TaxValue: +value
-                                        })
-                                    } }
-                                    renderText={ valueRender => (
-                                        <TextInput
-                                            keyboardType="numeric"
-                                            placeholder={ t( 'resVImpuestos' ) }
-                                            placeholderTextColor="#666666"
-                                            style={{
-                                                ...commonStyles.textInput,
-                                                ...registerExpenseStyles.textInput,
-                                                color: colors.text,
-                                                
-                                            }}
-                                            onChangeText={ ( value ) => setFormatValuesExpenses({
-                                                ...formatValuesExpenses,
-                                                taxValue: value
-                                            }) }
-                                            onBlur={ () => setTotal() }
-                                            value={ valueRender }
-                                        />
-                                    )}
-                                />
-                            </View>
-                        </View>
-                        <View style={{
-                            ...commonStyles.action,
-                            marginTop: 40,
-                            width: width * 0.5
-                        }}>
-                            <View style={{ 
-                                ...registerExpenseStyles.icon,
-                                backgroundColor: colors.primary,
-                                
-                            }}>
-                                <FontAwesomeIcon 
-                                    style={{ 
-                                        color: buttonText
-                                    }}
-                                    icon={ faFileInvoiceDollar }
-                                    size={20} />
-                            </View>
-                            <NumberFormat value={ setTotal() } displayType={'text'} thousandSeparator={true} prefix={'$'} 
+                                backgroundColor: fieldColor,
+                                borderColor: 'transparent',
+                            }}
+                            itemStyle={{
+                                justifyContent: 'flex-start'
+                            }}
+                            dropDownStyle={{backgroundColor: colors.background}}
+                            onChangeItem={(item) =>  setExpense({
+                                ...expense,
+                                PaymentType: item.value
+                            }) }
+                        />
+                    
+                        <TouchableOpacity
+                            style={{ paddingTop: 8 }}
+                            onPress={ () =>  openSearch( 'CurrencyType' ) }
+                        >
+                            <FilledInputText label={ t( 'resTipoMoneda' ) } disabled={ true }  value={ currency.label || expense.Currency } />
+                        </TouchableOpacity>                             
+                        
+                        { expense.PaymentType !== 'R' &&
+                            <NumberFormat value={ formatValuesExpenses.expenseCash || expense.ExpenseCash } displayType={'text'} thousandSeparator={true} prefix={'$'} 
+                                onValueChange={ ( values ) => {
+                                    const {formattedValue, value} = values;
+                                    setExpense({
+                                        ...expense,
+                                        ExpenseCash: +value
+                                    });
+                                } }
                                 renderText={ valueRender => (
-                                    <TextInput
-                                        editable={ false }
-                                        placeholder={ t( 'resTotalGastos' ) }
-                                        placeholderTextColor="#666666"
-                                        style={{
-                                            ...commonStyles.textInput,
-                                            ...registerExpenseStyles.textInput,
-                                            color: colors.text,
-                                            
-                                        }}
-                                        value={ valueRender }
-                                    />
+                                    <FilledInputText label={ t( 'resVEfectivo' ) } disabled={ false } 
+                                    onChangeText={ ( value ) =>  
+                                        setFormatValuesExpenses({
+                                            ...formatValuesExpenses,
+                                            expenseCash: value,
+                                        })
+                                    }   
+                                    onBlur={ setTotal }
+                                    value={ valueRender } />
                                 )}
                             />
+                        }
+                        { ( expense.PaymentType === 'B' || expense.PaymentType === 'R') &&
+                            <NumberFormat value={ formatValuesExpenses.creditValue } displayType={'text'} thousandSeparator={true} prefix={'$'} 
+                                onValueChange={ ( values ) => {
+                                    const {formattedValue, value} = values;
+                                    setExpense({
+                                        ...expense,
+                                        ExpenseCC: +value
+                                    });
+                                } }
+                                renderText={ valueRender => (
+                                    <FilledInputText label={ t( 'resVCredito' ) } disabled={ false } 
+                                    onChangeText={ ( value ) =>  
+                                        setFormatValuesExpenses({
+                                            ...formatValuesExpenses,
+                                            creditValue: value,
+                                        })
+                                    }   
+                                    onBlur={ setTotal }
+                                    value={ valueRender } />
+                                )}
+                            />
+                        }
+                        <DynamicText fontFamily={ semibold }
+                            style={{ 
+                                ...commonStyles.textSubtitle,
+                                color: colors.primary,
+                                marginBottom: 20
+                            }}
+                        > 
+                            { t( 'resGastosMonedaActividad' ) }
+                        </DynamicText>
+                        <NumberFormat value={ formatValuesExpenses.tipValue } displayType={'text'} thousandSeparator={true} prefix={'$'}
+                            onValueChange={ ( values ) => {
+                                const {formattedValue, value} = values;
+                                setExpense({
+                                    ...expense,
+                                    TipValue: +value
+                                })
+                            } }
+                            renderText={ valueRender => (
+                                <FilledInputText label={ t( 'resVPropina' ) } disabled={ false } 
+                                    onChangeText={ ( value ) =>  
+                                        setFormatValuesExpenses({
+                                            ...formatValuesExpenses,
+                                            tipValue: value
+                                        })
+                                    }   
+                                    onBlur={ setTotal }
+                                    value={ valueRender } 
+                                />
+                            )}
+                        />
+                        <NumberFormat value={ formatValuesExpenses.taxValue } displayType={'text'} thousandSeparator={true} prefix={'$'} 
+                            onValueChange={ ( values ) => {
+                                const {formattedValue, value} = values;
+                                setExpense({
+                                    ...expense,
+                                    TaxValue: +value
+                                })
+                            } }
+                            renderText={ valueRender => (
+                                <FilledInputText label={ t( 'resVImpuestos' ) } disabled={ false } 
+                                    onChangeText={ ( value ) =>  
+                                        setFormatValuesExpenses({
+                                            ...formatValuesExpenses,
+                                            taxValue: value
+                                        })
+                                    }   
+                                    onBlur={ setTotal }
+                                    value={ valueRender } 
+                                />
+                            )}
+                        />
+                        
+                        <NumberFormat value={ setTotal() } displayType={'text'} thousandSeparator={true} prefix={'$'} 
+                            renderText={ valueRender => (
+                                <FilledInputText label={ t( 'resTotalGastos' ) } disabled={ true } 
+                                    onBlur={ setTotal }
+                                    value={ valueRender } 
+                                />
+                            )}
+                        />
                             
-                        </View>
                         { ( showFields && !manualEstablishment ) &&
-                            <View style={{
-                                ...commonStyles.action,
-                                marginTop: 40
-                            }}>
-                                <View style={{ 
-                                    ...registerExpenseStyles.icon,
-                                    backgroundColor: colors.primary,
-                                    
-                                }}>
-                                    <FontAwesomeIcon 
-                                        style={{ 
-                                            color: buttonText
-                                        }}
-                                        icon={ faTable }
-                                        size={20} />
-                                </View>
-                                <TouchableOpacity
-                                    onPress={ () => openSearch('Establishment') }
-                                >
-                                    <TextInput
-                                        editable={ false }
-                                        placeholder={ t( 'resEstablecimiento' ) }
-                                        placeholderTextColor="#666666"
-                                        style={{
-                                            ...commonStyles.textInput,
-                                            ...registerExpenseStyles.textInput,
-                                            color: colors.text,
-                                            
-                                        }}
-                                        value={ establishment.Name }
-                                    />
-                                </TouchableOpacity>
-                               
-                            </View>
-
+                        
+                            <TouchableOpacity
+                                onPress={ () => openSearch('Establishment') }
+                            >
+                                <FilledInputText label={ t( 'resEstablecimiento' ) } disabled={ true } value={ establishment.Name }  />
+                            </TouchableOpacity>
                         }
                         
                         { showFields &&
@@ -919,107 +654,44 @@ export const RegisterExpensesScreen = ({ navigation, route }: Props) => {
                                 borderBottomColor: 'transparent'
                             }}>
                                 <Switch
-                                    trackColor={{ false: '#ECECEC', true: secondary }}
+                                    trackColor={{ false: grayColor, true: secondary }}
                                     thumbColor={manualEstablishment ? colors.primary : "#ECECEC"}
                                     onValueChange={ () => setManualEstablishment(previousState => !previousState)}
                                     value={manualEstablishment}
                                 ></Switch>
-                                <Text 
+                                <DynamicText 
+                                    fontFamily={ semibold }
                                     style={{ 
                                         ...commonStyles.textSubtitle,
                                         color: colors.text,
                                         marginTop: 0
                                     }}
-                                > { t( 'resEstablecimientoManual' ) } </Text>
+                                > { t( 'resEstablecimientoManual' ) } </DynamicText>
                             </View>
                         }
                         {
                             ( showFields && manualEstablishment ) &&
                             <>
-                                <View style={{
-                                    marginTop: 40,
-                                    borderBottomColor: 'transparent'
-                                }}>
-                                    <Text 
-                                        style={{ 
-                                            ...commonStyles.textSubtitle,
-                                            color: colors.primary,
-                                            marginTop: 0
-                                        }}
-                                    > { t( 'resNombreEstablecimiento' ) }</Text>
-                                    <TextInput
-                                        onChangeText={ ( value ) => setExpense({
+                                <FilledInputText label={ t( 'resNombreEstablecimiento' ) } disabled={ false } 
+                                    onChangeText={ ( value ) =>  
+                                        setExpense({
                                             ...expense,
                                             nameEstablishment: value
-                                        })}
-                                        underlineColorAndroid="#E9E8E8"
-                                        style={{
-                                            ...commonStyles.textInput,
-                                            ...registerExpenseStyles.textInput,
-                                            color: colors.text,
-                                            
-                                        }}
-                                        value={ expense.nameEstablishment }
-                                    />
-                                </View>
-                                
-                                <View style={{
-                                    marginTop: 40,
-                                    borderBottomColor: 'transparent'
-                                }}>
-                                    <Text 
-                                        style={{ 
-                                            ...commonStyles.textSubtitle,
-                                            color: colors.primary,
-                                            marginTop: 0
-                                        }}
-                                    > NIT: </Text>
-                                    <TextInput
-                                        keyboardType="numeric"
-                                        onChangeText={ ( value ) => setExpense({
+                                        })
+                                    }   
+                                    value={ expense.nameEstablishment } 
+                                />
+                                <FilledInputText label={ 'NIT' } disabled={ false } 
+                                    onChangeText={ ( value ) =>  
+                                        setExpense({
                                             ...expense,
                                             nitEstablishment: value
-                                        })}
-                                        underlineColorAndroid="#E9E8E8"
-                                        style={{
-                                            ...commonStyles.textInput,
-                                            ...registerExpenseStyles.textInput,
-                                            color: colors.text,
-                                            
-                                        }}
-                                        value={ expense.nitEstablishment }
-                                    />
-                                </View>
+                                        })
+                                    }   
+                                    value={ expense.nitEstablishment } 
+                                />
                             </>
                         }
-                        <View style={{
-                            ...commonStyles.action,
-                            marginTop: 40,
-                            width: width * 0.6
-                        }}>
-                            <View style={{ 
-                                ...registerExpenseStyles.icon,
-                                backgroundColor: colors.primary,
-                                
-                            }}>
-                                <FontAwesomeIcon 
-                                    style={{ 
-                                        color: buttonText
-                                    }}
-                                    icon={ faPaperclip }
-                                    size={20} />
-                            </View>
-                            <TextInput
-                                placeholder="Adjuntar Soporte"
-                                placeholderTextColor="#666666"
-                                style={{
-                                    ...commonStyles.textInput,
-                                    ...registerExpenseStyles.textInput,
-                                    color: colors.text,
-                                    
-                                }}
-                            />
-                        </View>
                         <View style={{ 
                             ...commonStyles.horizontallyAligment,
                             justifyContent: 'space-around',
@@ -1034,7 +706,7 @@ export const RegisterExpensesScreen = ({ navigation, route }: Props) => {
                                     color={ colors.primary }
                                     size={ 50 }
                                 />
-                                <Text style={ commonStyles.aditionalInfo }>{ t( 'resTomarFoto' ) }</Text>
+                                <DynamicText style={ commonStyles.aditionalInfo }>{ t( 'resTomarFoto' ) }</DynamicText>
                             </TouchableOpacity>
                             <TouchableOpacity 
                                 onPress={ openGallery }
@@ -1045,7 +717,7 @@ export const RegisterExpensesScreen = ({ navigation, route }: Props) => {
                                     color={ colors.primary }
                                     size={ 50 }
                                 />
-                                <Text style={ commonStyles.aditionalInfo }>{ t( 'resAdjuntarGaleria' ) }</Text>
+                                <DynamicText style={ commonStyles.aditionalInfo }>{ t( 'resAdjuntarGaleria' ) }</DynamicText>
                             </TouchableOpacity>
                         </View>
                         <View style={commonStyles.buttonCenter}>
@@ -1059,9 +731,9 @@ export const RegisterExpensesScreen = ({ navigation, route }: Props) => {
                                     colors={[colors.primary, secondary]}
                                     style={ registerExpenseStyles.buttonSave }
                                 >
-                                    <Text style={[commonStyles.buttonText, {
+                                    <DynamicText  fontFamily={ semibold }  style={[commonStyles.buttonText, {
                                         color: buttonText
-                                    }]}> { t( 'resGuardar' ) } </Text>
+                                    }]}> { t( 'resGuardar' ) } </DynamicText>
                                 </LinearGradient>
                             </TouchableOpacity>
                             {
@@ -1072,38 +744,10 @@ export const RegisterExpensesScreen = ({ navigation, route }: Props) => {
                                     color={ colors.primary }
                                 ></ActivityIndicator>
                             }
-                            
                         </View>
                 </Animatable.View>
             </View>
         </ScrollView>
-        <View style={{ marginTop: 20 , marginLeft: 20, bottom: 60 }}>
-            <FlatList
-
-                data={ imagesUpload }
-                numColumns = { 4 }
-                keyExtractor={  ( image ) => image }
-                renderItem={ ({ item, index }) => (
-                    <View>
-                        <View style={{ ...commonStyles.rightButtonContainer }}>
-                            <Icon
-                                onPress={ () => removeImage( index ) }
-                                name="close-outline"
-                                color={ colors.primary }
-                                size={ 20 }
-                            />
-                        </View>
-                        <TouchableOpacity style={{ marginLeft: 10 }}>
-                            
-                            <Image 
-                                style={{ width: 80, height: 80 }}
-                                source={{ uri: item }}
-                            />
-                        </TouchableOpacity>
-                    </View>
-                ) }
-            />
-        </View>
         </>
     )
 }

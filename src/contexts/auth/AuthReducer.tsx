@@ -1,4 +1,4 @@
-import { CustomUserSession } from '../../interfaces/auth/CustomUserSession';
+import { CustomUserSession } from '../../model/interfaces/auth/CustomUserSession';
 
 
 

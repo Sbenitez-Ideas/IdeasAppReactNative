@@ -1,4 +1,4 @@
-import { MenuInfo } from '../../interfaces/common/MenuInfo';
+import { MenuInfo } from '../../model/interfaces/common/MenuInfo';
 import { 
     faFileInvoiceDollar,
     faFileContract,
