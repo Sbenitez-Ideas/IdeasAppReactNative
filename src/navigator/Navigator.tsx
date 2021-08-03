@@ -36,6 +36,15 @@ import { Menu } from '../model/classes/common/Menu';
 import { ChangeLanguageScreen } from '../screens/common/ChangeLanguageScreen';
 import { MyServicesScreen } from '../screens/corporate/MyServicesScreen';
 import { Booking } from '../model/interfaces/flights/Bookings';
+import { RequestServices } from '../screens/common/RequestServices';
+import { SlidesScreen } from '../screens/common/SlidesScreen';
+import { TravelerCorporate } from '../model/classes/corporate/TravelerCorporate';
+import { ApproverListRS } from '../model/classes/corporate/ApproverListRS';
+import { GetCostCenterRS } from '../model/classes/backoffice/GetCostCenterRS';
+import { FlightSearchScreen } from '../screens/flights/FlightSearchScreen';
+import { FilterRequestsScreen } from '../screens/corporate/FilterRequestsScreen';
+import { GeoLocation } from '../model/interfaces/corporate/Geolocation';
+import { FlightAvailabilityScreen } from '../screens/flights/FlightAvailabilityScreen';
 
 
 export type RootStackParams = {
@@ -49,18 +58,23 @@ export type RootStackParams = {
     FilterActivitiesScreen: { activities: GActivities[], alreadyFiltered?: boolean, beforeFiltered?: { dateStart: string, dateEnd: string, state: string } },
     BottomMenu: undefined,
     ScreenSCS: undefined,
-    AutoCompleteSearch: { type: 'Activities' | 'Category' | 'CurrencyType' | 'Establishment', screen: 'RegisterExpensesScreen' | 'RegisterActivityScreen' },
+    AutoCompleteSearch: { type: 'Activities' | 'Category' | 'CurrencyType' | 'Establishment' | 'Traveler' |  'Approvers' | 'CostCenter' | 'Location', screen: 'RegisterExpensesScreen' | 'RegisterActivityScreen' | 'RequestServices' | 'FlightSearchScreen', index?: number, typeSearch?: string },
     RegisterActivityScreen: { currencyType?: CurrencyTypes, activity?: GActivities, type?: string},
     HomeHelpScreen: undefined,
     HomeToolsScreen: undefined,
     CheckinScreen: undefined,
     ExpensesScreen: {currentActivity: GActivities,  type?: 'allActivities' |  'pendingLegalize' | 'pendingApprove' | 'filter' },
-    BookingListScreen: { type: 'flown' | 'approver' | 'others' },
-    ReviewScreen: { loc?: string, products?: string, booking?: Booking },
+    BookingListScreen: { type: 'flown' | 'approver' | 'others', dataFilter?: { dateStart: string, dateEnd: string, state: number, flow: string } },
+    ReviewScreen: { loc?: string, products?: string, booking?: Booking, typeScreen?: string },
     Chat: undefined,
     MoreScreen: { items: Menu[] },
     ChangeLanguageScreen: undefined,
-    MyServicesScreen: undefined
+    MyServicesScreen: { dataFilter?: { dateStart: string, dateEnd: string, state: number, flow: string } },
+    RequestServices: { traveler?: TravelerCorporate, approver?: ApproverListRS, costCenter?: GetCostCenterRS, index?: number },
+    SlidesScreen: undefined,
+    FlightSearchScreen: { location?: GeoLocation, typeSearch?: string, index?: number },
+    FilterRequestsScreen: { alreadyFiltered?: boolean, beforeFiltered?: { dateStart: string, dateEnd: string, state: number, flow: string } }
+    FlightAvailabilityScreen: { searchParams: { adults: number, childrens: number, babys: number, times: string, dates: string, departures: string, arrivals: string, baggage: string, cabine: { name: string, value: string }, direct: boolean}, type: 'price' | 'single' }
     
     
 
@@ -102,6 +116,7 @@ export const Navigator = () => {
                         <>
                             <Stack.Screen options={{headerShown: false}} name="SplashScreen" component={ SplashScreen } />
                             <Stack.Screen options={{headerShown: false}} name="LoginScreen" component={ LoginScreen } />
+                            <Stack.Screen name="SlidesScreen" component={ SlidesScreen } />
                         </>
                     )
                     : (
@@ -136,6 +151,10 @@ export const Navigator = () => {
 
                                 }} 
                             />
+                            <Stack.Screen name="RequestServices" component={ RequestServices } />
+                            <Stack.Screen name="FlightSearchScreen" component={ FlightSearchScreen } />
+                            <Stack.Screen name="FilterRequestsScreen" component={ FilterRequestsScreen } />
+                            <Stack.Screen name="FlightAvailabilityScreen" component={ FlightAvailabilityScreen } />
                         </>
                     )
                 }                

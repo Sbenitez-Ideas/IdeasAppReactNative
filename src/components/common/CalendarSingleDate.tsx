@@ -7,14 +7,16 @@ import LinearGradient from 'react-native-linear-gradient';
 import { ThemeContext } from '../../contexts/theme/ThemeContext';
 import { commonStyles } from '../../styles/commonStyles';
 import { DynamicText } from './DynamicText';
+import * as Animatable from 'react-native-animatable';
 
 interface  Props{
     showCalendar: ( show: boolean ) => void;
     setDate: ( date: DateObject ) => void;
     minDate?: string;
+    maxDate?: string;
 }
 
-export const CalendarSingleDate = ({ showCalendar, setDate, minDate }: Props) => {  
+export const CalendarSingleDate = ({ showCalendar, setDate, minDate, maxDate }: Props) => {  
     const { t } = useTranslation();
     const { theme: { colors, secondary, buttonText } } = useContext( ThemeContext );
     const [dateSelected, setDateSelected] = useState<DateObject>({
@@ -31,9 +33,13 @@ export const CalendarSingleDate = ({ showCalendar, setDate, minDate }: Props) =>
     }
 
     return (
-        <>
+        <Animatable.View
+            animation='fadeIn'
+            style={{ marginBottom: 15 }}
+        >
             <Calendar
                 minDate={ minDate }
+                maxDate={ maxDate }
                 markedDates={{
                     [ dateSelected.dateString ]: {selected: true, marked: true, selectedColor: colors.primary}
                 }}
@@ -86,6 +92,6 @@ export const CalendarSingleDate = ({ showCalendar, setDate, minDate }: Props) =>
                                     </LinearGradient>
                                 </TouchableOpacity>
                             </View>
-        </>
+        </Animatable.View>
     )
 }

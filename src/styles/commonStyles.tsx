@@ -118,6 +118,7 @@ export const commonStyles = StyleSheet.create({
     },
     stateContainer: {
         maxWidth: 130, 
+        width: 100, 
         padding: 6.6,
         borderRadius: 5,
         maxHeight: 35,

@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { Dimensions, Text, TextInput, TouchableOpacity, View, Image, ActivityIndicator } from 'react-native';
+import { Dimensions, TouchableOpacity, View, Image, ActivityIndicator } from 'react-native';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faRoute, faThLarge, faCalendarMinus, faTable, faCoins, faSearchDollar, faMoneyCheckAlt, faBook, faFileInvoiceDollar, faPaperclip, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { faTimes } from '@fortawesome/free-solid-svg-icons';
 import * as Animatable from 'react-native-animatable';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { loginStyles } from '../../styles/loginStyles';
@@ -36,9 +36,7 @@ import { CategoriesEntity } from '../../model/classes/viatics/CategoriesEntity';
 import { useTranslation } from 'react-i18next';
 import { Header } from '../../components/common/Header';
 import { ProfileNavigation } from '../../components/common/ProfileNavigation';
-import { TextField, FilledTextField, OutlinedTextField } from 'rn-material-ui-textfield'
 import { useFont } from '../../hooks/common/useFont';
-import { color } from 'react-native-reanimated';
 import { FilledInputText } from '../../components/common/FilledInputText';
 import { DynamicText } from '../../components/common/DynamicText';
 
@@ -185,18 +183,20 @@ export const RegisterExpensesScreen = ({ navigation, route }: Props) => {
             includeBase64: true
         }
         launchCamera(options, (resp) => {
-            const image = resp.uri as string;
-            const parts = image.substring(image.lastIndexOf('.') + 1, image.length);        
-            const base64 = resp.base64;
-            const imageType = 'data:image/' + parts + ';base64,' + base64;
-            setImages64([
-                ...images64,
-                imageType
-            ]);
-            setImagesUpload([
-                ...imagesUpload,
-                resp.uri as string
-            ]);
+            if ( !resp.didCancel && resp?.fileName ) {
+                const image = resp.uri as string;
+                const parts = image.substring(image.lastIndexOf('.') + 1, image.length);        
+                const base64 = resp.base64;
+                const imageType = 'data:image/' + parts + ';base64,' + base64;
+                setImages64([
+                    ...images64,
+                    imageType
+                ]);
+                setImagesUpload([
+                    ...imagesUpload,
+                    resp.uri as string
+                ]);
+            }
         });
     }
 
@@ -204,7 +204,9 @@ export const RegisterExpensesScreen = ({ navigation, route }: Props) => {
         const options: ImageLibraryOptions = {
             mediaType: 'photo'
         }
+
         launchImageLibrary(options,  ( resp ) => {
+        if ( !resp.didCancel && resp?.fileName ) {
             const image = resp.uri as string;
             const parts = image.substring(image.lastIndexOf('.') + 1, image.length);        
             const base64 = resp.base64;
@@ -217,6 +219,7 @@ export const RegisterExpensesScreen = ({ navigation, route }: Props) => {
                 ...imagesUpload,
                 resp.uri as string
             ]);
+        }
         });
     }
 
@@ -344,7 +347,9 @@ export const RegisterExpensesScreen = ({ navigation, route }: Props) => {
                             type: 'success',
                             visibilityTime: 1500,
                             onHide: () =>  {
-                                navigation.navigate('HomeViaticsScreen')
+                                navigation.navigate('ActivitiesListScreen', {
+                                    type: 'allActivities'
+                                })
                             }
                         });
                     }
@@ -375,6 +380,7 @@ export const RegisterExpensesScreen = ({ navigation, route }: Props) => {
 
     }
 
+    console.log( 'actividad', activity );
     return (
         <>
         <Header 
@@ -404,20 +410,6 @@ export const RegisterExpensesScreen = ({ navigation, route }: Props) => {
                 alignItems: 'stretch',
                 bottom: 40
             }}>
-                    {/* <View style={ commonStyles.rightButtonContainer }>
-                        <TouchableOpacity
-                            onPress={ () => navigation.goBack() }
-                            style={commonStyles.rightButton}>
-                            <LinearGradient
-                                colors={[colors.primary, secondary]}
-                                style={commonStyles.rightButton}
-                            >
-                                <Text style={[commonStyles.buttonText, {
-                                    color:'#fff'
-                                }]}>{ t( 'resCancelar' ) }</Text>
-                            </LinearGradient>
-                        </TouchableOpacity>
-                    </View> */}
                     <View style={{ top: 50, ...commonStyles.rightButtonContainer, zIndex: 10 }}>
                         <TouchableOpacity
                             onPress={ () => navigation.navigate('RegisterActivityScreen', {}) }
@@ -445,33 +437,6 @@ export const RegisterExpensesScreen = ({ navigation, route }: Props) => {
                             }}
                         >
                             <FilledInputText label={ t( 'resActividadesGastos' ) } disabled={  true }  value={ activity?.Description } />
-                            {/* <FilledTextField
-                                disabled={ true }
-                                label={ t( 'resActividadesGastos' ) }
-                                tintColor={ colors.primary }
-                                baseColor={ accent }
-                                titleTextStyle={{ fontFamily: regular }}
-                                labelTextStyle={{ fontFamily: regular, }}
-                                labelFontSize={ 18 }
-                                inputContainerStyle={{ backgroundColor: fieldColor, borderRadius: 6 }}
-                                activeLineWidth={ 0 }
-                                lineWidth={ 0 }
-                                contentInset={{ top: 10 }}
-
-                            /> */}
-                                {/* <TextInput
-                                    editable={ false }
-                                    keyboardType="visible-password"
-                                    placeholder={ t( 'resActividadesGastos' ) }
-                                    autoCapitalize="none"
-                                    placeholderTextColor="#666666"
-                                    style={{
-                                        ...commonStyles.textInput,
-                                        ...registerExpenseStyles.textInput,
-                                        color: colors.text,
-                                    }}
-                                    value={ activity?.Description }
-                                /> */}
                         </TouchableOpacity>
                         
                         <TouchableOpacity
@@ -490,7 +455,7 @@ export const RegisterExpensesScreen = ({ navigation, route }: Props) => {
                             <FilledInputText label={ t( 'resFecha' ) } disabled={ true }  value={  convertDate || Moment(expense.Date).format('ll') } />
                         </TouchableOpacity>
                         { showcalendar &&
-                            <CalendarSingleDate showCalendar={ hideCalendar } setDate={ setDate }></CalendarSingleDate>
+                            <CalendarSingleDate showCalendar={ hideCalendar } setDate={ setDate }  minDate={ activity?.DateSta.toString() } maxDate={ activity?.DateEnd.toString() }></CalendarSingleDate>
                         }
                         <FilledInputText label={ t( 'resDescripcion' ) } 
                             onChangeText={ ( value ) =>  
@@ -748,6 +713,32 @@ export const RegisterExpensesScreen = ({ navigation, route }: Props) => {
                 </Animatable.View>
             </View>
         </ScrollView>
+        <View style={{ marginTop: 20 , marginLeft: 20, bottom: 60 }}>
+            <FlatList
+                data={ imagesUpload }
+                numColumns = { 4 }
+                keyExtractor={  ( image ) => image }
+                renderItem={ ({ item, index }) => (
+                    <View>
+                        <View style={{ ...commonStyles.rightButtonContainer }}>
+                            <Icon
+                                onPress={ () => removeImage( index ) }
+                                name="close-outline"
+                                color={ colors.primary }
+                                size={ 20 }
+                            />
+                        </View>
+                        <TouchableOpacity style={{ marginLeft: 10 }}>
+
+                            <Image 
+                                style={{ width: 80, height: 80 }}
+                                source={{ uri: item }}
+                            />
+                        </TouchableOpacity>
+                    </View>
+                ) }
+            />
+        </View>
         </>
     )
 }

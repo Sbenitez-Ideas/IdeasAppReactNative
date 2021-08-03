@@ -4,7 +4,7 @@ import { ThemeContext } from '../../contexts/theme/ThemeContext';
 import * as RootNavigation from '../../navigator/RootNavigation';
 import { useTranslation } from 'react-i18next';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faCheckSquare, faForward, faPhoneSquare, faPlane, faUsers } from '@fortawesome/free-solid-svg-icons';
+import { faCheckSquare, faForward, faPlane, faUsers } from '@fortawesome/free-solid-svg-icons';
 
 
 interface Props {
@@ -50,7 +50,7 @@ export const BottomMenu = ({stateScreen: {routes}}: Props) => {
                     <Text style={{ 
                 ...styles.textMenus,
                 color: ( screenName === 'MyServicesScreen') ?  colors.primary : grayColor
-            }}>{ /* t('resViajes') */ 'Mis servicios' }</Text>
+            }}>{ t('resMisServicios') }</Text>
             </TouchableOpacity>
 
             <TouchableOpacity 
@@ -65,7 +65,7 @@ export const BottomMenu = ({stateScreen: {routes}}: Props) => {
                 <Text style={{ 
                     ...styles.textMenus,
                     color: ( screenName === 'BookingListScreen' && bookingParam === 'others' ) ?  colors.primary : grayColor
-                }}>{ /* t('resTerceros') */  'Solicitudes' }</Text>
+                }}>{ t('resSolicitudes') }</Text>
             </TouchableOpacity>
 
             <TouchableOpacity 

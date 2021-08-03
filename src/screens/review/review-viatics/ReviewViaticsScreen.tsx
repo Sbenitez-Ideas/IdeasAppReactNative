@@ -14,7 +14,6 @@ interface Props {
 }
 
 export const ReviewViaticsScreen = ( { viatic }: Props ) => {
-    console.log('viatic', viatic)
     const { t } = useTranslation();
     const { theme: { colors, whiteColor, buttonText, grayColor, fieldColor, accent} } = useContext( ThemeContext );
     const { semibold, bold } = useFont();
@@ -22,33 +21,33 @@ export const ReviewViaticsScreen = ( { viatic }: Props ) => {
     return (
         <View style={[ commonStyles.reviewContainer, { backgroundColor: accent } ]}>
             <DynamicText fontFamily={ bold } style={{ fontSize: 20, color: colors.primary, marginHorizontal: 10, marginVertical: 5 }}>{ t( 'resViaticos' ) }</DynamicText>
-            <DynamicText fontFamily={ semibold } style={{ alignSelf: 'center', color: colors.primary }}> { Moment( viatic.startDate ).format( 'ddd DD MMM YYYY' )  } - { Moment( viatic.finalDate ).format( 'ddd DD MMM YYYY' ) } </DynamicText>
+            <DynamicText fontFamily={ semibold } style={{ alignSelf: 'center', color: colors.primary, ...styles.labelViatics }}> { Moment( viatic.startDate ).format( 'ddd DD MMM YYYY' )  } - { Moment( viatic.finalDate ).format( 'ddd DD MMM YYYY' ) } </DynamicText>
             <View style={ styles.labelInfo }>
-                <DynamicText fontFamily={ semibold }> Numero de dias: </DynamicText>
-                <DynamicText>{ viatic.days }</DynamicText>
+                <DynamicText fontFamily={ semibold } style={{ ...styles.labelViatics, color: colors.primary }}> Numero de dias: </DynamicText>
+                <DynamicText style={ styles.labelViatics }>{ viatic.days }</DynamicText>
             </View>
             <View style={ styles.labelInfo }>
-                <DynamicText fontFamily={ semibold }> Total Manutencion: </DynamicText>
+                <DynamicText fontFamily={ semibold } style={{ ...styles.labelViatics, color: colors.primary }}> Total Manutencion: </DynamicText>
                 <NumberFormat value={ viatic.expenseDefault?.FoodValue } displayType='text' thousandSeparator={ true } prefix='$'
                     renderText={ valueRender => (
-                        <DynamicText>{ valueRender }</DynamicText>
+                        <DynamicText style={ styles.labelViatics }>{ valueRender }</DynamicText>
                     )}
                 />
             </View>
             <View style={ styles.labelInfo }>
-                <DynamicText fontFamily={ semibold }> Total transporte: </DynamicText>
+                <DynamicText fontFamily={ semibold } style={{ ...styles.labelViatics, color: colors.primary }}> Total transporte: </DynamicText>
                 <NumberFormat value={ viatic.expenseDefault?.TaxisValue  } displayType='text' thousandSeparator={ true } prefix='$'
                     renderText={ valueRender => (
-                        <DynamicText>{ valueRender }</DynamicText>
+                        <DynamicText style={ styles.labelViatics }>{ valueRender }</DynamicText>
                     )}
                 />
             </View>
             
             <View style={{ alignSelf: 'flex-end', flexDirection: 'row', marginHorizontal: 10 }}>
-                <DynamicText fontFamily={ semibold }> Total Viáticos: </DynamicText>
+                <DynamicText fontFamily={ semibold } style={{ ...styles.labelViatics, color: colors.primary }}> Total Viáticos: </DynamicText>
                 <NumberFormat value={ viatic.expenseDefault?.ExpensesValue } displayType='text' thousandSeparator={ true } prefix='$'
                     renderText={ valueRender => (
-                        <DynamicText>{ valueRender }</DynamicText>
+                        <DynamicText style={ styles.labelViatics }>{ valueRender }</DynamicText>
                     )}
                 />
             </View>
@@ -60,8 +59,10 @@ export const ReviewViaticsScreen = ( { viatic }: Props ) => {
 const styles = StyleSheet.create({
     labelInfo: {
         marginHorizontal: 10,
-        fontSize: 15,
         marginTop: 15,
         flexDirection: 'row'
+    },
+    labelViatics: {
+        fontSize: 15
     }
 })

@@ -19,6 +19,7 @@ export const commonApi = () => {
 
 
     const getMainMenu = async( request: MenuRQ) => {
+        console.log('baseURL', baseURL )
         const { data } = await axios.post<Menu>( baseURL + '/Base/Menu', request, getHeader( token as string ) );
         return data;
     }

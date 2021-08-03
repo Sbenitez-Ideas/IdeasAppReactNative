@@ -18,8 +18,8 @@ export class BookingsRQ {
     passangerName: string;
     company: string;
     rute: string;
-    dateFrom: Date;
-    dateTo: Date;
+    dateFrom: Date | null;
+    dateTo: Date | null;
     creationDateFrom: Date;
     creationDateTo: Date;
     limitDateFrom: Date;

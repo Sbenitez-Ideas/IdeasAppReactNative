@@ -27,6 +27,7 @@ export const ConfigProvider = ({ children }: any) => {
             const { data } = await authApi.post<IFTPEndPointRS>('', request);
             /* use Temporally */
             data.AppEndPoint.EndPoint = 'https://serv-rest.kontroltravel.com';
+            console.log( 'aqui', data.AppEndPoint.EndPoint );
             dispatch({ 
                 type: 'getEndpointData',
                 payload: {

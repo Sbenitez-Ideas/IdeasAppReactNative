@@ -12,17 +12,22 @@ import { NAME_APP } from 'react-native-dotenv';
 import { useTranslation } from 'react-i18next';
 import { DynamicText } from '../components/common/DynamicText';
 import { useFont } from '../hooks/common/useFont';
-import env from 'react-native-dotenv';
 
 interface Props extends StackScreenProps<any, any>{};
-
-
 
 export const SplashScreen = ({ navigation }: Props ) => {
     const { t } = useTranslation();
     const { semibold } = useFont();
     const { theme: { colors, secondary } } = useContext( ThemeContext );
     const { getEndpointData } = useContext( ConfigContext );
+
+    const calculateNextScreen = () => {
+        navigation.navigate('SlidesScreen');
+        onStarted()
+        /* navigation.navigate('LoginScreen');  */
+        
+    }
+
     const onStarted = () => {
         const request: IFTPEndPointRQ = {
             appName: NAME_APP,
@@ -32,7 +37,7 @@ export const SplashScreen = ({ navigation }: Props ) => {
         };
         getEndpointData( request );
     }
-
+    
     return (
         <View style={{ 
             ...styles.container,
@@ -43,7 +48,6 @@ export const SplashScreen = ({ navigation }: Props ) => {
             <Animatable.Image 
                 animation="bounceIn"
                 duration={ 1500 }
-                /* source={require('../../assets/images/common/logo.png')} */
                 source={{ uri: `http://ideasfractal.com/wp-content/uploads/2017/04/Logo-IdeasFractal-transpararente.png` }}
                 style={styles.logo}
                 resizeMode='contain'
@@ -59,7 +63,7 @@ export const SplashScreen = ({ navigation }: Props ) => {
                 color: colors.text
             }]}>{ t( 'resViajesUnClic' ) }</DynamicText>
             <View style={styles.button}>
-                <TouchableOpacity onPress={() => { navigation.navigate('LoginScreen'); onStarted()}}>
+                <TouchableOpacity onPress={() => { calculateNextScreen() }}>
                     <LinearGradient
                         colors={[colors.primary, secondary]}
                         style={styles.signIn}

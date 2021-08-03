@@ -26,7 +26,7 @@ export const MoreScreen = ({ route }: Props) => {
 
     const calculateRoute = ( menu: Menu ) => {
         switch ( menu.Link ) {
-            case 'ActivitiesListScreen':
+        case 'ActivitiesListScreen':
                 return navigation.navigate( menu.Link, {
                     type: menu.MenuName
                 } );

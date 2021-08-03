@@ -14,6 +14,8 @@ export interface ThemeState extends Theme {
     whiteColor: string;
     fieldColor: string;
     accent: string;
+    cancelColor: string
+    backgroundDarken:string,
 }
 
 
@@ -27,6 +29,8 @@ export const exitoTheme: ThemeState = {
     accent: '#4f4f4f',
     dividerColor: 'black',
     secondary: '#e21239',
+    cancelColor: '#dc3545',
+    backgroundDarken: "#e21239",
     colors: {
         primary: '#DC3545',
         background: 'white',
@@ -49,6 +53,8 @@ export const ideasTheme: ThemeState = {
     whiteColor: '#FFFFFF',
     fieldColor: '#F5F5F5',
     accent: '#d9edf7',
+    cancelColor: '#ff504d',
+    backgroundDarken: "#176892",
     colors: {
         primary: '#2195D1',
         background: 'white',

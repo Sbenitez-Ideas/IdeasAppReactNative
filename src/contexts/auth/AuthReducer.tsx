@@ -1,5 +1,6 @@
 import { CustomUserSession } from '../../model/interfaces/auth/CustomUserSession';
-
+import { TravelerCorporate } from '../../model/classes/corporate/TravelerCorporate';
+import update from 'immutability-helper';
 
 
 export interface AuthState {
@@ -7,6 +8,9 @@ export interface AuthState {
     token: string | null;
     errorMessage: string;
     user: string | null;
+    travelerRequestData: any;
+    selectedTravelers: TravelerCorporate[];
+    selectedServices: { service: any, completed: boolean }[];
     userData: CustomUserSession
 }
 
@@ -16,6 +20,11 @@ type AuthAction =
     | { type: 'removeError'}
     | { type: 'notAuthenticated' }
     | { type: 'logout' }
+    | { type: 'assignTravelers', payload: { travelers: TravelerCorporate[] } }
+    | { type: 'assignMotive', payload: { motive: { ID: string, Text: string } } }
+    | { type: 'assignApprover', payload: { approver: { approverName: string, idApprover: number } } }
+    | { type: 'assignPassenger', payload: { IDUser: number } }
+    | { type: 'assignSelectedServices', payload: { services: { service: any, completed: boolean }[] } }
 
 
 export const authReducer = ( state: AuthState, action: AuthAction ): AuthState => {
@@ -45,6 +54,42 @@ export const authReducer = ( state: AuthState, action: AuthAction ): AuthState =
                 userData: action.payload.userData
             }
 
+        case 'assignTravelers':
+            return {
+                ...state,
+                selectedTravelers: action.payload.travelers
+            }
+
+        case 'assignMotive':
+            return {
+                ...state,
+                travelerRequestData: { ...state.travelerRequestData, motive: action.payload.motive }
+            }
+
+        case 'assignApprover':
+            return update( state, 
+                {
+                    selectedTravelers: {
+                        0: {
+                            Approver3: { $set: action.payload.approver.approverName },
+                            IdApprover3: { $set: action.payload.approver.idApprover }
+                        }
+                    }
+                }
+            )
+            
+        case 'assignPassenger':
+            return {
+                ...state,
+                travelerRequestData: { ...state.travelerRequestData, passenger: action.payload.IDUser }
+            }
+
+        case 'assignSelectedServices':
+            return {
+                ...state,
+                selectedServices: action.payload.services
+            }
+
         case 'notAuthenticated':
         case 'logout':
             return  {
@@ -53,6 +98,7 @@ export const authReducer = ( state: AuthState, action: AuthAction ): AuthState =
                 token: null,
                 user: null,
             }
+            
         
         default:
             return state;

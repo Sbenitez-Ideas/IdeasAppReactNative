@@ -11,5 +11,5 @@ export class TravelerCorporateRQ {
     Language: string;
     IDEntity: number;
     SearchField: SearchFieldTraveler;
-    SearchValue: string;
+    SearchValue: string | null;
 }

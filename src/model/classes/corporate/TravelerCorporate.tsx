@@ -58,6 +58,12 @@ export class TravelerCorporate {
     Approver4: string;
     Approver5: string;
     Approver6: string;
+    IdApprover1: number;
+    IdApprover2: number;
+    IdApprover3: number;
+    IdApprover4: number;
+    IdApprover5: number;
+    IdApprover6: number;
     VaccineDate: Date;
     IssuedPassport: Date;
     CountryPassport: string;

@@ -297,6 +297,25 @@ export const ExpensesScreen = ( { route, navigation }: Props ) => {
             })
         getAllCategories();
     }, [])
+
+    const havePedingLegalize = (): boolean => {
+        const pending = expenses?.Expenses.filter( expense => expense.State === 'R' );
+        if ( pending.length > 0 && expenses?.Expenses.length === pending.length ) {
+            return false;
+        } else {
+            return true;''
+        }
+    }
+
+    const havePendingApprove = (): boolean => {
+        const pending = expenses?.Expenses.filter( expense => expense.State === 'A' || expense.State === 'X' );
+        if ( pending.length > 0 && expenses?.Expenses.length === pending.length ) {
+            return false;
+        } else {
+            return true;''
+        }
+    }
+
     
     return (
         <>
@@ -316,7 +335,7 @@ export const ExpensesScreen = ( { route, navigation }: Props ) => {
                     )
                 } }
             />
-            { ( selectExpense.listExpense.some( expense => expense.selected === true ) && type !== 'pendingApprove' ) &&
+            { ( selectExpense.listExpense.some( expense => expense.selected === true ) && type !== 'pendingApprove' ) && ( havePedingLegalize() ) &&
                 <View style={{ justifyContent: 'flex-end', flexDirection: 'row', right: 10, marginTop: 10 }}>
                     <TouchableOpacity
                         onPress={ () => sendLegalize( 'R' ) }
@@ -336,7 +355,7 @@ export const ExpensesScreen = ( { route, navigation }: Props ) => {
                     </TouchableOpacity>
                 </View>
             }
-            { ( selectExpense.listExpense.some( expense => expense.selected === true ) && type === 'pendingApprove' ) &&
+            { ( selectExpense.listExpense.some( expense => expense.selected === true ) && type === 'pendingApprove' ) && ( havePendingApprove() || havePedingLegalize() ) &&
                 <View style={{ flexDirection: 'row', justifyContent: 'flex-end' }}>
                     <View style={{ justifyContent: 'flex-end', flexDirection: 'row', right: 10, marginTop: 10 }}>
                         <TouchableOpacity

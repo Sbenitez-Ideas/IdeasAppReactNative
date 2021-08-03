@@ -247,7 +247,7 @@ export const RegisterActivityScreen = ({ navigation, route }: Props) => {
                             text2: t( 'resActividadManualGuardado' ),
                             type: 'success',
                             visibilityTime: 2000,
-                            onHide: () => navigation.navigate(( openedType !== 'edit' ) ? 'ActivitiesListScreen' : 'HomeViaticsScreen', {
+                            onHide: () => navigation.navigate(( openedType !== 'edit' ) ? 'ActivitiesListScreen' : 'HomeScreen', {
                                 type: 'allActivities',
                                 refresh: true
                             })
@@ -277,6 +277,9 @@ export const RegisterActivityScreen = ({ navigation, route }: Props) => {
             <Header 
                 title={ t( 'resRegistroActividad' ) }
                 onPressLeft={ () => {
+                    navigation.goBack()
+                } }
+                onPressRight={ () => {
                     navigation.goBack()
                 } }
                 renderLeft={ () => {

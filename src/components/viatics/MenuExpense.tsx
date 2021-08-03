@@ -404,7 +404,7 @@ export const MenuExpense = ({ expense, hideMenu, isDeleted }: Props) => {
                 </Modal>
 
                 <AwesomeAlert
-                    messageStyle={{ fontSize: 15, }}
+                    messageStyle={{ fontSize: 15 }}
                     show={modalButtons.deleteExpense}
                     showProgress={false}
                     title="Eliminar Gasto"

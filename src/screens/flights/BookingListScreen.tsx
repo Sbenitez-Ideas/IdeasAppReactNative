@@ -1,11 +1,11 @@
 import { StackScreenProps } from '@react-navigation/stack';
 import React, { useContext, useEffect, useState } from 'react'
-import { Text, TouchableOpacity, View, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
+import { Text, TouchableOpacity, View, StyleSheet, ScrollView, ActivityIndicator, TextInput } from 'react-native';
 import { Header } from '../../components/common/Header';
 import { RootStackParams } from '../../navigator/Navigator';
 import { useTranslation } from 'react-i18next';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faTimes, faMoneyCheckAlt, faExchangeAlt } from '@fortawesome/free-solid-svg-icons';
+import { faTimes, faMoneyCheckAlt, faExchangeAlt, faInfoCircle, faSearch, faTimesCircle, faFilter } from '@fortawesome/free-solid-svg-icons';
 import { ThemeContext } from '../../contexts/theme/ThemeContext';
 import { ProfileNavigation } from '../../components/common/ProfileNavigation';
 import { BookingsRQ } from '../../model/classes/flights/BookingsRQ';
@@ -19,11 +19,13 @@ import { setStateBookingList } from '../../helpers/bookings/setStateBookingList'
 import { setStateColorBookingList } from '../../helpers/bookings/setStateColorBookingList';
 import { commonStyles } from '../../styles/commonStyles';
 import { getServiceIcon } from '../../helpers/common/getServiceIcon';
+import { useFont } from '../../hooks/common/useFont';
+import Toast from 'react-native-toast-message';
 
 interface Props extends StackScreenProps<RootStackParams, 'BookingListScreen'>{};
 
 export const BookingListScreen = ( { navigation, route }: Props ) => {
-
+    const { semibold, bold } = useFont();
     const { type } = route.params;
     const { t } = useTranslation();
     const [title, setTitle] = useState('');
@@ -32,15 +34,13 @@ export const BookingListScreen = ( { navigation, route }: Props ) => {
     const [loading, setLoading] = useState(true);
     const [bookings, setBookings] = useState<Booking[]>([])
     const { theme: { colors, whiteColor, buttonText, grayColor, fieldColor, } } = useContext( ThemeContext );
-
+    const [loc, setLoc] = useState<string>('');
     const { getBookings } = flightsApi()
+    const dataFilter = route?.params?.dataFilter;
+
 
     useEffect(() => {
-
         const request = new BookingsRQ( userData.IDUser, userData.IDEntityDefault );
-        request.pageIndex = 1;
-        setResponse( new BookingsRS );
-        setBookings( [] );
         switch (type) {
             case 'flown':
                 request.showOwnedValue = true;
@@ -48,22 +48,31 @@ export const BookingListScreen = ( { navigation, route }: Props ) => {
                 setTitle( t( 'resMisViajes' ) )
                 break;
             case 'others':
-                request.showOwnedValue = true;
+                request.showOwnedValue = false;
                 request.showApproverValue = false;
                 setTitle( t( 'resSolicitudes' ) );
                 break;
             case 'approver': 
                 setTitle( t( 'resAprobacionesPendientes' ) )
                 request.showOwnedValue = false;
+                request.showCancelledValue = false;
                 request.showApproverValue = true;
                 request.state = 0;
             default:
                 break;
         }
 
+        if ( dataFilter?.dateStart !== undefined || dataFilter?.flow !== undefined || dataFilter?.state !== undefined ) {
+            Toast.show({
+                text1: t( 'resFiltrosAplicados' ),
+                type: 'success',
+                visibilityTime: 2000,
+            });
+        }
+
         getBooking( request )
 
-    }, [type])
+    }, [type, dataFilter])
 
     useEffect(() => {
     }, [bookings])
@@ -73,8 +82,36 @@ export const BookingListScreen = ( { navigation, route }: Props ) => {
 
     }, [response.Data])
 
+    useEffect(() => {
+        if ( loc === '' ) {
+            const request = new BookingsRQ( userData.IDUser, userData.IDEntityDefault );
+            request.pageIndex = 1;
+            request.showOwnedValue = true;
+            request.showApproverValue = false;
+            request.period = '12M';
+            getBookings( request )
+                .then(( response ) => {
+                    if ( response.success ) {
+                        setResponse( response.list[0] );
+                        setBookingsData();
+
+                    }
+                    setLoading( false );
+
+                })
+        }
+    }, [loc])
+
     const getBooking = ( request:  BookingsRQ ) => {
+        setLoading( true );
+        setResponse( new BookingsRS );
+        setBookings( [] );
+        request.pageIndex = 1;
         request.period = '12M';
+        request.state = ( dataFilter?.state !== undefined ) ? dataFilter.state : 0;
+        request.flow = ( dataFilter?.flow !== undefined ) ? dataFilter.flow : '';
+        request.dateTo = ( dataFilter?.dateStart !== undefined ) ? new Date( dataFilter.dateStart ) : null;
+        request.dateTo = ( dataFilter?.dateEnd !== undefined ) ? new Date( dataFilter.dateEnd ) : null;
         getBookings( request )
             .then(( response ) => {
                 if ( response.success ) {
@@ -85,7 +122,6 @@ export const BookingListScreen = ( { navigation, route }: Props ) => {
             })
 
     }
-    
 
     const setBookingsData = () => {
         const tempBookings: Booking[] = [];
@@ -118,6 +154,43 @@ export const BookingListScreen = ( { navigation, route }: Props ) => {
         }
     }
 
+    const searchLoc = () => {
+        setLoading( true );
+        const request = new BookingsRQ( userData.IDUser, userData.IDEntityDefault );
+        request.loc = loc;
+        getBookings( request )
+            .then(( response ) => {
+                if ( response.success ) {
+                    setResponse( response.list[0] );
+                    setBookingsData();
+                    setLoading( true );
+
+                }
+                setLoading( false );
+
+            })
+        if ( loc !== '' ) {
+            Toast.show({
+                text1: 'Filtros aplicados',
+                text2: 'Se ha filtrado por localizador',
+                type: 'success',
+                visibilityTime: 1000
+            })
+        }
+        
+    }
+
+    const calculateFiltered = () => {
+        let alreadyCalculated = false;
+        if ( dataFilter ) {
+            if ( dataFilter?.dateStart !== '' || dataFilter?.state !== 0 || dataFilter.flow !== '') {
+                alreadyCalculated = true;
+            }
+        }
+
+        return alreadyCalculated;
+    }
+
     const renderBookingCard = ( item: Booking, index: number ) => {
         const bottomPadding: number = ( bookings.length > 0  && bookings.length  === ( index + 1 )) ?  150 : 0;
         return (
@@ -126,7 +199,9 @@ export const BookingListScreen = ( { navigation, route }: Props ) => {
                     style={[styles.contain, {shadowColor: colors.border}]}
                     onPress={ () => navigation.navigate( 'ReviewScreen', {
                         loc: item.loc,
-                        products: item.products
+                        products: item.products,
+                        booking: item,
+                        typeScreen: type
                     }) }
                     activeOpacity={0.9}>
                     <View
@@ -137,7 +212,7 @@ export const BookingListScreen = ( { navigation, route }: Props ) => {
                             backgroundColor: colors.primary,
                             },
                         ]}>
-                        <DynamicText body2 whiteColor fontFamily={ 'semibold' }>
+                        <DynamicText style={{ fontSize: 20 }} whiteColor fontFamily={ 'semibold' }>
                             { item.loc }
                         </DynamicText>
                         <FontAwesomeIcon
@@ -148,10 +223,10 @@ export const BookingListScreen = ( { navigation, route }: Props ) => {
                     </View>
                     <View
                         style={[styles.mainContent, {backgroundColor: colors.primary}]}>
-                        <DynamicText header whiteColor numberOfLines={1}>
+                        <DynamicText style={{ fontSize: 25 }} whiteColor numberOfLines={1}>
                         { item.passengers }
                         </DynamicText>
-                        <View style={{ flexDirection: 'row' }}>
+                        <View style={{ flexDirection: 'row', marginTop: 5, marginBottom: 5 }}>
                             
                             <DynamicText body2 whiteColor>
                             { Moment(item.goingDate).format('llll') }
@@ -166,7 +241,7 @@ export const BookingListScreen = ( { navigation, route }: Props ) => {
                             { Moment(item.endDate).format('llll') }
                             </DynamicText>
                         </View>
-                        <DynamicText body2 whiteColor>
+                        <DynamicText style={{ alignSelf: 'center', fontSize: 16 }} body2 whiteColor>
                             { item.rute }
                         </DynamicText>
                         
@@ -211,6 +286,56 @@ export const BookingListScreen = ( { navigation, route }: Props ) => {
                     )
                 } }
             />
+            <View style={[styles.containFilter]}>
+                <View style={{ backgroundColor: fieldColor, borderRadius: 10, height: 35, flexDirection: 'row' }}>
+                    <FontAwesomeIcon 
+                        style={{ marginTop: 10, marginLeft: 5, marginRight: 10}}
+                        icon={ faSearch }
+                        size={ 12 }
+                        color={ grayColor }
+                    /> 
+                    <TextInput 
+                        style={{ fontSize: 13, }}
+                        placeholder={ 'Búsqueda por Loc' }
+                        onChangeText={ ( text ) => setLoc( text.toUpperCase() ) }
+                        onSubmitEditing={ () =>  searchLoc() }
+                        value={ loc }
+                    />
+                    { loc !== '' &&
+                        <TouchableOpacity
+                            onPress={ () => {
+                                setLoc( '' )
+                                setLoading( true )
+                            } }
+                        >
+                            <FontAwesomeIcon 
+                                style={{ marginTop: 10, marginRight: 10}}
+                                icon={ faTimesCircle }
+                                size={ 12 }
+                                color={ grayColor }
+                            /> 
+                        </TouchableOpacity>
+                    }
+                </View>
+                <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>
+                    <View style={{ ...styles.line, backgroundColor: grayColor}} />
+                    <TouchableOpacity style={styles.contentFilter}
+                        onPress={ () => navigation.navigate('FilterRequestsScreen', {
+                            alreadyFiltered:  calculateFiltered(),
+                            beforeFiltered: dataFilter
+                        }) }
+                    >
+                        <FontAwesomeIcon
+                            icon={ faFilter }
+                            size={ 16 }
+                            color={ grayColor }
+                            />
+                        <DynamicText headline greyColor style={{marginLeft: 5}}>
+                            {t('resFiltrar')}
+                        </DynamicText>
+                    </TouchableOpacity>
+                </View>
+            </View>
 
             { loading &&
                 <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: fieldColor }}>
@@ -222,8 +347,20 @@ export const BookingListScreen = ( { navigation, route }: Props ) => {
                 </View>
             }
 
+            { bookings.length === 0 && !loading &&
+                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: fieldColor,  }}>
+                    <FontAwesomeIcon 
+                        icon={ faInfoCircle }
+                        size={ 30 }
+                        color={ colors.primary }
+                    />
+                    <DynamicText fontFamily={ semibold } headline style={{ color: colors.primary, fontSize: 30 }}> No hay Datos </DynamicText>
+                </View>
+                
+            }
+
             <ScrollView style={{ width: '97%', alignSelf:'center', backgroundColor: fieldColor }}>
-                { 
+                { !loading &&
                     bookings.map(( item, index ) => {
                         return ( 
                             renderBookingCard( item, index )
@@ -260,6 +397,21 @@ const styles = StyleSheet.create({
         borderBottomLeftRadius: 8,
     },
     mainContent: {padding: 8, alignItems: 'flex-start'},
-    
+    line: {
+        width: 1,
+        height: 14,
+        marginLeft: 10
+    },
+    contentFilter: {
+        flexDirection: "row",
+        alignItems: "center",
+        marginLeft: 10
+    },
+    containFilter: {
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        flexDirection: "row",
+        justifyContent: "space-between"
+    },
 
 })

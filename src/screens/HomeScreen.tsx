@@ -1,27 +1,21 @@
-import React, { useContext, useState, memo, useMemo, useEffect } from 'react';
-import { Animated, Dimensions, FlatList, Image, Linking, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { useContext, useState, useEffect } from 'react';
+import { Dimensions, FlatList, Image, Linking, SafeAreaView, ScrollView, StatusBar, StyleSheet, TouchableOpacity, View, KeyboardAvoidingView, Animated } from 'react-native';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { ThemeContext } from '../contexts/theme/ThemeContext'
 import { StackScreenProps } from '@react-navigation/stack';
-import { commonStyles } from '../styles/commonStyles';
-import { AuthContext } from '../contexts/auth/AuthContext';
 import { useUtils } from '../hooks/common/useUtils';
 import { DynamicText } from '../components/common/DynamicText';
-import { BaseStyle } from '../config';
 import * as Animatable from 'react-native-animatable';
 import { commonApi } from '../api/commonApi';
 import { MenuRQ } from '../model/classes/common/MenuRQ';
 import { Menu } from '../model/classes/common/Menu';
-import { setMenuIcon } from '../helpers/common/setMenuIcon';
-import IconFA from "react-native-vector-icons/FontAwesome";
 import Icon from 'react-native-vector-icons/Ionicons';
+import { Icon as IconProp } from 'react-native-elements'
 import { useTranslation } from 'react-i18next';
-import { Header } from '../components/common/Header';
-import { ProfileNavigation } from '../components/common/ProfileNavigation';
-import { faArrowLeft, faUserCircle } from '@fortawesome/free-solid-svg-icons';
-import { navigate } from '../navigator/RootNavigation';
+import { faUserCircle } from '@fortawesome/free-solid-svg-icons';
 import { useFont } from '../hooks/common/useFont';
-import { SvgUri } from 'react-native-svg';
+import { Card } from '../components/common/Card';
+import Toast from 'react-native-toast-message';
 
 interface Props extends StackScreenProps<any, any>{};
 
@@ -34,6 +28,7 @@ export const HomeScreen = ({ navigation }: Props ) => {
     const { getMainMenu } = commonApi();
     const [heightHeaders,  setHeightHeader] = useState( heightHeader());
     const { height } = Dimensions.get('window');
+    const deltaY = new Animated.Value(0);
     const [menu, setMenu] = useState<Menu[]>( [] );
     const setRoutes = ( item: any ) => {
         if ( item.route !== '' ) {
@@ -44,12 +39,37 @@ export const HomeScreen = ({ navigation }: Props ) => {
     }
     const heightImageBanner = scaleWithPixel(140);
     const marginTopBanner = heightImageBanner - heightHeaders;
+    const PromotionData = [
+        {
+          id: "1",
+          image: require( '../../assets/images/common/plane.jpeg' ),
+          title1: "Conoce las nuevas restricciones aeroportuarias",
+          title2: "Mundo",
+          subtitle: 'Vuelos'
+        },
+        {
+          id: "2",
+          image:  require( '../../assets/images/common/hotel.jpg' ),
+          title1: "Adiós a pagar hoteles en efectivo",
+          title2: "Estados Unidos",
+          subtitle: 'Hoteles'
+        },
+        {
+          id: "3",
+          image: require( '../../assets/images/common/covid.jpg' ),
+          title1: "Nueva cepa de covid en el continente asiático",
+          title2: "Japón",
+          subtitle: 'Covid'
+        }        
+      ];
+      
     useEffect(() => {
         const request: MenuRQ = new MenuRQ();
         request.Language = 'ES';
         request.MenuName = 'Appmovil';
         getMainMenu( request )
             .then(( response ) => {
+               /*  console.log( 'response', response );
                 response.Items.map(( element, index ) => {
                     if ( element.Items.length > 0 && !response.Items.find( menu => menu.MenuName === 'MoreScreen' ) ) {
                         const moreMenu: Menu = new Menu();
@@ -60,7 +80,7 @@ export const HomeScreen = ({ navigation }: Props ) => {
                         moreMenu.CssClass = 'ellipsis-horizontal';
                         response.Items.push( moreMenu );
                     }
-                });
+                }); */
                 setMenu( response.Items );
             })
     }, [])
@@ -85,13 +105,30 @@ export const HomeScreen = ({ navigation }: Props ) => {
     }
 
 
-    const renderIconService = () => {
+    const calculateParamsServices = ( item: Menu ) => {
+        switch ( item.Link ) {
+            case 'BookingListScreen':
+                return navigation.navigate( item.Link, {
+                    type: item.MenuName
+                })
+            default: 
+                return navigation.navigate( item.Link )
+        }
+    }
+
+    const  renderViatics = (  ) => {
+        let menuViatics: Menu = new Menu;
+        menu.forEach(element => {
+            if ( element.MenuName === 'viatics' ) {     
+                menuViatics = element;           
+            }
+        });
 
         return (
             <FlatList 
-                data={ menu }
+                data={ menuViatics.Items }
                 keyExtractor={ (menu) => menu.ID.toString() }
-                numColumns={ 3 }
+                numColumns={ 2 }
                 renderItem={ ({ item }) => (
                     <TouchableOpacity
                         style={styles.itemService}
@@ -100,14 +137,15 @@ export const HomeScreen = ({ navigation }: Props ) => {
                         <View
                             style={[styles.iconContent, {backgroundColor: colors.card}]}
                         >
-                            <Icon 
+                            <IconProp
                                 name={ item.CssClass }
+                                type='font-awesome'
                                 color={ colors.primary }
-                                size={ 25 }
+                                style={{marginHorizontal: 10}}
                             />
                         </View>
                         <DynamicText footnote greyColor numberOfLines={1}>
-                            { t( item.MenuName )  }
+                            { t( item.Label )  }
                         </DynamicText>
                     </TouchableOpacity>
                     
@@ -116,95 +154,186 @@ export const HomeScreen = ({ navigation }: Props ) => {
         )
     }
 
+    const renderIconService = ( ) => {
+
+        return (
+            <FlatList 
+                data={ menu }
+                keyExtractor={ (menu) => menu.ID.toString() }
+                numColumns={ 3 }
+                renderItem={ ({ item }) => (
+                    <>
+                    { item.Link !== '?' &&
+                        <TouchableOpacity
+                            style={styles.itemService}
+                            onPress={( ) => calculateParamsServices(item) }
+                        >
+                            <View
+                                style={[styles.iconContent, {backgroundColor: colors.card}]}
+                            >
+                                <Icon 
+                                    name={ item.CssClass }
+                                    color={ colors.primary }
+                                    size={ 25 }
+                                />
+                            </View>
+                            <DynamicText footnote greyColor numberOfLines={1}>
+                                { t( item.Label )  }
+                            </DynamicText>
+                        </TouchableOpacity>
+                    }
+                    </>                    
+                )}
+            />
+        )
+    }
+
 
     return (
-         <>
+        <>
             <TouchableOpacity  style={{ position: 'absolute', bottom: '95%', zIndex: 300, alignSelf: 'flex-end', right: '3%'  }} onPress={ () => navigation.navigate( 'ProfileScreen' ) }>
                 <FontAwesomeIcon
                     icon={ faUserCircle }
-                    color={ whiteColor }
+                    color={ colors.primary }
                     size={ 20 }
                 />
             </TouchableOpacity>
-            
-            {/* <View style={ commonStyles.container }>
+            <View 
+                style={{flex: 1, marginBottom: 55}}
+            >
                 <StatusBar backgroundColor={ colors.primary } barStyle="light-content"/>
-                <FlatList
-                    
-                    data={ getHomeMenu() }
-                    keyExtractor={ (menu)  => menu.label}
-                    numColumns={2}
-                    renderItem={ ({ item }) => (
-                        <TouchableOpacity  
-                            style={{ 
-                                height: height * 0.2,
-                                ...commonStyles.goutContainer, 
-                                backgroundColor: colors.primary 
-                            }}
-                            onPress={ () => setRoutes( item )}>
-                            
-                            <FontAwesomeIcon style={{
-                                ...commonStyles.iconsMenu, 
-                                color: buttonText }} 
-                                icon={ item.icon }
-                                size={ 50 }
-                            />
-
-                            <Text style={{ 
-                                ...commonStyles.textMenu,
-                                color: buttonText
-                            }}>{ item.label }</Text>
-                        </TouchableOpacity>
-                    )}
-                />
-
-            </View> */}
-            <Animatable.View 
-            animation='fadeIn'
-            style={{flex: 1}}
-        >
-            <StatusBar backgroundColor={ colors.primary } barStyle="light-content"/>
-            <Image
-                source={ require( '../../assets/images/common/trip-3.jpg' ) }
-                style={[
+                <Animated.Image
+                    source={ require( '../../assets/images/common/trip-3.jpg' ) }
+                    style={[
                     styles.imageBackground,
-                ]}
-            />
-            <SafeAreaView style={{flex: 1}} >
-                <ScrollView
-                    onContentSizeChange={() => setHeightHeader( heightHeader() )}
-                    scrollEventThrottle={8}>
-                    <View style={{paddingHorizontal: 20}}>
-                        <View
-                            style={[
-                                styles.searchForm,
-                                {
-                                marginTop: marginTopBanner,
-                                backgroundColor: colors.background,
-                                borderColor: colors.border,
-                                shadowColor: colors.border,
-                                },
-                            ]}>
-                            <TouchableOpacity
-                                onPress={() => navigation.navigate('Search')}
-                                activeOpacity={0.9}>
-                                <View
-                                    style={{ ...styles.textInput, backgroundColor: colors.card}}
-                                >
-                                    <DynamicText  fontFamily={ semibold } style={{ color: grayColor }} body1 greyColor>
-                                        Búsqueda de Vuelo
-                                    </DynamicText>
-                                </View>
-                            </TouchableOpacity>
-                            { renderIconService() }
+                    {
+                        height: deltaY.interpolate({
+                        inputRange: [
+                            0,
+                            scaleWithPixel(100),
+                            scaleWithPixel(100),
+                        ],
+                        outputRange: [heightImageBanner, heightHeaders, 0],
+                        }),
+                    },
+                    ]}
+                />
+                <SafeAreaView style={{flex: 1}}>
+                    <ScrollView
+                        onScroll={Animated.event([
+                            {
+                            nativeEvent: {
+                                contentOffset: {y: deltaY},
+                            },
+                            },
+                        ])}
+                        onContentSizeChange={() => setHeightHeader( heightHeader() )}
+                        scrollEventThrottle={8}>
+                        <View style={{paddingHorizontal: 20}}>
+                            <View
+                                style={[
+                                    styles.searchForm,
+                                    {
+                                    marginTop: marginTopBanner,
+                                    backgroundColor: colors.background,
+                                    borderColor: colors.border,
+                                    shadowColor: colors.border,
+                                    },
+                                ]}>
+                                    <View
+                                        style={{ ...styles.textInput,}}
+                                    >
+                                        <DynamicText  fontFamily={ semibold } body1 greyColor>
+                                            Búsqueda de Servicios
+                                        </DynamicText>
+                                    </View>
+                                { renderIconService( ) }
+                            </View>
                         </View>
-                    </View>
-                    <View>
-                    </View>
-                </ScrollView>
-            </SafeAreaView>
-        </Animatable.View>
-            
+                        {
+                            menu.find( menu => menu.MenuName === 'viatics' ) &&
+                            <View style={{paddingHorizontal: 20}}>
+                                <View
+                                    style={[
+                                        styles.searchForm,
+                                        {
+                                        marginTop: 30,
+                                        backgroundColor: colors.background,
+                                        borderColor: colors.border,
+                                        shadowColor: colors.border,
+                                        },
+                                    ]}>
+                                        <View
+                                            style={{ ...styles.textInput,}}
+                                        >
+                                            <DynamicText  fontFamily={ semibold } body1 greyColor>
+                                                { t( 'resViaticosLegalizacionGastos' ) }
+                                            </DynamicText>
+                                        </View>
+                                    { renderViatics() }
+                                </View>
+                            </View>
+                            
+                        } 
+                        <View>
+                            <DynamicText title3 semibold style={styles.titleView}>
+                                Noticias
+                            </DynamicText>
+                            <FlatList
+                            contentContainerStyle={{paddingLeft: 5, paddingRight: 20}}
+                            horizontal={true}
+                            showsHorizontalScrollIndicator={false}
+                            data={PromotionData}
+                            keyExtractor={(item, index) => item.id}
+                            renderItem={({item, index}) => (
+                                <Card
+                                    style={[styles.promotionItem, {marginLeft: 15}]}
+                                    image={item.image}
+                                    onPress={() => navigation.navigate('HotelDetail')}
+                                >
+                                    <DynamicText subhead whiteColor>
+                                        {item.title1}
+                                    </DynamicText>
+                                    <DynamicText title2 whiteColor semibold>
+                                        {item.title2}
+                                    </DynamicText>
+                                    <View style={styles.contentCartPromotion}>
+                                        {/* <Button
+                                        style={styles.btnPromotion}
+                                        onPress={() => {
+                                            navigation.navigate('PreviewBooking');
+                                        }}> */}
+                                        <DynamicText body2 semibold whiteColor>
+                                            { item.subtitle }
+                                        </DynamicText>
+                                    </View>
+                                </Card>
+                            )}
+                            />
+                        </View>                
+                    </ScrollView>
+                    <TouchableOpacity 
+                        style={{position: 'absolute', bottom: 10, right: 10, alignSelf: 'flex-end', backgroundColor: whiteColor, borderRadius: 100 }}
+                        onPress={ () => Linking.openURL('whatsapp://send?text=Quieres conocer nuestros servicios&phone=573133869820')
+                            .then((data) => {
+                                console.log('WhatsApp Opened');
+                            }).catch(() => {
+                                Toast.show({
+                                    text1: 'Información',
+                                    text2: 'Asegurate de tener instalado whatsapp para hablar con un asesor',
+                                    visibilityTime: 2000,
+                                    type: 'info'
+                                });
+                            }) }
+                    >
+                        <Icon
+                            name='logo-whatsapp'
+                            color={ colors.primary }
+                            size={ 50 }
+                        />
+                    </TouchableOpacity>
+                </SafeAreaView>
+            </View>
         </> 
 
         
@@ -291,7 +420,7 @@ const styles = StyleSheet.create({
         paddingBottom: 10,
       },
       textInput: {
-        height: 46,
+        height: 30,
         borderRadius: 10,
         paddingHorizontal: 10,
         width: '100%',

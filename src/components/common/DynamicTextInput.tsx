@@ -16,6 +16,7 @@ interface Props {
     textAlignVertical?: 'center',
     onSubmitEditing?: ( ) => void,
     editable?: boolean
+    styleInput?: any
 
 }
 
@@ -32,22 +33,26 @@ export const DynamicTextInput = ({
     keyboardType,
     multiline,
     textAlignVertical,
-    editable
+    editable,
+    styleInput
 }: Props ) => {
     const { theme: { colors, grayColor, fieldColor } } = useContext( ThemeContext );
 
     return (
         <View style={[styles.textInput, { backgroundColor: fieldColor}, style ]}>
             <TextInput
-                style={{
-                    fontFamily: 'Raleway',
-                    flex: 1,
-                    height: '100%',
-                    textAlign: I18nManager.isRTL ? 'right' : 'left',
-                    color: colors.text,
-                    paddingTop: 5,
-                    paddingBottom: 5,
-                }}
+                style={[
+                    {
+                        fontFamily: 'Raleway',
+                        flex: 1,
+                        height: '100%',
+                        textAlign: I18nManager.isRTL ? 'right' : 'left',
+                        color: colors.text,
+                        paddingTop: 5,
+                        paddingBottom: 5,
+                    }, styleInput
+                    
+                ]}
                 editable={ editable }
                 onChangeText={ text => (onChangeText !== undefined) && onChangeText( text ) }
                 onFocus={ () => ( onFocus !== undefined ) && onFocus() }

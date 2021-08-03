@@ -32,6 +32,8 @@ export const ProfileScreen = () => {
     const [profile, setProfile] = useState<TravelerCorporate>();
 
 
+
+
     useEffect(() => {
 
         const request: TravelerCorporateRQ = new TravelerCorporateRQ();
@@ -41,6 +43,7 @@ export const ProfileScreen = () => {
         request.Language = 'EN';
         getTraveler( request )
             .then(( response ) => {
+                console.log( 'profile' , response );
                 setProfile( response[0] );
             })
 
@@ -79,12 +82,11 @@ export const ProfileScreen = () => {
             <ScrollView contentContainerStyle={styles.contain}>
                 <View style={styles.contentTitle}>
                     <DynamicText fontFamily={ semibold }  headline semibold>
-                    { 'Nombre' }
+                    { t( 'resNombre' ) }
                     </DynamicText>
                 </View>
                 <DynamicTextInput 
                     onChangeText={ ( text ) => console.log( text ) }
-                    placeholder={ 'Ingresa tu nombre' }
                     value={ profile?.FullName }
                 />
                 <View style={styles.contentTitle}>
@@ -94,12 +96,11 @@ export const ProfileScreen = () => {
                 </View>
                 <DynamicTextInput 
                     onChangeText={ ( text ) => console.log( text ) }
-                    placeholder={ 'Ingresa tu dni' }
                     value={ profile?.IDNumber }
                 />
                 <View style={styles.contentTitle}>
                     <DynamicText fontFamily={ semibold }  headline semibold>
-                    { 'Fecha de nacimiento' }
+                    { t( 'resFechaNacimiento' ) }
                     </DynamicText>
                 </View>
                 <DynamicTextInput 
@@ -107,7 +108,7 @@ export const ProfileScreen = () => {
                 />
                 <View style={styles.contentTitle}>
                     <DynamicText fontFamily={ semibold }  headline semibold>
-                    { 'E-mail' }
+                    { t( 'resCorreoElectronico' )  }
                     </DynamicText>
                 </View>
                 <DynamicTextInput 
@@ -115,7 +116,7 @@ export const ProfileScreen = () => {
                 />
                 <View style={styles.contentTitle}>
                     <DynamicText fontFamily={ semibold }  headline semibold>
-                    { 'Celular' }
+                    { t( 'resCelular' ) }
                     </DynamicText>
                 </View>
                 <DynamicTextInput 
@@ -123,7 +124,15 @@ export const ProfileScreen = () => {
                 />
                 <View style={styles.contentTitle}>
                     <DynamicText fontFamily={ semibold }  headline semibold>
-                    { 'Nacionalidad' }
+                    { 'Genero' }
+                    </DynamicText>
+                </View>
+                <DynamicTextInput 
+                    value={ profile?.Gender === 'F' ? 'Femenino' : 'Masculino' }
+                />
+                <View style={styles.contentTitle}>
+                    <DynamicText fontFamily={ semibold }  headline semibold>
+                    { t( 'resNacionalidad' ) }
                     </DynamicText>
                 </View>
                 <DynamicTextInput 
@@ -131,7 +140,7 @@ export const ProfileScreen = () => {
                 />
                 <View style={styles.contentTitle}>
                     <DynamicText fontFamily={ semibold }  headline semibold>
-                    { 'No. Pasaporte' }
+                    { t( 'resNoPasaporte' ) }
                     </DynamicText>
                 </View>
                 <DynamicTextInput 
@@ -139,7 +148,7 @@ export const ProfileScreen = () => {
                 />
                 <View style={styles.contentTitle}>
                     <DynamicText fontFamily={ semibold }  headline semibold>
-                    { 'Fecha de Vencimiento' }
+                    { t( 'resFechaVencimiento' ) }
                     </DynamicText>
                 </View>
                 <DynamicTextInput 
@@ -147,33 +156,33 @@ export const ProfileScreen = () => {
                 />
                 <View style={styles.contentTitle}>
                     <DynamicText fontFamily={ semibold }  headline semibold>
-                    { 'Centro de Costos' }
+                    { t( 'resCentroCostos' ) }
                     </DynamicText>
                 </View>
                 <DynamicTextInput 
                     value={ '' }
                 />
                 <View style={{ flex:1, backgroundColor: colors.primary, marginTop: 20, width: '100%', borderRadius: 5 }}>
-                    <DynamicText fontFamily={ semibold } style={{ fontSize: 20, alignSelf: 'center', color: whiteColor }}> Contacto en caso de emergencia </DynamicText>
+                    <DynamicText fontFamily={ semibold } style={{ fontSize: 20, alignSelf: 'center', color: whiteColor }}>{ t( 'resContactoEmergencia' ) }</DynamicText>
                 </View>
 
                 <View style={[styles.contentTitle, { marginTop: 10 }]}>
                     <DynamicText fontFamily={ semibold }  headline semibold>
-                    { 'Nombre' }
+                    { t( 'resNombre' ) }
                     </DynamicText>
                 </View>
                 <DynamicTextInput 
-                    value={ '' }
+                    value={ profile?.ContactName }
                 />
                 <View style={[styles.contentTitle, { marginTop: 10 }]}>
                     <DynamicText fontFamily={ semibold }  headline semibold>
-                    { 'Telefono de Contacto' }
+                    { t( 'resTelefonoContacto' )  }
                     </DynamicText>
                 </View>
                 <DynamicTextInput 
-                    value={ '' }
+                    value={ profile?.ContactPhone }
                 />
-                <View style={[styles.contentTitle, { marginTop: 10 }]}>
+                {/* <View style={[styles.contentTitle, { marginTop: 10 }]}>
                     <DynamicText fontFamily={ semibold }  headline semibold>
                     { 'FidelityName' }
                     </DynamicText>
@@ -188,7 +197,7 @@ export const ProfileScreen = () => {
                 </View>
                 <DynamicTextInput 
                     value={ '' }
-                />
+                /> */}
                 <View style={[styles.contentTitle, { marginTop: 10 }]}>
                     <DynamicText fontFamily={ semibold }  headline semibold>
                     { 'Aerolínea' }

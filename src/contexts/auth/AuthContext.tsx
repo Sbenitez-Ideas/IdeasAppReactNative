@@ -10,15 +10,24 @@ import { EndPointApp } from '../../model/interfaces/auth/EndPointApp';
 import { CustomUserSession } from '../../model/interfaces/auth/CustomUserSession';
 import { EntityParams } from "../../model/interfaces/common/EntityParams";
 import Toast from 'react-native-toast-message';
+import { TravelerCorporate } from '../../model/classes/corporate/TravelerCorporate';
 
 type AuthContextProps = {
     errorMessage: string;
     token: string | null;
     userData: CustomUserSession;
+    travelerRequestData: any;
+    selectedTravelers: TravelerCorporate[];
+    selectedServices: { service: any, completed: boolean }[];
     status: 'checking' | 'authenticated' | 'not-authenticated';
     signIn: (userCredentials: UserCredentials) => void;
     logOut: () => void;
+    assignSelectedTravelers: ( travelers: TravelerCorporate[] ) => void;
+    assignMotive: ( motive: { ID: string, Text: string } ) => void;
+    assignApprover: ( approver: { approverName: string, idApprover: number } ) => void;
+    assignPassenger: ( IDUser: number ) => void;
     removeError: () => void;
+    assignSelectedServices: ( services: { service: any, completed: boolean }[] ) => void;
 }
 
 
@@ -208,6 +217,9 @@ const AuthInitialState: AuthState = {
     token: null,
     user: null,
     errorMessage: '',
+    travelerRequestData: {},
+    selectedTravelers: [],
+    selectedServices: [],
     userData: intialUserdata
 
 
@@ -235,6 +247,7 @@ export const AuthProvider = ({ children }: any) => {
             
 
         } catch( error ) {
+            console.log( 'error aqui',error )
             dispatch({ type: 'addError', payload: 'Usuario o Contraseña invalidos' })
         }
     };
@@ -266,6 +279,26 @@ export const AuthProvider = ({ children }: any) => {
         
     }
 
+    const assignSelectedTravelers = ( selectedTravelers: TravelerCorporate[] ) => {
+        dispatch({ type: 'assignTravelers', payload: { travelers:  selectedTravelers } })
+    }
+
+    const assignMotive = ( motive: { ID: string, Text: string }) => {
+        dispatch({ type: 'assignMotive', payload: { motive: motive } })
+    }
+
+    const assignApprover = ( approver: { approverName: string, idApprover: number } ) => {
+        dispatch({ type: 'assignApprover', payload: { approver: approver } })
+    }
+
+    const assignPassenger = ( IDUser: number ) => {
+        dispatch({ type: 'assignPassenger', payload: { IDUser: IDUser } })
+    }
+
+    const assignSelectedServices = ( services: { service: string, completed: boolean }[] ) => {
+        dispatch({ type: 'assignSelectedServices', payload: { services: services } });
+    }
+
     const logOut = () => {};
 
     const removeError = () => {
@@ -278,7 +311,12 @@ export const AuthProvider = ({ children }: any) => {
             ...state,
             signIn,
             logOut,
-            removeError
+            removeError,
+            assignSelectedTravelers,
+            assignMotive,
+            assignApprover,
+            assignPassenger,
+            assignSelectedServices
         }}>
             { children }
         </AuthContext.Provider>

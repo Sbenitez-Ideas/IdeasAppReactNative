@@ -1,4 +1,4 @@
-export interface GeoLocation {
+export class GeoLocation {
     id: number;
     locationType: string;
     name: string;

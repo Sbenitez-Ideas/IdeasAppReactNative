@@ -3,7 +3,7 @@ import React, { useContext, useEffect, useState } from 'react'
 import { Text, View, StyleSheet, Dimensions, Image, Platform, ActivityIndicator } from 'react-native';
 import { RootStackParams } from '../../navigator/Navigator'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faArrowLeft, faClock, faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
+import { faBars, faExclamationCircle, faThumbsDown, faThumbsUp } from '@fortawesome/free-solid-svg-icons';
 import { ProfileNavigation } from '../../components/common/ProfileNavigation';
 import { ThemeContext } from '../../contexts/theme/ThemeContext';
 import { EnhancedRetrieveInternalRQ } from '../../model/classes/common/EnhancedRetrieveInternalRQ';
@@ -33,11 +33,15 @@ import { ReviewViaticsScreen } from './review-viatics/ReviewViaticsScreen';
 import { DynamicTextInput } from '../../components/common/DynamicTextInput';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import LinearGradient from 'react-native-linear-gradient';
-import { SpringUtils } from 'react-native-reanimated';
 import { SetStatusCorporateRQ } from '../../model/classes/corporate/SetStatusCorporateRQ';
 import { corporateApi } from '../../api/corporateApi';
 import Toast from 'react-native-toast-message';
 import { JustificationModalScreen } from '../common/JustificationModalScreen';
+import { AdditionalFields } from '../common/AdditionalFields';
+import { CostCenterInfo } from '../common/CostCenterInfo';
+import { ResumeScreen } from './ResumeScreen';
+import { FloatingMenu } from 'react-native-floating-action-menu';
+import { ApproversScreen } from './ApproversScreen';
 
 
 
@@ -50,7 +54,7 @@ export const ReviewScreen = ({ navigation, route }: Props ) => {
     const routes = navigation.dangerouslyGetState().routes;
     const showAdditionalFields = ( routes[ routes.length - 2 ].name === 'BookingListScreen') ? true : false;
     const [loading, setLoading] = useState( true );
-    const { loc, products, booking } = route.params;
+    const { loc, products, booking, typeScreen } = route.params;
     const { getInternalRetrieve } = commonApi();
     const { changeStatusBooking } = corporateApi();
     const { t } = useTranslation();
@@ -84,7 +88,22 @@ export const ReviewScreen = ({ navigation, route }: Props ) => {
         budget: number,
         costCenterName: string,
     }[]>([]);
+    const [showItems, setShowItems] = useState(false);
     const [retrieveResponse, setRetrieveResponse] = useState<RetrieveRS>( new RetrieveRS );
+    const items = [
+        { 
+            label: t( 'resAprobar' ), 
+            labelStyle: styles.labelMenu, 
+            fa: faThumbsUp, 
+            onPress: () => approve( true ),
+        },
+        { 
+            label: t( 'resRechazar' ), 
+            labelStyle: styles.labelMenu, 
+            fa: faThumbsDown, 
+            onPress: () => approve( false ),
+        },
+    ];
     useEffect(() => {
         navigation.setOptions({  headerRight: ()  => (
             <ProfileNavigation color={ whiteColor } navigation={ navigation } />
@@ -181,6 +200,7 @@ export const ReviewScreen = ({ navigation, route }: Props ) => {
     const getRetrieveInternal = ( request: EnhancedRetrieveInternalRQ ) => {
         getInternalRetrieve( request )
             .then(( response ) => {
+                console.log( 'respuesta review', response.CorporateBookingInfo.ApproverList );
                 setRetrieveRS( response );
                 setLoading( false );
             },
@@ -188,6 +208,10 @@ export const ReviewScreen = ({ navigation, route }: Props ) => {
                 console.error( error );
                 setLoading( false );
             });
+    }
+
+    const handleMenuToggle = () => {
+        setShowItems( !showItems )
     }
 
     const justified = ( confirm: boolean, value?: string ) => {
@@ -448,7 +472,7 @@ export const ReviewScreen = ({ navigation, route }: Props ) => {
     const changeBookingStatus = ( request: SetStatusCorporateRQ ) => {
         changeStatusBooking( request )
             .then(( response ) => {
-                if ( response.Errors && response.Errors.length > 0 ) {
+                if ( response.Errors && response.Errors.length > 0 && response.IDStatusResponse !== 2 ) {
                     Toast.show({
                         text1: 'No se pudo realizar la solicitud.',
                         type: 'error',
@@ -465,6 +489,7 @@ export const ReviewScreen = ({ navigation, route }: Props ) => {
                     }
                 }
                 navigation.goBack();
+                setLoading( !loading );
             }),
             () => {
                 Toast.show({
@@ -476,6 +501,7 @@ export const ReviewScreen = ({ navigation, route }: Props ) => {
     }
 
     const approve = ( option: boolean ) => {
+        setLoading( true );
         if ( option ) {
             changeBookingStatus( setStatusCorporateRQ() );
 
@@ -483,6 +509,8 @@ export const ReviewScreen = ({ navigation, route }: Props ) => {
             setType( 'justification' );
             setShowModal( true );
         }
+
+        setShowItems( !showItems );
     }
 
     const renderModal = () => {
@@ -496,14 +524,9 @@ export const ReviewScreen = ({ navigation, route }: Props ) => {
         }
     }
 
-    console.log( 'sd', statusCorporate );
-
     return (
 
         <>
-            { showModal && 
-                renderModal() 
-            }
             {
                 loading &&
                 <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: fieldColor }}>
@@ -514,232 +537,254 @@ export const ReviewScreen = ({ navigation, route }: Props ) => {
                     ></ActivityIndicator>
                 </View> 
             }
-            { !loading && !showModal &&
-                <View style={{ flex: 1 }} >
-                    <HeaderImageScrollView
-                        maxHeight={MAX_HEIGHT}
-                        minHeight={MIN_HEIGHT}
-                        maxOverlayOpacity={0.6}
-                        minOverlayOpacity={0.3}
-                        contentContainerStyle={{ backgroundColor: fieldColor }}
-                        fadeOutForeground
-                        renderHeader={ () => <Image style={{ width: Dimensions.get( 'window' ).width, height: MAX_HEIGHT, alignSelf: 'stretch', resizeMode: 'cover' }} source={{ uri: 'https://www.pixelstalk.net/wp-content/uploads/2016/06/Miami-Background-Free-Download.jpg' }}  /> }
-                            renderForeground={() => (
-                            <>
-                                { !hideHeader && 
-                                    <Animatable.View 
-                                        animation='fadeInDown'
-                                        style={{ flex: 1,
-                                            alignSelf: 'stretch',
-                                            justifyContent: 'center',
-                                            alignItems: 'center', 
-                                        }}
-                                    >
-                                        <DynamicText 
-                                            fontFamily={ semibold }
-                                            style={{ 
-                                                color: whiteColor,
-                                                backgroundColor: 'transparent',
-                                                fontSize: 24
-                                            }}
-                                        > 
-                                            { booking?.rute } 
-                                        </DynamicText>
-                                        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                                            <DynamicText 
-                                                style={{ 
-                                                    color: whiteColor,
-                                                    fontSize: 13,
-                                                    marginHorizontal: 10,
-                                                    top: 90,
-                                                }}
-                                            >{ Moment(booking?.goingDate).format( 'llll' ) }
-                                            </DynamicText>
-                                            <Icon
-                                                style={{ top: 88 }}
-                                                name='time-outline'
-                                                color={ whiteColor }
-                                                size={ 20 }
-                                            />
-                                            <DynamicText 
-                                                style={{ 
-                                                    color: whiteColor,
-                                                    fontSize: 13,
-                                                    marginHorizontal: 10,
-                                                    top: 90,
-                                                }}
-                                            >{ Moment(booking?.goingDate).format( 'llll' ) }
-                                            </DynamicText>
-
-                                        </View>
-                                        
-                                    </Animatable.View>
-
+            { !loading &&
+                <>
+                    { showModal && 
+                        renderModal() 
+                    }
+                    {
+                        ( isApprover && status !== 'C' && statusCorporate !== 'Aprovada' && statusCorporate !== 'Reprovada' && showAdditionalFields && typeScreen === 'approver' ) &&
+                        <FloatingMenu
+                            bottom={ 60 }
+                            right={ 10 }
+                            items={items}
+                            isOpen={ showItems }
+                            onMenuToggle={ handleMenuToggle }
+                            borderColor={ colors.primary }
+                            primaryColor={ fieldColor }
+                            renderMenuIcon={ () => { return (
+                                <FontAwesomeIcon
+                                    icon={ faBars }
+                                    color={ colors.primary }
+                                    size={ 30 }
+                                />
+                            )}}
+                            renderItemIcon= { ( item: any, index: any, menuState: any )  => {
+                                if ( item.fa ) {
+                                    return (
+                                        <FontAwesomeIcon
+                                            icon={item.fa}
+                                            size={25}
+                                            color={ colors.primary }
+                                        />
+                                    )
                                 }
-                            </>
-                        )}
-                        renderFixedForeground={() =>  {
-                            return (
-                                <>
-                                    { hideHeader &&
-                                        <Animatable.View animation='fadeIn' style={{ alignSelf: 'center', height: MIN_HEIGHT, justifyContent: 'center' }}/*  ref={navTitleView} */ >
-                                        <Text style={{ color: 'white',
-                                        fontSize: 18,
-                                        backgroundColor: 'transparent', }}
-                                        >{  booking?.rute }</Text>
-                                        </Animatable.View>
-                                    }
-                                </>
-                                )
-                        } }
-                    >   
-                        <View style={{ backgroundColor: fieldColor, marginBottom: 60 }}>
-                            <TriggeringView
-                                onDisplay={ () => { setHideHeader( false ) }}
-                                onBeginHidden={ () => { setHideHeader( true ) }}
-                            >
-                                <View style={{  ...styles.fatherContainer, backgroundColor: whiteColor, marginTop: 10 }}>
-                                    <View style={{ borderLeftWidth: 4, marginLeft: 10, marginTop: 10, marginBottom: 10, padding: 5, borderLeftColor: colors.primary }}>
-                                        { showAdditionalFields || retrieveResponse.Segments === undefined &&
-                                            <View style={{ ...commonStyles.dataContainer, ...styles.containerRetrieve }}>
-                                                <DynamicText fontFamily={ semibold }  style={{ ...commonStyles.infoExpense, color: colors.text}}>{ t( 'resLocalizadorSolicitud' ) }:  </DynamicText>
-                                                <DynamicText style={{ ...commonStyles.infoExpense, color: colors.text}}>{ retrieveData?.locator }</DynamicText>
-                                            </View>
+                            }}
+                        />
+                    }
+                    { !loading && !showModal &&
+                        <View style={{ flex: 1 }} >
+                            <HeaderImageScrollView
+                                maxHeight={MAX_HEIGHT}
+                                minHeight={MIN_HEIGHT}
+                                maxOverlayOpacity={0.6}
+                                minOverlayOpacity={0.3}
+                                contentContainerStyle={{ backgroundColor: fieldColor }}
+                                fadeOutForeground
+                                renderHeader={ () => <Image style={{ width: Dimensions.get( 'window' ).width, height: MAX_HEIGHT, alignSelf: 'stretch', resizeMode: 'cover' }} source={{ uri: 'https://www.pixelstalk.net/wp-content/uploads/2016/06/Miami-Background-Free-Download.jpg' }}  /> }
+                                    renderForeground={() => (
+                                    <>
+                                        { !hideHeader && 
+                                            <Animatable.View 
+                                                animation='fadeInDown'
+                                                style={{ flex: 1,
+                                                    alignSelf: 'stretch',
+                                                    justifyContent: 'center',
+                                                    alignItems: 'center', 
+                                                    maxWidth: '100%'
+                                                }}
+                                            >
+                                                <DynamicText 
+                                                    fontFamily={ semibold }
+                                                    style={{ 
+                                                        color: whiteColor,
+                                                        backgroundColor: 'transparent',
+                                                        fontSize: 24
+                                                    }}
+                                                > 
+                                                    { booking?.rute } 
+                                                </DynamicText>
+                                                <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                                                    <View style={{ flexDirection: 'column', top: 70 }}>
+                                                        <Icon 
+                                                            name='trending-down-outline'
+                                                            size={ 30 }
+                                                            color={ whiteColor }
+                                                            style={{ alignSelf: 'center' }}
+                                                        />
+                                                        <DynamicText 
+                                                            style={{ 
+                                                                color: whiteColor,
+                                                                fontSize: 15,
+                                                                marginHorizontal: 10,
+                                                            
+                                                            }}
+                                                        >{ Moment(booking?.goingDate).format( 'llll' ) }
+                                                        </DynamicText>
+                                                    </View>
+                                                    <Icon
+                                                        style={{ top: 95 }}
+                                                        name='time-outline'
+                                                        color={ whiteColor }
+                                                        size={ 20 }
+                                                    />
+                                                    <View style={{ flexDirection: 'column', top: 70 }}>
+                                                        <Icon 
+                                                            name='trending-up-outline'
+                                                            size={ 30 }
+                                                            color={ whiteColor }
+                                                            style={{ alignSelf: 'center' }}
+                                                        />
+                                                        <DynamicText 
+                                                            style={{ 
+                                                                color: whiteColor,
+                                                                fontSize: 15,
+                                                                marginHorizontal: 10
+                                                            }}
+                                                        >{ Moment(booking?.goingDate).format( 'llll' ) }
+                                                        </DynamicText>
+                                                    </View>
+                                                </View>
+                                                
+                                            </Animatable.View>
+
                                         }
-                                        { retrieveResponse.Segments &&
-                                            <View style={{ ...commonStyles.dataContainer, ...styles.containerRetrieve }}>
-                                                <DynamicText fontFamily={ semibold }  style={{ ...commonStyles.infoExpense, color: colors.text}}>{ t( 'resLocalizadorAerolinea' ) }:  </DynamicText>
-                                                <DynamicText style={{ ...commonStyles.infoExpense, color: colors.text}}>{ retrieveResponse.RecordLocator }</DynamicText>
-                                            </View>
-                                        }
-                                        { showAdditionalFields &&
-                                            <View style={{ ...commonStyles.dataContainer, ...styles.containerRetrieve }}>
-                                                <DynamicText fontFamily={ semibold }  style={{ ...commonStyles.infoExpense, color: colors.text}}>{ t( 'resCodigoReserva' ) }:  </DynamicText>
-                                                <DynamicText style={{ ...commonStyles.infoExpense, color: colors.text}}>{ retrieveData?.bookingCode }</DynamicText>
-                                            </View>
-                                        }
-                                        <View style={{ ...commonStyles.dataContainer, ...styles.containerRetrieve }}>
-                                            <DynamicText fontFamily={ semibold }  style={{ ...commonStyles.infoExpense, color: colors.text}}>{ t( 'resFechaSolicitud' ) }:  </DynamicText>
-                                            <DynamicText style={{ ...commonStyles.infoExpense, color: colors.text}}>{  Moment( retrieveData?.bookingDate ).format( 'llll' )  }</DynamicText>
-                                        </View>
-                                        
-                                            <View style={{ ...commonStyles.dataContainer, ...styles.containerRetrieve }}>
-                                                <DynamicText fontFamily={ semibold }  style={{ ...commonStyles.infoExpense, marginTop: 7,  color: colors.text}}>{ t( 'resEstadoSolicitud' ) }:  </DynamicText>
-                                                { statusCorporate !== 'Reprovada' &&
-                                                    <View style={[ commonStyles.stateContainer,  { backgroundColor:  setColorStateRetrieve(), }  ]}>
-                                                        <DynamicText numberOfLines={ 1 } fontFamily={ semibold } style={{ fontSize: 15,  color: whiteColor }}>{ setStateRetrieve(retrieveData?.status as string, retrieveData?.statusFlowC as string ) }</DynamicText>
+                                    </>
+                                )}
+                                renderFixedForeground={() =>  {
+                                    return (
+                                        <>
+                                            { hideHeader &&
+                                                <Animatable.View animation='fadeIn' style={{ alignSelf: 'center', height: MIN_HEIGHT, justifyContent: 'center' }}/*  ref={navTitleView} */ >
+                                                <Text style={{ color: 'white',
+                                                fontSize: 18,
+                                                backgroundColor: 'transparent', }}
+                                                >{  booking?.rute }</Text>
+                                                </Animatable.View>
+                                            }
+                                        </>
+                                        )
+                                } }
+                            >   
+                                <View style={{ backgroundColor: fieldColor, marginBottom: 110 }}>
+                                    <TriggeringView
+                                        onDisplay={ () => { setHideHeader( false ) }}
+                                        onBeginHidden={ () => { setHideHeader( true ) }}
+                                    >
+                                        <View style={{  ...styles.fatherContainer, backgroundColor: whiteColor, marginTop: 10 }}>
+                                            <View style={{ borderLeftWidth: 4, marginLeft: 10, marginTop: 10, marginBottom: 10, padding: 5, borderLeftColor: colors.primary }}>
+                                                { showAdditionalFields || retrieveResponse.Segments === undefined &&
+                                                    <View style={{ ...commonStyles.dataContainer, ...styles.containerRetrieve }}>
+                                                        <DynamicText fontFamily={ semibold }  style={{ ...commonStyles.infoExpense, color: colors.text}}>{ t( 'resLocalizadorSolicitud' ) }:  </DynamicText>
+                                                        <DynamicText style={{ ...commonStyles.infoExpense, color: colors.text}}>{ retrieveData?.locator }</DynamicText>
                                                     </View>
                                                 }
-                                                {
-                                                    statusCorporate === 'Reprovada' &&
-                                                    <DynamicText style={{ ...commonStyles.infoExpense, marginTop: 7,  color: colors.text}}> Rechazado </DynamicText>
+                                                { retrieveResponse.Segments &&
+                                                    <View style={{ ...commonStyles.dataContainer, ...styles.containerRetrieve }}>
+                                                        <DynamicText fontFamily={ semibold }  style={{ ...commonStyles.infoExpense, color: colors.text}}>{ t( 'resLocalizadorAerolinea' ) }:  </DynamicText>
+                                                        <DynamicText style={{ ...commonStyles.infoExpense, color: colors.text}}>{ retrieveResponse.RecordLocator }</DynamicText>
+                                                    </View>
                                                 }
-                                                {
-                                                    statusCorporate === 'Pendente' &&
-                                                    <DynamicText style={{ ...commonStyles.infoExpense, marginTop: 7,  color: colors.text}}> Pendiente </DynamicText>
+                                                { retrieveResponse.Segments &&
+                                                    <View style={{ ...commonStyles.dataContainer, ...styles.containerRetrieve }}>
+                                                        <DynamicText fontFamily={ semibold }  style={{ ...commonStyles.infoExpense, color: colors.text}}>{ t( 'resLocalizadorInterno' ) }:  </DynamicText>
+                                                        <DynamicText style={{ ...commonStyles.infoExpense, color: colors.text}}>{ retrieveResponse.InternalRecordLocator }</DynamicText>
+                                                    </View>
                                                 }
-                                            </View>
-                                        { status !== 'C' &&
-                                            <View style={{ marginTop: 10, flexDirection: 'row', justifyContent: 'space-between' }}>
-                                                <DynamicText fontFamily={ semibold }  style={{ ...commonStyles.infoExpense, color: colors.text}}>{ t( 'resPasajeros' ) }:  </DynamicText>
-                                                <View>
-                                                    {
-                                                        travelers.map(( item, index) => {
-                                                            return (
-                                                                <DynamicText key={ index } style={{ ...commonStyles.infoExpense, color: colors.text}}> { item.FullName } </DynamicText>
-                                                            )
-                                                        })
-                                                    }
+                                                { showAdditionalFields &&
+                                                    <View style={{ ...commonStyles.dataContainer, ...styles.containerRetrieve }}>
+                                                        <DynamicText fontFamily={ semibold }  style={{ ...commonStyles.infoExpense, color: colors.text}}>{ t( 'resCodigoReserva' ) }:  </DynamicText>
+                                                        <DynamicText style={{ ...commonStyles.infoExpense, color: colors.text}}>{ retrieveData?.bookingCode }</DynamicText>
+                                                    </View>
+                                                }
+                                                <View style={{ ...commonStyles.dataContainer, ...styles.containerRetrieve }}>
+                                                    <DynamicText fontFamily={ semibold }  style={{ ...commonStyles.infoExpense, color: colors.text}}>{ t( 'resFechaSolicitud' ) }:  </DynamicText>
+                                                    <DynamicText style={{ ...commonStyles.infoExpense, color: colors.text}}>{  Moment( retrieveData?.bookingDate ).format( 'llll' )  }</DynamicText>
                                                 </View>
-                                            </View> 
-                                        }
-                                    </View>
-                                </View>
-                                { ( retrieveResponse.Segments !== undefined && status !== 'C' ) &&
-                                    <View style={{  ...styles.fatherContainer, backgroundColor: whiteColor  }}>
-                                        <ReviewFlightScreen retrieve={ retrieveResponse } />
-                                    </View>     
-                                }
-                                { ( hotel.length > 0 && status !== 'C' ) &&
-                                    <ReviewHotelScreen hotel={ hotel } />
-                                }
-                                { (  viatic.startDate && status !== 'C' ) &&
-                                    <ReviewViaticsScreen viatic={ viatic } /> 
-                                }
-                                { showAdditionalFields &&
-                                    costCenter.map( ( item, index ) =>  {
-                                        return (
-                                            <View  key={ index } style={{ ...styles.fatherContainer, marginTop: 20, backgroundColor: accent, borderRadius: 10 }}>
-                                                <View style={[ commonStyles.basicCard ]}>
-                                                    <DynamicText fontFamily={ semibold }  style={{ ...commonStyles.infoExpense, color: colors.primary, ...styles.cardText }}> Centro de Costos </DynamicText>
-                                                    <DynamicText fontFamily={ semibold }  style={{ ...commonStyles.infoExpense, color: colors.primary, ...styles.cardText }}> Presupuesto </DynamicText>
-                                                </View>
-                                                <View style={[ commonStyles.basicCard ]}>
-                                                    <DynamicText style={{ ...commonStyles.infoExpense, color: colors.text, ...styles.cardText }}>{ item.costCenterName }</DynamicText>
-                                                    <NumberFormat value={ item.budget } displayType={'text'} thousandSeparator={true} prefix={'$'} 
-                                                        renderText={
-                                                            value => <DynamicText style={{ ...commonStyles.infoExpense, color: colors.text, ...styles.cardText }}>{ value }</DynamicText>
-                                                        } 
-                                                    /> 
                                                 
-                                                </View>
+                                                    <View style={{ ...commonStyles.dataContainer, ...styles.containerRetrieve }}>
+                                                        <DynamicText fontFamily={ semibold }  style={{ ...commonStyles.infoExpense, marginTop: 7,  color: colors.text}}>{ t( 'resEstadoSolicitud' ) }:  </DynamicText>
+                                                        { statusCorporate !== 'Reprovada' &&
+                                                            <View style={[ commonStyles.stateContainer,  { backgroundColor:  setColorStateRetrieve(), }  ]}>
+                                                                <DynamicText numberOfLines={ 1 } fontFamily={ semibold } style={{ fontSize: 15,  color: whiteColor }}>{ setStateRetrieve(retrieveData?.status as string, retrieveData?.statusFlowC as string ) }</DynamicText>
+                                                            </View>
+                                                        }
+                                                        {
+                                                            statusCorporate === 'Reprovada' &&
+                                                            <DynamicText style={{ ...commonStyles.infoExpense, marginTop: 7,  color: colors.text}}> Rechazado </DynamicText>
+                                                        }
+                                                        {
+                                                            ( statusCorporate === 'Pendente' ) && ( retrieveData?.status !== 'C' ) &&
+                                                            <DynamicText style={{ ...commonStyles.infoExpense, marginTop: 7,  color: colors.text}}> Pendiente </DynamicText>
+                                                        }
+                                                    </View>
+                                                { status !== 'C' &&
+                                                    <View style={{ marginTop: 10, flexDirection: 'row', justifyContent: 'space-between' }}>
+                                                        <DynamicText fontFamily={ semibold }  style={{ ...commonStyles.infoExpense, color: colors.text}}>{ t( 'resPasajeros' ) }:  </DynamicText>
+                                                        <View>
+                                                            {
+                                                                travelers.map(( item, index) => {
+                                                                    return (
+                                                                        <DynamicText key={ index } style={{ ...commonStyles.infoExpense, color: colors.text}}> { item.FullName } </DynamicText>
+                                                                    )
+                                                                })
+                                                            }
+                                                        </View>
+                                                    </View> 
+                                                }
                                             </View>
-                                        )
-                                        
-                                    })
-                                }
-                                {
-                                    ( retrieveRS && !retrieveRS?.CorporateBookingInfo?.PolicyResult && showAdditionalFields ) &&
-                                    <View style={[ styles.fatherContainer, { backgroundColor: accent, marginTop: 20 } ]}>
-                                        <View style={{ flexDirection: 'row', marginTop: 40, alignSelf: 'center'  }}>
-                                            <FontAwesomeIcon 
-                                                icon={ faExclamationCircle }
-                                                color={ grayColor }
-                                                size={ 30 }
-                                            />
-                                            <DynamicText style={{ color: grayColor, fontSize: 15, marginTop: 6 }} > El pasajero está incumpliendo las politicas de viaje </DynamicText>
                                         </View>
-                                        <View style={styles.contentTitle}>
-                                            <DynamicText fontFamily={ semibold } style={{ color: colors.primary }}  headline semibold>
-                                                { 'Justificacion' }
-                                            </DynamicText>
-                                        </View>
-                                        <DynamicTextInput
-                                            style={{ width: '95%', margin: 10 }}
-                                            editable={  false }
-                                            value={ retrieveRS?.CorporateBookingInfo?.JustificationPolicy }
-                                        />
-                                    </View>
+                                        { ( retrieveResponse.Segments !== undefined && status !== 'C' ) &&
+                                            <View style={{  ...styles.fatherContainer, backgroundColor: whiteColor, marginTop: 10,   }}>
+                                                <ReviewFlightScreen retrieve={ retrieveResponse } />
+                                            </View>     
+                                        }
+                                        { ( hotel.length > 0 && status !== 'C' ) &&
+                                            <ReviewHotelScreen hotel={ hotel } />
+                                        }
+                                        { (  viatic.startDate && status !== 'C' ) &&
+                                            <ReviewViaticsScreen viatic={ viatic } /> 
+                                        }
+                                        { showAdditionalFields &&
+                                            <CostCenterInfo costCenter={ costCenter }  />
+                                        }
+                                        {
+                                            ( retrieveRS && !retrieveRS?.CorporateBookingInfo?.PolicyResult && showAdditionalFields ) &&
+                                            <View style={[ styles.fatherContainer, { backgroundColor: accent, marginTop: 20 } ]}>
+                                                <View style={{ flexDirection: 'row', marginTop: 40, alignSelf: 'center'  }}>
+                                                    <FontAwesomeIcon 
+                                                        icon={ faExclamationCircle }
+                                                        color={ grayColor }
+                                                        size={ 30 }
+                                                    />
+                                                    <DynamicText style={{ color: grayColor, fontSize: 15, marginTop: 6 }} > El pasajero está incumpliendo las politicas de viaje </DynamicText>
+                                                </View>
+                                                <View style={styles.contentTitle}>
+                                                    <DynamicText fontFamily={ semibold } style={{ color: colors.primary }}  headline semibold>
+                                                        { 'Justificacion' }
+                                                    </DynamicText>
+                                                </View>
+                                                <DynamicTextInput
+                                                    style={{ width: '95%', margin: 10 }}
+                                                    editable={  false }
+                                                    value={ retrieveRS?.CorporateBookingInfo?.JustificationPolicy }
+                                                />
+                                            </View>
 
-                                }
-                                { ( isApprover && status !== 'C' && statusCorporate !== 'Aprovada' && statusCorporate !== 'Reprovada' && showAdditionalFields ) &&
-                                    <View style={{ flexDirection: 'row', justifyContent: 'space-around', marginTop: 10 }}>
-                                        <TouchableOpacity onPress={ () => approve( false ) }>
-                                            <LinearGradient
-                                                colors={[ grayColor, '#b5b5b5' ]}
-                                                style={ styles.buttonsAction }
-                                            >
-                                                <DynamicText fontFamily={ semibold }  style={[commonStyles.buttonText, {
-                                                    color: whiteColor
-                                                }]}>{ t( 'resRechazar' ) }</DynamicText>
-                                            </LinearGradient>
-                                        </TouchableOpacity>
-                                        <TouchableOpacity onPress={ () => approve( true ) }>
-                                            <LinearGradient
-                                                colors={[colors.primary, secondary]}
-                                                style={ styles.buttonsAction }
-                                            >
-                                                <DynamicText fontFamily={ semibold } style={[commonStyles.buttonText, {
-                                                    color: whiteColor
-                                                }]}>{ t( 'resAprobar' ) }</DynamicText>
-                                            </LinearGradient>
-                                        </TouchableOpacity>
-                                    </View>
-                                }
-                            </TriggeringView>      
+                                        }
+                                        {
+                                            ( retrieveRS && status !== 'C' && retrieveRS.CorporateBookingInfo?.ApproverList?.length > 0 && showAdditionalFields ) &&  
+                                            <ApproversScreen approvers={ retrieveRS.CorporateBookingInfo.ApproverList  } />
+                                        }
+                                        { ( retrieveRS && status !== 'C' ) &&  
+                                            <ResumeScreen  servicesData={ { hotels: hotel, flights: retrieveResponse, viatics: viatic } } />
+                                        }
+                                    </TriggeringView>      
+                                </View>
+                            </HeaderImageScrollView>  
                         </View>
-                    </HeaderImageScrollView>  
-                </View>
+                    }
+                </>
             }
         </>
     )
@@ -787,5 +832,10 @@ const styles = StyleSheet.create({
         paddingBottom: 10,
         paddingTop: 10,
         borderRadius: 5
-    }
+    },
+    labelMenu: {
+        fontSize: 13, 
+        fontFamily: 'Raleway-Regular', 
+        fontWeight: '900'
+    },
 })
