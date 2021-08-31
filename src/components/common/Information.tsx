@@ -27,8 +27,7 @@ export const Information = ({ type, title }: Props) => {
                 setProductInfo();
                 break;
             case 'approver':
-                setInfo( 'Usted no tiene un aprobador asignado. Contactese con el ' +
-                'area encargada para que le asignen uno y pueda realizar la solicitud.' );
+                setInfo(  t( 'resNoTieneAprobador' ) );
             default:
                 break;
         }

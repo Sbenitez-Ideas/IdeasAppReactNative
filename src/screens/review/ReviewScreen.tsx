@@ -200,7 +200,6 @@ export const ReviewScreen = ({ navigation, route }: Props ) => {
     const getRetrieveInternal = ( request: EnhancedRetrieveInternalRQ ) => {
         getInternalRetrieve( request )
             .then(( response ) => {
-                console.log( 'respuesta review', response.CorporateBookingInfo.ApproverList );
                 setRetrieveRS( response );
                 setLoading( false );
             },
@@ -474,13 +473,13 @@ export const ReviewScreen = ({ navigation, route }: Props ) => {
             .then(( response ) => {
                 if ( response.Errors && response.Errors.length > 0 && response.IDStatusResponse !== 2 ) {
                     Toast.show({
-                        text1: 'No se pudo realizar la solicitud.',
+                        text1: t( 'resNoPudoRealizarSolicitud' ),
                         type: 'error',
                         visibilityTime: 2000,
                     });
                 } else {
                     Toast.show({
-                        text1: 'Operación completa.',
+                        text1: t( 'resOperacionCompletada' ),
                         type: 'success',
                         visibilityTime: 2000,
                     });
@@ -523,6 +522,9 @@ export const ReviewScreen = ({ navigation, route }: Props ) => {
                 break;
         }
     }
+
+
+    console.log( 'retrieveresopnse', retrieveResponse?.CorporateParams?.DynamicFields );
 
     return (
 
@@ -604,7 +606,7 @@ export const ReviewScreen = ({ navigation, route }: Props ) => {
                                                 > 
                                                     { booking?.rute } 
                                                 </DynamicText>
-                                                <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                                                <View style={{ flexDirection: 'row', justifyContent: 'space-between', maxHeight: '90%' }}>
                                                     <View style={{ flexDirection: 'column', top: 70 }}>
                                                         <Icon 
                                                             name='trending-down-outline'
@@ -619,7 +621,7 @@ export const ReviewScreen = ({ navigation, route }: Props ) => {
                                                                 marginHorizontal: 10,
                                                             
                                                             }}
-                                                        >{ Moment(booking?.goingDate).format( 'llll' ) }
+                                                        >{ Moment(booking?.goingDate).format( 'ddd DD MMM YYYY, h:mm a' ) }
                                                         </DynamicText>
                                                     </View>
                                                     <Icon
@@ -641,7 +643,7 @@ export const ReviewScreen = ({ navigation, route }: Props ) => {
                                                                 fontSize: 15,
                                                                 marginHorizontal: 10
                                                             }}
-                                                        >{ Moment(booking?.goingDate).format( 'llll' ) }
+                                                        >{ Moment(booking?.comingDate).format( 'ddd DD MMM YYYY, h:mm a' ) }
                                                         </DynamicText>
                                                     </View>
                                                 </View>
@@ -656,9 +658,12 @@ export const ReviewScreen = ({ navigation, route }: Props ) => {
                                         <>
                                             { hideHeader &&
                                                 <Animatable.View animation='fadeIn' style={{ alignSelf: 'center', height: MIN_HEIGHT, justifyContent: 'center' }}/*  ref={navTitleView} */ >
-                                                <Text style={{ color: 'white',
-                                                fontSize: 18,
-                                                backgroundColor: 'transparent', }}
+                                                <Text 
+                                                    style={{ 
+                                                        color: 'white',
+                                                        fontSize: 18,
+                                                        backgroundColor: 'transparent' 
+                                                    }}
                                                 >{  booking?.rute }</Text>
                                                 </Animatable.View>
                                             }
@@ -699,25 +704,25 @@ export const ReviewScreen = ({ navigation, route }: Props ) => {
                                                 }
                                                 <View style={{ ...commonStyles.dataContainer, ...styles.containerRetrieve }}>
                                                     <DynamicText fontFamily={ semibold }  style={{ ...commonStyles.infoExpense, color: colors.text}}>{ t( 'resFechaSolicitud' ) }:  </DynamicText>
-                                                    <DynamicText style={{ ...commonStyles.infoExpense, color: colors.text}}>{  Moment( retrieveData?.bookingDate ).format( 'llll' )  }</DynamicText>
+                                                    <DynamicText style={{ ...commonStyles.infoExpense, color: colors.text}}>{  Moment( retrieveData?.bookingDate ).format( 'ddd DD MMM YYYY, h:mm a' )  }</DynamicText>
                                                 </View>
                                                 
-                                                    <View style={{ ...commonStyles.dataContainer, ...styles.containerRetrieve }}>
-                                                        <DynamicText fontFamily={ semibold }  style={{ ...commonStyles.infoExpense, marginTop: 7,  color: colors.text}}>{ t( 'resEstadoSolicitud' ) }:  </DynamicText>
-                                                        { statusCorporate !== 'Reprovada' &&
-                                                            <View style={[ commonStyles.stateContainer,  { backgroundColor:  setColorStateRetrieve(), }  ]}>
-                                                                <DynamicText numberOfLines={ 1 } fontFamily={ semibold } style={{ fontSize: 15,  color: whiteColor }}>{ setStateRetrieve(retrieveData?.status as string, retrieveData?.statusFlowC as string ) }</DynamicText>
-                                                            </View>
-                                                        }
-                                                        {
-                                                            statusCorporate === 'Reprovada' &&
-                                                            <DynamicText style={{ ...commonStyles.infoExpense, marginTop: 7,  color: colors.text}}> Rechazado </DynamicText>
-                                                        }
-                                                        {
-                                                            ( statusCorporate === 'Pendente' ) && ( retrieveData?.status !== 'C' ) &&
-                                                            <DynamicText style={{ ...commonStyles.infoExpense, marginTop: 7,  color: colors.text}}> Pendiente </DynamicText>
-                                                        }
-                                                    </View>
+                                                <View style={{ ...commonStyles.dataContainer, ...styles.containerRetrieve }}>
+                                                    <DynamicText fontFamily={ semibold }  style={{ ...commonStyles.infoExpense, marginTop: 7,  color: colors.text}}>{ t( 'resEstadoSolicitud' ) }: </DynamicText>
+                                                    { statusCorporate !== 'Reprovada' &&
+                                                        <View style={[ commonStyles.stateContainer,  { backgroundColor:  setColorStateRetrieve(), }  ]}>
+                                                            <DynamicText numberOfLines={ 1 } fontFamily={ semibold } style={{ fontSize: 15,  color: whiteColor }}>{ t( setStateRetrieve(retrieveData?.status as string, retrieveData?.statusFlowC as string ) as string )}</DynamicText>
+                                                        </View>
+                                                    }
+                                                    {
+                                                        statusCorporate === 'Reprovada' &&
+                                                        <DynamicText style={{ ...commonStyles.infoExpense, marginTop: 7,  color: colors.text}}> { t( 'resRechazado' ) } </DynamicText>
+                                                    }
+                                                    {
+                                                        ( statusCorporate === 'Pendente' ) && ( retrieveData?.status !== 'C' ) &&
+                                                        <DynamicText style={{ ...commonStyles.infoExpense, marginTop: 7,  color: colors.text}}>{ t( 'resPendiente' ) }</DynamicText>
+                                                    }
+                                                </View>
                                                 { status !== 'C' &&
                                                     <View style={{ marginTop: 10, flexDirection: 'row', justifyContent: 'space-between' }}>
                                                         <DynamicText fontFamily={ semibold }  style={{ ...commonStyles.infoExpense, color: colors.text}}>{ t( 'resPasajeros' ) }:  </DynamicText>
@@ -736,7 +741,7 @@ export const ReviewScreen = ({ navigation, route }: Props ) => {
                                         </View>
                                         { ( retrieveResponse.Segments !== undefined && status !== 'C' ) &&
                                             <View style={{  ...styles.fatherContainer, backgroundColor: whiteColor, marginTop: 10,   }}>
-                                                <ReviewFlightScreen retrieve={ retrieveResponse } />
+                                                <ReviewFlightScreen retrieve={ retrieveResponse } showAdditionalFields={ showAdditionalFields } />
                                             </View>     
                                         }
                                         { ( hotel.length > 0 && status !== 'C' ) &&
@@ -757,7 +762,7 @@ export const ReviewScreen = ({ navigation, route }: Props ) => {
                                                         color={ grayColor }
                                                         size={ 30 }
                                                     />
-                                                    <DynamicText style={{ color: grayColor, fontSize: 15, marginTop: 6 }} > El pasajero está incumpliendo las politicas de viaje </DynamicText>
+                                                    <DynamicText style={{ color: grayColor, fontSize: 15, marginTop: 6 }}>{ t( 'resPasajeroIncumplePoliticasViaje' ) }</DynamicText>
                                                 </View>
                                                 <View style={styles.contentTitle}>
                                                     <DynamicText fontFamily={ semibold } style={{ color: colors.primary }}  headline semibold>

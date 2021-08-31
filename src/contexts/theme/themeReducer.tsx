@@ -16,6 +16,10 @@ export interface ThemeState extends Theme {
     accent: string;
     cancelColor: string
     backgroundDarken:string,
+    grayDarken: string,
+    lightDark: string,
+    lightGray: string
+
 }
 
 
@@ -31,6 +35,9 @@ export const exitoTheme: ThemeState = {
     secondary: '#e21239',
     cancelColor: '#dc3545',
     backgroundDarken: "#e21239",
+    grayDarken: '#757575',
+    lightDark: '#474747',
+    lightGray: '#e0e0e0',
     colors: {
         primary: '#DC3545',
         background: 'white',
@@ -55,6 +62,9 @@ export const ideasTheme: ThemeState = {
     accent: '#d9edf7',
     cancelColor: '#ff504d',
     backgroundDarken: "#176892",
+    lightGray: '#e0e0e0',
+    grayDarken: '#757575',
+    lightDark: '#474747',
     colors: {
         primary: '#2195D1',
         background: 'white',

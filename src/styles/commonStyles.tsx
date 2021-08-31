@@ -133,6 +133,11 @@ export const commonStyles = StyleSheet.create({
         width: '97%', 
         alignSelf: 'center', 
         borderRadius: 10
-    }
+    },
+    airlineImage: {
+        width: 25,
+        height: 25 ,
+        marginLeft: 10
+    },
 
 });

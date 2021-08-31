@@ -4,7 +4,7 @@ import { AvailabilityBaseRS } from "./AvailabilityBaseRS";
 
 export class AvailabilityByPriceRS extends AvailabilityBaseRS {
     public Recommendations: Recommendation[];
-    /* public AvailabilityFilter: any; */
+    public AvailabilityFilter: any;
 
     constructor() {
         super();

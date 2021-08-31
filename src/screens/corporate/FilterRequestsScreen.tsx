@@ -105,7 +105,6 @@ export const FilterRequestsScreen = ({ navigation, route }: Props ) => {
     }
 
     const calculateDatesValues = ( typeDate: 'start' | 'end' ) => {
-        console.log( 'beforeFiltered', beforeFiltered );
         switch (typeDate) {
             case 'start':
                 if ( formFilter.dateStart !== '' && beforeFiltered === undefined ) {
@@ -117,7 +116,6 @@ export const FilterRequestsScreen = ({ navigation, route }: Props ) => {
                 } else if ( formFilter.dateStart === '' &&  beforeFiltered === undefined ) {
                     return formFilter.dateStart;
                 }  
-        
             case 'end':
                 if ( formFilter.dateEnd !== '' &&  beforeFiltered === undefined ) {
                     return Moment(formFilter.dateEnd).format( 'll' )

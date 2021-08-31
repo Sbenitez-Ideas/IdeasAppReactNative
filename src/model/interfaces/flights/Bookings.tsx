@@ -1,5 +1,5 @@
 export interface Booking {
-    products: string;
+    products: string[];
     company: string;
     loc: string;
     internalLoc: string;

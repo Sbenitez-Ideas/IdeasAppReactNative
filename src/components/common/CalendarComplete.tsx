@@ -1,12 +1,10 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useState } from 'react'
 import * as Animatable from 'react-native-animatable';
-import { CalendarList, CustomMarking, DateObject, PeriodMarking } from 'react-native-calendars';
+import { CalendarList, DateObject, PeriodMarking } from 'react-native-calendars';
 import Modal from 'react-native-modal';
 import { View, TouchableOpacity } from 'react-native';
 import { commonStyles } from '../../styles/commonStyles';
-import Icon from 'react-native-vector-icons/Ionicons';
 import { ThemeContext } from '../../contexts/theme/ThemeContext';
-import LinearGradient from 'react-native-linear-gradient';
 import { DynamicText } from './DynamicText';
 import { useTranslation } from 'react-i18next';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
@@ -17,7 +15,7 @@ import Moment from 'moment';
 interface Props {
     showcalendar: ( index: number ) => void;
     captureDates: ( dates: {  startDate: string, endDate: string }, index: number ) => void;
-    index: number
+    index?: number
 }
 
 export const CalendarComplete = ({ showcalendar, captureDates, index }: Props ) => {
@@ -25,7 +23,6 @@ export const CalendarComplete = ({ showcalendar, captureDates, index }: Props ) 
     const { theme: { colors, buttonText, secondary, whiteColor } } = useContext( ThemeContext );
     const { t } = useTranslation();
     const { semibold } = useFont();
-    const [datesSelected, setDatesSelected] = useState<DateObject[]>([]);
     const [dataPeriod, setdataPeriod] = useState<{ markedDates: { [date: string]: PeriodMarking }, isStartDatePicked: boolean, isEndDatePicked: boolean, startDate: string, endDate: string }>({
         markedDates: {},
         isStartDatePicked: false,
@@ -33,12 +30,6 @@ export const CalendarComplete = ({ showcalendar, captureDates, index }: Props ) 
         startDate: '',
         endDate: ''
     })
-
-    useEffect(() => {
-        
-        console.log( 'calendar complete', dataPeriod.markedDates )
-        
-    }, [dataPeriod.markedDates])
 
     const onDayPress = ( date: DateObject ) => {
         if ( !dataPeriod.isStartDatePicked ) {
@@ -56,13 +47,13 @@ export const CalendarComplete = ({ showcalendar, captureDates, index }: Props ) 
             let markedDates =  JSON.parse(JSON.stringify(dataPeriod.markedDates));
             let startDate = Moment(dataPeriod.startDate);
             let endDate = Moment(date.dateString);
-            let range = endDate.diff(startDate, 'days')
+            let range = endDate.diff(startDate, 'days');
             if (range > 0) {
                 for (let i = 1; i <= range; i++) {
                     let tempDate: any = startDate.add(1, 'day');
                     tempDate = Moment(tempDate).format('YYYY-MM-DD')
                     if (i < range) {
-                        markedDates[tempDate] = { color: colors.primary, textColor: whiteColor };
+                        markedDates[tempDate] = { color: secondary, textColor: whiteColor };
                     } else {
                         markedDates[tempDate] = { endingDay: true, color: colors.primary, textColor: whiteColor };
                     }
@@ -86,7 +77,6 @@ export const CalendarComplete = ({ showcalendar, captureDates, index }: Props ) 
         <Modal
             key={ 'complete' }
             swipeDirection="right"
-            /* onSwipeComplete={ null } */
             onModalHide={ () => console }
             isVisible={ true }
         >
@@ -96,7 +86,7 @@ export const CalendarComplete = ({ showcalendar, captureDates, index }: Props ) 
             >
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', padding: 10 }}>
                     <TouchableOpacity style={ commonStyles.rightButtonContainer }
-                        onPress={ () => showcalendar( index ) }
+                        onPress={ () => showcalendar( index as number ) }
                     >
                         <FontAwesomeIcon 
                             icon={ faTimes }
@@ -106,8 +96,8 @@ export const CalendarComplete = ({ showcalendar, captureDates, index }: Props ) 
                     </TouchableOpacity>
                     <TouchableOpacity
                         onPress={ () =>  {
-                            captureDates( { startDate: dataPeriod.startDate, endDate: dataPeriod.endDate }, index ) 
-                            showcalendar( index )
+                            captureDates( { startDate: dataPeriod.startDate, endDate: dataPeriod.endDate }, index as number ) 
+                            showcalendar( index as number )
                         }}
                     >
                         <DynamicText headline primaryColor numberOfLines={1}>
@@ -146,11 +136,6 @@ export const CalendarComplete = ({ showcalendar, captureDates, index }: Props ) 
                     monthFormat={"MMMM yyyy"}
                     markedDates={ dataPeriod.markedDates }
                     onDayPress={ onDayPress }
-                    /* theme={{
-                        arrowColor: colors.primary,
-                        selectedDayTextColor: buttonText,
-                        todayTextColor: secondary,
-                    }} */
                 />
             </Animatable.View>
 

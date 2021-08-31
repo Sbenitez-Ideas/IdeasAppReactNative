@@ -13,6 +13,7 @@ import { corporateApi } from '../../api/corporateApi';
 import { ApproverListRS } from '../../model/classes/corporate/ApproverListRS';
 import Modal from 'react-native-modal';
 import Icon from 'react-native-vector-icons/Ionicons';
+import Moment from 'moment';
 
 interface Props {
     approvers: ApproverBooking[];
@@ -158,7 +159,7 @@ export const ApproversScreen = ({ approvers }: Props) => {
                                 <DynamicText fontFamily={ semibold } style={{ ...commonStyles.infoExpense, color: colors.text }}>E-mail Notificado  </DynamicText>
                                 <DynamicText style={{ ...commonStyles.infoExpense, color: colors.text}}>{ approvers[showApproverInfo.index].EmailTo }</DynamicText>
                                 <DynamicText fontFamily={ semibold } style={{ ...commonStyles.infoExpense, color: colors.text }}>Fecha Notificación  </DynamicText>
-                                <DynamicText style={{ ...commonStyles.infoExpense, color: colors.text}}>{ approvers[showApproverInfo.index].EmailTo }</DynamicText>
+                                <DynamicText style={{ ...commonStyles.infoExpense, color: colors.text}}>{ Moment(approvers[showApproverInfo.index].EmailDate).format( 'ddd DD MMM YYYY' ) }</DynamicText>
                             </View>
 
                         </View>

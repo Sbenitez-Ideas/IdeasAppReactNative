@@ -6,6 +6,7 @@ import { AuthContext, AuthProvider } from './src/contexts/auth/AuthContext';
 import { ConfigProvider } from './src/contexts/config/ConfigContext';
 import Toast from 'react-native-toast-message';
 import FlashMessage from 'react-native-flash-message';
+import { FlightsProvider } from './src/contexts/flights/FlightsContext';
 
 const App = () => {
 
@@ -13,13 +14,15 @@ const App = () => {
 
 	return (
 		<>
+			<AppFlightState>
 				<AppConfigState>
 					<AppAuthState>
 						<AppThemeState>
 							<Navigator />
 						</AppThemeState>
 					</AppAuthState>
-				</AppConfigState>		
+				</AppConfigState>	
+			</AppFlightState>	
 			<Toast ref={( ref ) => Toast.setRef( ref ) } />
 			<FlashMessage position="top" />
 		</>
@@ -40,6 +43,14 @@ const AppAuthState = ({ children }: any ) => {
 		<AuthProvider>
 			{ children }
 		</AuthProvider>
+	)
+}
+
+const AppFlightState = ({ children }: any)  => {
+	return (
+		<FlightsProvider>
+			{ children }
+		</FlightsProvider>
 	)
 }
 

@@ -202,7 +202,8 @@ export const RegisterExpensesScreen = ({ navigation, route }: Props) => {
 
     const openGallery = () => {
         const options: ImageLibraryOptions = {
-            mediaType: 'photo'
+            mediaType: 'photo',
+            includeBase64: true
         }
 
         launchImageLibrary(options,  ( resp ) => {
@@ -455,7 +456,10 @@ export const RegisterExpensesScreen = ({ navigation, route }: Props) => {
                             <FilledInputText label={ t( 'resFecha' ) } disabled={ true }  value={  convertDate || Moment(expense.Date).format('ll') } />
                         </TouchableOpacity>
                         { showcalendar &&
-                            <CalendarSingleDate showCalendar={ hideCalendar } setDate={ setDate }  minDate={ activity?.DateSta.toString() } maxDate={ activity?.DateEnd.toString() }></CalendarSingleDate>
+                            <>
+                                <DynamicText style={{ alignSelf: 'center' }}>{` Elige tu fecha desde ${ Moment( activity?.DateSta ).format( 'll' )   } hasta ${ Moment( activity?.DateEnd ).format( 'll' )} `}</DynamicText>
+                                <CalendarSingleDate showCalendar={ hideCalendar } setDate={ setDate }  minDate={ activity?.DateSta.toString() } maxDate={ activity?.DateEnd.toString() }></CalendarSingleDate>
+                            </>
                         }
                         <FilledInputText label={ t( 'resDescripcion' ) } 
                             onChangeText={ ( value ) =>  
@@ -509,6 +513,7 @@ export const RegisterExpensesScreen = ({ navigation, route }: Props) => {
                                 } }
                                 renderText={ valueRender => (
                                     <FilledInputText label={ t( 'resVEfectivo' ) } disabled={ false } 
+                                    keyboardType={ 'phone-pad' }
                                     onChangeText={ ( value ) =>  
                                         setFormatValuesExpenses({
                                             ...formatValuesExpenses,
@@ -531,6 +536,7 @@ export const RegisterExpensesScreen = ({ navigation, route }: Props) => {
                                 } }
                                 renderText={ valueRender => (
                                     <FilledInputText label={ t( 'resVCredito' ) } disabled={ false } 
+                                    keyboardType={ 'phone-pad' }
                                     onChangeText={ ( value ) =>  
                                         setFormatValuesExpenses({
                                             ...formatValuesExpenses,
@@ -561,6 +567,7 @@ export const RegisterExpensesScreen = ({ navigation, route }: Props) => {
                             } }
                             renderText={ valueRender => (
                                 <FilledInputText label={ t( 'resVPropina' ) } disabled={ false } 
+                                    keyboardType={ 'phone-pad' }
                                     onChangeText={ ( value ) =>  
                                         setFormatValuesExpenses({
                                             ...formatValuesExpenses,
@@ -582,6 +589,7 @@ export const RegisterExpensesScreen = ({ navigation, route }: Props) => {
                             } }
                             renderText={ valueRender => (
                                 <FilledInputText label={ t( 'resVImpuestos' ) } disabled={ false } 
+                                    keyboardType={ 'phone-pad' }
                                     onChangeText={ ( value ) =>  
                                         setFormatValuesExpenses({
                                             ...formatValuesExpenses,
@@ -597,6 +605,7 @@ export const RegisterExpensesScreen = ({ navigation, route }: Props) => {
                         <NumberFormat value={ setTotal() } displayType={'text'} thousandSeparator={true} prefix={'$'} 
                             renderText={ valueRender => (
                                 <FilledInputText label={ t( 'resTotalGastos' ) } disabled={ true } 
+                                    keyboardType={ 'phone-pad' }
                                     onBlur={ setTotal }
                                     value={ valueRender } 
                                 />

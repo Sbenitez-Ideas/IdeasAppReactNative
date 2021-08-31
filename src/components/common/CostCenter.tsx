@@ -12,7 +12,6 @@ import { useNavigation } from '@react-navigation/native';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faMinusCircle, faPlusCircle } from '@fortawesome/free-solid-svg-icons';
 import { ThemeContext } from '../../contexts/theme/ThemeContext';
-import { add } from 'react-native-reanimated';
 import Toast from 'react-native-toast-message';
 import Modal from 'react-native-modal';
 import { commonStyles } from '../../styles/commonStyles';
@@ -25,7 +24,7 @@ interface Props {
 
 export const CostCenter = ({ idCostcenter, costCenterData }: Props ) => {
     const { width } = Dimensions.get( 'window' );
-    const { theme: { colors, whiteColor, buttonText, grayColor, accent, } } = useContext( ThemeContext );
+    const { theme: { colors, accent, } } = useContext( ThemeContext );
     const { t } = useTranslation();
     const navigation = useNavigation();
     const { userData } = useContext( AuthContext );

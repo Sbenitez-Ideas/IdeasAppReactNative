@@ -2,15 +2,15 @@ export const setStateRetrieve = ( state: string, stateFlow: string ) => {
     if (state === 'R') {
         switch (stateFlow) {
           case 'Pendente':
-            return 'Reservado';
+            return 'resReservado';
           case 'Aprovada':
-            return 'Aprobada';
+            return 'resAprobada';
           case 'Cancelada':
-            return 'Cancelado';
+            return 'resCancelado';
           default:
-            return 'Reservado';
+            return 'resReservado';
         }
     } else if (state === 'C') {
-        return 'Cancelado';
+        return 'resCancelado';
     }
 }

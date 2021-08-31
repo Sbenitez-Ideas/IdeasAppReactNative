@@ -26,6 +26,8 @@ import { DropExpenseRQ } from '../../model/classes/viatics/DropExpenseRQ';
 import Toast from 'react-native-toast-message';
 import { StyleSheet, View } from 'react-native';
 import { commonStyles } from '../../styles/commonStyles';
+import { useFont } from '../../hooks/common/useFont';
+import NumberFormat from 'react-number-format';
 
 interface Props {
     expense: GExpenses,
@@ -34,8 +36,8 @@ interface Props {
 }
 
 export const FloatMenuExpenses = ({ navigation, expense, isDeleted }: Props) => {
-
-    const  { getCategories, getEstablishments, downloadImages, deleteExpense } = viaticsApi();
+    const { semibold, bold } =  useFont()
+    const { getCategories, getEstablishments, downloadImages, deleteExpense } = viaticsApi();
     const { theme: { colors, fieldColor, secondary, buttonText } } = useContext( ThemeContext );
     const { userData: { IDEntityDefault } } = useContext( AuthContext );
     const [modalButtons, setModalButtons] = useState({
@@ -172,6 +174,7 @@ export const FloatMenuExpenses = ({ navigation, expense, isDeleted }: Props) => 
                 items={items}
                 isOpen={ showItems }
                 onMenuToggle={ handleMenuToggle }
+                labelStyle={{ fontFamily: semibold }}
                 borderColor={ colors.primary }
                 primaryColor={ fieldColor }
                 renderMenuIcon={ () => { return (
@@ -200,7 +203,7 @@ export const FloatMenuExpenses = ({ navigation, expense, isDeleted }: Props) => 
                 onSwipeComplete={ showDetail }
                 /* onModalHide={ () => hideMenu( false ) } */
                 style={{ alignItems: 'center'}} isVisible={modalButtons.detailExpense}>
-                    <View style={{ borderRadius: 10, width: 300, height: 430, backgroundColor: colors.background}}>
+                    <View style={{ borderRadius: 10, width: 300, height: 600, backgroundColor: colors.background}}>
                         <View style={ commonStyles.rightButtonContainer }>
                             <Icon
                                 onPress={showDetail }
@@ -210,64 +213,57 @@ export const FloatMenuExpenses = ({ navigation, expense, isDeleted }: Props) => 
                             />
                         </View>
                             <View style={{ marginLeft: 10, marginBottom: 20 }}>
-                            <DynamicText style={{ 
-                                ...commonStyles.title,
-                                color: colors.primary,
-                                marginTop: 0,
-                                marginBottom: 10
+                                <DynamicText fontFamily={ bold } style={{ 
+                                    marginBottom: 10, 
+                                    fontSize: 30,
+                                    alignSelf: 'center',
+                                    textAlign: 'center',
+                                    color: colors.primary
+                                }}>
+                                    Información de Gasto
+                                </DynamicText>
+                            <DynamicText fontFamily={ semibold } style={{ fontSize: 17, color: colors.primary }}>{ t( 'resNombre' ) }:  </DynamicText>
+                            <DynamicText style={[ styles.subtitle , { color: colors.text }]}>{ expense.Description }</DynamicText>
+                            <DynamicText fontFamily={ semibold } style={{ fontSize: 17, color: colors.primary }}>{ t( 'resEstado' ) }:  </DynamicText>
+                            <View style={{ 
+                                backgroundColor: setStateColor(expense.State),
+                                width: '50%',
+                                height: 30, 
+                                justifyContent: 'center',
+                                borderRadius: 5
                             }}>
-                                Información de Gasto
-                            </DynamicText>
-                            <View style={{ ...commonStyles.dataContainer }}>
-                                <DynamicText style={{ ...commonStyles.infoExpense, color: colors.text, fontWeight: 'bold'}}>{ t( 'resNombre' ) }:  </DynamicText>
-                                <DynamicText style={{ ...commonStyles.infoExpense, color: colors.text}}>{ expense.Description }</DynamicText>
+                                <DynamicText fontFamily={ semibold } style={{ ...styles.stateTitle,  color: buttonText }}>{ t( setStateActivity(expense.State) ) }</DynamicText>
                             </View>
-                            <View style={{ ...commonStyles.dataContainer }}>
-                                <DynamicText style={{ ...commonStyles.infoExpense, color: colors.text, fontWeight: 'bold'}}>{ t( 'resEstado' ) }:  </DynamicText>
-                                    <View style={{ 
-                                        backgroundColor: setStateColor(expense.State),
-                                        ...styles.stateContainer
-                                    }}>
-                                        <DynamicText style={{ ...styles.stateTitle,  color: buttonText }}>{ t( setStateActivity(expense.State) ) }</DynamicText>
-                                    </View>
-                            </View>
-                            <View style={{ ...commonStyles.dataContainer }}>
-                                <DynamicText style={{ ...commonStyles.infoExpense, color: colors.text, fontWeight: 'bold'}}>{ t( 'resFecha' ) }:  </DynamicText>
-                                <DynamicText style={{ ...commonStyles.infoExpense, color: colors.text}}>{  Moment(expense.Date ).format('ll') }</DynamicText>
-                            </View>
-                            <View style={{ ...commonStyles.dataContainer }}>
-                                <DynamicText style={{ ...commonStyles.infoExpense, color: colors.text, fontWeight: 'bold'}}>{ t( 'resCategorias' ) }:  </DynamicText>
-                                <DynamicText style={{ ...commonStyles.infoExpense, color: colors.text}}>{ category }</DynamicText>
-                            </View>
-                            <View style={{ ...commonStyles.dataContainer }}>
-                                <DynamicText style={{ ...commonStyles.infoExpense, color: colors.text, fontWeight: 'bold'}}>{ t( 'resEstablecimiento' ) }:  </DynamicText>
-                                <DynamicText style={{ ...commonStyles.infoExpense, color: colors.text}}>{ establishment }</DynamicText>
-                            </View>
-                            <View style={{ ...commonStyles.dataContainer }}>
-                                <DynamicText style={{ ...commonStyles.infoExpense, color: colors.text, fontWeight: 'bold'}}>NIT:  </DynamicText>
-                                <DynamicText style={{ ...commonStyles.infoExpense, color: colors.text}}>{ expense.IDEstablishment }</DynamicText>
-                            </View>
-                            <View style={{ ...commonStyles.dataContainer }}>
-                                <DynamicText style={{ ...commonStyles.infoExpense, color: colors.text, fontWeight: 'bold'}}>{ t( 'resTipoPago' ) }:  </DynamicText>
-                                <DynamicText style={{ ...commonStyles.infoExpense, color: colors.text}}>{ setExpenseType( expense.PaymentType ) }</DynamicText>
-                            </View>
-                            <View style={{ ...commonStyles.dataContainer }}>
-                                <DynamicText style={{ ...commonStyles.infoExpense, color: colors.text, fontWeight: 'bold'}}>{ t( 'resTipoMoneda' ) }:  </DynamicText>
-                                <DynamicText style={{ ...commonStyles.infoExpense, color: colors.text}}>{ expense.Currency }</DynamicText>
-                            </View>
-                            <View style={{ ...commonStyles.dataContainer }}>
-                                <DynamicText style={{ ...commonStyles.infoExpense, color: colors.text, fontWeight: 'bold'}}>{ t( 'resVImpuestos' ) }:  </DynamicText>
-                                <DynamicText style={{ ...commonStyles.infoExpense, color: colors.text}}>{ expense.TaxValue }</DynamicText>
-                            </View>
-                            <View style={{ ...commonStyles.dataContainer }}>
-                                <DynamicText style={{ ...commonStyles.infoExpense, color: colors.text, fontWeight: 'bold'}}>{ t( 'resVPropina' ) }:  </DynamicText>
-                                <DynamicText style={{ ...commonStyles.infoExpense, color: colors.text}}>{ expense.TipValue }</DynamicText>
-                            </View>
-                            <View style={{ ...commonStyles.dataContainer }}>
-                                <DynamicText style={{ ...commonStyles.infoExpense, color: colors.text, fontWeight: 'bold'}}>{ t( 'resTotalGastos' ) }:  </DynamicText>
-                                <DynamicText style={{ ...commonStyles.infoExpense, color: colors.text}}>{ getTotalExpense( expense ) }</DynamicText>
-                            </View>
-                            
+                            <DynamicText fontFamily={ semibold } style={{ fontSize: 17, color: colors.primary }}>{ t( 'resFecha' ) }:  </DynamicText>
+                            <DynamicText style={[ styles.subtitle , { color: colors.text }]}>{  Moment(expense.Date ).format('ll') }</DynamicText>
+                            <DynamicText fontFamily={ semibold } style={{ fontSize: 17, color: colors.primary }}>{ t( 'resCategorias' ) }:  </DynamicText>
+                            <DynamicText style={[ styles.subtitle , { color: colors.text }]}>{ category }</DynamicText>
+                            <DynamicText fontFamily={ semibold } style={{ fontSize: 17, color: colors.primary }}>{ t( 'resEstablecimiento' ) }:  </DynamicText>
+                            <DynamicText style={[ styles.subtitle , { color: colors.text }]}>{ establishment }</DynamicText>
+                            <DynamicText fontFamily={ semibold } style={{ fontSize: 17, color: colors.primary }}>NIT:  </DynamicText>
+                            <DynamicText style={[ styles.subtitle , { color: colors.text }]}>{ expense.IDEstablishment }</DynamicText>
+                            <DynamicText fontFamily={ semibold } style={{ fontSize: 17, color: colors.primary }}>{ t( 'resTipoPago' ) }:  </DynamicText>
+                            <DynamicText style={[ styles.subtitle , { color: colors.text }]}>{ setExpenseType( expense.PaymentType ) }</DynamicText>
+                            <DynamicText fontFamily={ semibold } style={{ fontSize: 17, color: colors.primary }}>{ t( 'resTipoMoneda' ) }:  </DynamicText>
+                            <DynamicText style={[ styles.subtitle , { color: colors.text }]}>{ expense.Currency }</DynamicText>                        
+                            <DynamicText fontFamily={ semibold } style={{ fontSize: 17, color: colors.primary }}>{ t( 'resVImpuestos' ) }:  </DynamicText>
+                            <NumberFormat value={ expense.TaxValue }  displayType={ 'text' } thousandSeparator={ true } prefix={ '$' }
+                                renderText={ 
+                                    value => <DynamicText style={[ styles.subtitle , { color: colors.text }]}>{ value }</DynamicText>
+                                }
+                            />
+                            <DynamicText fontFamily={ semibold } style={{ fontSize: 17, color: colors.primary }}>{ t( 'resVPropina' ) }:  </DynamicText>
+                            <NumberFormat value={ expense.TipValue }  displayType={ 'text' } thousandSeparator={ true } prefix={ '$' }
+                                renderText={ 
+                                    value => <DynamicText style={[ styles.subtitle , { color: colors.text }]}>{ value }</DynamicText>
+                                }
+                            />
+                            <DynamicText fontFamily={ semibold } style={{ fontSize: 17, color: colors.primary }}>{ t( 'resTotalGastos' ) }:  </DynamicText>
+                            <NumberFormat value={ getTotalExpense( expense ) }  displayType={ 'text' } thousandSeparator={ true } prefix={ '$' }
+                                renderText={ 
+                                    value => <DynamicText style={[ styles.subtitle , { color: colors.text }]}>{ value }</DynamicText>
+                                }
+                            />    
                         </View>
 
                     </View>
@@ -322,5 +318,9 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         textAlign: 'center' 
     
+    },
+    subtitle: {
+        fontSize: 17, 
+        marginLeft: 5
     }
 })

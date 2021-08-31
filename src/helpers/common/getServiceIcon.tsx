@@ -1,4 +1,4 @@
-import { faPlane, faCar, faHotel, faMoneyCheckAlt, faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
+import { faPlane, faCar, faMoneyCheckAlt, faExclamationCircle, faBed } from '@fortawesome/free-solid-svg-icons';
 
 
 export const getServiceIcon = ( product: string ) => {
@@ -8,7 +8,7 @@ export const getServiceIcon = ( product: string ) => {
         case 'AUTO':
             return faCar;
         case 'HOTEL':
-            return faHotel;
+            return faBed;
         case 'VIATICO':
             return faMoneyCheckAlt;
     

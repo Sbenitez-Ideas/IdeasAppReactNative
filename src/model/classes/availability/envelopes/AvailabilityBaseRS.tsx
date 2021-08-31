@@ -9,7 +9,6 @@ export class AvailabilityBaseRS extends WSResponse {
     public TripType: TripTypes;
     public SourceCode: string[];
     public Airports: Airport[];
-    public AvailabilityFilter: AvailabilityFilter;
     public TotalRecommendation: number;
     public AvailabilitySummary: AvailabilitySummary;
     public LocalCurrencyExchange: CurrencyPair;

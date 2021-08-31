@@ -22,7 +22,7 @@ interface Props  {
 }
 
 export const ResumeScreen = ( { servicesData }: Props ) => {
-    const { theme: { colors, whiteColor, buttonText, grayColor, fieldColor, accent} } = useContext( ThemeContext );
+    const { theme: { colors, whiteColor, buttonText, grayColor, lightDark, accent} } = useContext( ThemeContext );
     const [showResume, setShowResume] = useState(true);
     const { semibold, bold } = useFont();
     const [haveHotels, setHaveHotels] = useState(false);
@@ -109,10 +109,10 @@ export const ResumeScreen = ( { servicesData }: Props ) => {
                             </View>
                         } 
                         <View style={{ flexDirection: 'row', width: '90%', justifyContent: 'flex-end' }}>
-                                <DynamicText fontFamily={ semibold } style={{ color: colors.text, fontSize: 17 }}> Total  </DynamicText>
+                                <DynamicText fontFamily={ semibold } style={{ color: colors.text, fontSize: 18 }}> Total  </DynamicText>
                                 <NumberFormat value={ calculateTotal() } displayType='text' thousandSeparator={ true } prefix='$'
                                     renderText={ valueRender => (
-                                        <DynamicText style={{ fontSize: 17 }}>{ valueRender }</DynamicText>
+                                        <DynamicText fontFamily={ semibold } style={{ fontSize: 18, color: lightDark }}>{ valueRender }</DynamicText>
                                     )}
                                 />
                         </View>

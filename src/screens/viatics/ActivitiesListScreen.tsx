@@ -25,15 +25,18 @@ import { Header } from '../../components/common/Header';
 import { ProfileNavigation } from '../../components/common/ProfileNavigation';
 import { DynamicText } from '../../components/common/DynamicText';
 import { FloatMenuActivity } from '../../components/viatics/FloatMenuActivity';
-
+import i18n from '../../i18n/i18n';
+import moment from 'moment';
+import { useFont } from '../../hooks/common/useFont';
 
 interface Props extends StackScreenProps<RootStackParams, 'ActivitiesListScreen'>{};
 
 
 export const ActivitiesListScreen = ( { route, navigation }: Props ) => {
-    const { theme: { colors, secondary, buttonText, grayColor, fieldColor, } } = useContext( ThemeContext );
+    const { theme: { colors, secondary, buttonText, grayColor, fieldColor, lightDark } } = useContext( ThemeContext );
     const { t } = useTranslation();
     const { userData } = useContext( AuthContext );
+    const { semibold, bold } = useFont();
     const request: ExpenseActivitiesRQ = {
         IDUser: userData.IDUser,
         IDEntity: userData.IDEntityDefault,
@@ -308,148 +311,154 @@ export const ActivitiesListScreen = ( { route, navigation }: Props ) => {
             <View style={{ paddingBottom: bottomPadding }}> 
             
                 <View
-                    style={[styles.listContent, {backgroundColor: colors.background, width: width * .97, marginBottom: 10 }]}>
-                    <View
-                    style={{
-                        flexDirection: 'row',
-                        justifyContent: 'space-between',
-                    }}>
-                        <View style={{  ...activitiesStyles.activityState, backgroundColor: setStateColor(activitie.State) }}>
-                            <DynamicText numberOfLines={ 1 } style={{ fontSize: 10,  textAlign: 'center', color: buttonText }}>{ t(setStateActivity(activitie.State))  }</DynamicText>
-                        </View>
-                        { type !== 'pendingApprove' &&
-                            <TouchableOpacity
-                                onPress={ () => setMenus({
-                                    ...menus,
-                                    menuActivity: !menus.menuActivity,
-                                    menuExpense: (menus.menuExpense) && false,
-                                    currentActivityData: activitie
-                                })}
-                                style={{
-                                    ...commonStyles.entireButton,
-                                    
-                                }}>
-                                <LinearGradient
-                                    colors={[colors.primary, secondary]}
-                                    style={ commonStyles.smallButton }
-                                >
-                                    <DynamicText style={[commonStyles.buttonText, {
-                                        color: buttonText
-                                    }]}> + { t( 'resOpciones' ) } </DynamicText>
-                                </LinearGradient>
-                            </TouchableOpacity>
-                        }
-                    </View>
-                    <DynamicText headline semibold numberOfLines={1} style={{marginVertical: 5}}>
-                        { activitie.Description }
-                    </DynamicText>
-                    <View style={styles.listLineMap}>
-                    <DynamicText caption1 greyColor>
-                        { activitie.UserName }
-                    </DynamicText>
-                    </View>
-                    <View
-                    style={{
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        marginTop: 5,
-                    }}>
-                        <FontAwesomeIcon
-                            icon={ faCalendarAlt }
-                            color={ grayColor }
-                            size={ 16 }
-                        />
-                    <DynamicText 
-                        caption1 greyColor
-                        style={{
-                            marginLeft: 5,
-                        }}
-                    >
-                        { Moment(activitie.DateSta).format('DD/MMMM/YYYY') }
-                    </DynamicText>
-                    <Icon
-                        style={{ marginLeft: 5 }}
-                        name="repeat"
-                        color={ grayColor }
-                        size={ 15 }
-                    />
-                        <DynamicText caption1 greyColor
-                    style={{
-                        marginLeft: 5,
-                        }}>
-                            { Moment(activitie.DateEnd).format('DD/MMMM/YYYY') }
-                        </DynamicText>
-                    </View>
-                    <View style={styles.listRow}>
-                    <View style={{alignItems: 'flex-start', flexDirection: 'row', justifyContent: 'space-around'}}>
-                        <TouchableOpacity
-                            onPress={ () => showExpenses( activitie ) }
+                    style={[styles.listContent, {backgroundColor: colors.background, width: width * .97, marginBottom: 10 }]}
+                >
+                    <View style={{ borderLeftWidth:5, paddingLeft: 5, borderLeftColor: setStateColor(activitie.State) }}>
+                        <View
                             style={{
-                                ...commonStyles.entireButton,
-                                marginLeft: 10
-                            }}>
-                            <LinearGradient
-                                colors={[colors.primary, secondary]}
-                                style={{ ...commonStyles.smallButton, paddingLeft: 2, paddingRight: 2  }}
-                            >
-                                <DynamicText style={[commonStyles.buttonText, {
-                                    color: buttonText
-                                }]}>{ t( 'resVerGastos' ) }</DynamicText>
-                            </LinearGradient>
-                        </TouchableOpacity>
-
-                        { type !== 'pendingApprove' &&
-                            <>
+                                flexDirection: 'row',
+                                justifyContent: 'space-between',
+                            }}
+                        >
+                            
+                            <DynamicText fontFamily={ semibold } headline semibold numberOfLines={1} style={{marginVertical: 5, color: lightDark, maxWidth: '70%'}}>
+                                { activitie.Description }
+                            </DynamicText>
+                            { type !== 'pendingApprove' &&
                                 <TouchableOpacity
-                                    disabled={ canAddExpenses( activitie ) }
-                                    onPress={ () => navigation.navigate('RegisterExpensesScreen', {
-                                        activity: activitie
-                                    }) }
-                                    style={{
-                                        ...commonStyles.entireButton,
-                                        marginLeft: 10
-                                        
-                                    }}>
+                                    onPress={ () => setMenus({
+                                        ...menus,
+                                        menuActivity: !menus.menuActivity,
+                                        menuExpense: (menus.menuExpense) && false,
+                                        currentActivityData: activitie
+                                    })}
+                                >
                                     <LinearGradient
                                         colors={[colors.primary, secondary]}
-                                        style={ commonStyles.smallButton }
+                                        style={{ height: 30, justifyContent: 'center', borderRadius: 7 }}
                                     >
                                         <DynamicText style={[commonStyles.buttonText, {
-                                            color: buttonText
-                                        }]}> { t( 'resAdicionarGasto' ) } </DynamicText>
+                                            color: buttonText,
+                                            fontSize: 17
+                                        }]}> + { t( 'resOpciones' ) } </DynamicText>
                                     </LinearGradient>
                                 </TouchableOpacity>
-                            </>
-                        }
-                            
-                    </View>
-                    <View style={{alignItems: 'flex-end'}}>
-                        <View
-                        style={{
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                            marginTop: 5,
-                        }}>
+                            }
+                        </View>
+                        <DynamicText fontFamily={ semibold } numberOfLines={ 1 } style={{ fontSize: 15, color: lightDark }}>{ t(setStateActivity(activitie.State))  }</DynamicText>
+                        <View style={{ marginTop: 5 }}>
+                            <DynamicText caption1 greyColor style={{ fontSize: 18 }}>
+                                { activitie.UserName }
+                            </DynamicText>
+                        </View>
+                        <View style={{ marginTop: 5 }}>
+                            <DynamicText caption1 greyColor style={{ fontSize: 18 }}>
+                                {`${activitie.countExpenses} ${ t( 'resGastosRegistrados' ) }` }
+                            </DynamicText>
+                        </View>
+                        <View style={{}}>
+                            <View
+                            style={{
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                marginTop: 5,
+                            }}>
 
-                            <FontAwesomeIcon 
-                                icon={ faMoneyCheckAlt }
-                                color={ grayColor }
-                                style={{ marginRight: 5 }}
-                                size={ 15 }
-                            />
+                                <FontAwesomeIcon 
+                                    icon={ faMoneyCheckAlt }
+                                    color={ grayColor }
+                                    style={{ marginRight: 5 }}
+                                    size={ 25 }
+                                />
 
-                            <NumberFormat value={ activitie.totalExpense } displayType={'text'} thousandSeparator={true} prefix={'$'} 
-                                    renderText={
-                                        value => <DynamicText caption1 greyColor>{ value } { t( 'resDe' ) } </DynamicText>
-                                    } 
-                                /> 
+                                <NumberFormat value={ activitie.totalExpense } displayType={'text'} thousandSeparator={true} prefix={'$'} 
+                                        renderText={
+                                            value => <DynamicText caption1 greyColor style={{ fontSize: 18 }}>{ value } { t( 'resDe' ) } </DynamicText>
+                                        } 
+                                    /> 
                                 <NumberFormat value={ activitie.Budget } displayType={'text'} thousandSeparator={true} prefix={'$'} 
                                     renderText={
-                                        value => <DynamicText caption1 greyColor>{ value }</DynamicText>
+                                        value => <DynamicText caption1 greyColor style={{ fontSize: 18 }}>{ value }</DynamicText>
                                     } 
                                 />
+                            </View>
                         </View>
-                    </View>
+                        <View
+                            style={{
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                marginTop: 5,
+                            }}
+                        >
+                            <FontAwesomeIcon
+                                icon={ faCalendarAlt }
+                                color={ grayColor }
+                                size={ 25 }
+                            />
+                            <DynamicText 
+                                caption1 greyColor
+                                style={{
+                                    marginLeft: 5,
+                                    fontSize: 18
+                                }}
+                            >
+                                { moment(activitie.DateSta).format('ddd DD MMM YYYY') }
+                            </DynamicText>
+                            <Icon
+                                style={{ marginLeft: 5 }}
+                                name="repeat"
+                                color={ grayColor }
+                                size={ 25 }
+                            />
+                            <DynamicText caption1 greyColor
+                                style={{
+                                    marginLeft: 5,
+                                    fontSize: 18
+                                }}
+                            >
+                                { Moment(activitie.DateEnd).format('ddd DD MMM YYYY') }
+                            </DynamicText>
+                        </View>
+                        <View style={styles.listRow}>
+                            <View style={{alignItems: 'flex-end', flexDirection: 'row', justifyContent: 'space-around'}}>
+                                <TouchableOpacity
+                                    onPress={ () => showExpenses( activitie ) }
+                                >
+                                    <LinearGradient
+                                        colors={[colors.primary, secondary]}
+                                        style={{ height: 30, justifyContent: 'center', borderRadius: 7, paddingLeft: 2, paddingRight: 2  }}
+                                    >
+                                        <DynamicText style={[commonStyles.buttonText, {
+                                            color: buttonText,
+                                            fontSize: 17
+                                        }]}>{ t( 'resVerGastos' ) }</DynamicText>
+                                    </LinearGradient>
+                                </TouchableOpacity>
+
+                                { type !== 'pendingApprove' &&
+                                    <>
+                                        <TouchableOpacity
+                                            disabled={ canAddExpenses( activitie ) }
+                                            onPress={ () => navigation.navigate('RegisterExpensesScreen', {
+                                                activity: activitie
+                                            })}
+                                            style={{ marginLeft: 10 }}
+                                        >
+                                            <LinearGradient
+                                                colors={[colors.primary, secondary]}
+                                                style={{ height: 30, justifyContent: 'center', borderRadius: 7, paddingLeft: 2, paddingRight: 2 }}
+                                            >
+                                                <DynamicText style={[commonStyles.buttonText, {
+                                                    color: buttonText,
+                                                    fontSize: 17
+                                                }]}> { t( 'resAdicionarGasto' ) } </DynamicText>
+                                            </LinearGradient>
+                                        </TouchableOpacity>
+                                    </>
+                                }
+                                    
+                            </View>
+                        </View>
                     </View>
                 </View>
             </View>

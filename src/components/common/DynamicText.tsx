@@ -164,27 +164,6 @@ export const DynamicText = ({ header,
         const fontStyle = textStyle.fontStyle == 'italic' ? 'Italic' : '';
         const fontWeight = textStyle.fontWeight ?? 400;
         switch (textStyle.fontFamily) {
-          /* case 'Raleway':
-            textStyle.fontFamily = `${textStyle.fontFamily}-${
-              Raleway[fontWeight] == 'Regular'
-                ? Raleway[fontWeight]
-                : Raleway[fontWeight] + fontStyle
-            }`;
-            break;
-          case 'Roboto':
-            textStyle.fontFamily = `${textStyle.fontFamily}-${
-              Roboto[fontWeight] == 'Regular'
-                ? Roboto[fontWeight]
-                : Roboto[fontWeight] + fontStyle
-            }`;
-            break;
-          case 'Merriweather':
-            textStyle.fontFamily = `${textStyle.fontFamily}-${
-              Merriweather[fontWeight] == 'Regular'
-                ? Merriweather[fontWeight]
-                : Merriweather[fontWeight] + fontStyle
-            }`;
-            break; */
           default:
             break;
         }

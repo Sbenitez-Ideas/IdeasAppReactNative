@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { ImageBackground, Text, View, Alert, StyleSheet, TouchableOpacity } from 'react-native';
+import { ImageBackground, View, StyleSheet, TouchableOpacity } from 'react-native';
 import { HotelOfflineRequest } from '../../../model/interfaces/hotel/HotelOfflineRequest'
 import * as Animatable from 'react-native-animatable';
 import { DynamicText } from '../../../components/common/DynamicText';
@@ -16,7 +16,6 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import { corporateApi } from '../../../api/corporateApi';
 import { GetHotelOfflineEntityRQ } from '../../../model/classes/corporate/GetHotelOfflineEntityRQ';
 import { GetHotelOfflineEntityRS } from '../../../model/classes/corporate/GetHotelOfflineEntityRS';
-import { Item } from 'react-native-paper/lib/typescript/components/Drawer/Drawer';
 
 
 interface Props {
@@ -24,10 +23,9 @@ interface Props {
 }
 
 export const ReviewHotelScreen = ({ hotel }:Props ) => {
-    console.log( 'HOTEL', hotel );
     const { t } = useTranslation();
     const { getHotelOffline } = corporateApi()
-    const { theme: { colors, whiteColor, buttonText, grayColor, fieldColor, accent} } = useContext( ThemeContext );
+    const { theme: { colors, whiteColor, buttonText, grayColor, lightDark, accent} } = useContext( ThemeContext );
     const { semibold, bold } = useFont();
     const [modalInfo, setModalInfo] = useState(false);
     const [hotelOfflineInfo, setHotelOfflineInfo] = useState( new GetHotelOfflineEntityRS );
@@ -67,8 +65,6 @@ export const ReviewHotelScreen = ({ hotel }:Props ) => {
         setModalInfo( !modalInfo );
     }
     
-    console.log( 'hotelInfo', hotelOfflineInfo.HotelInfo )
-
     return (
         <View style={[ commonStyles.reviewContainer, { backgroundColor: accent }]}>
             <DynamicText fontFamily={ bold } style={{ fontSize: 20, color: colors.primary, marginHorizontal: 10, marginVertical: 5 }}> { t( 'resHotel' ) } </DynamicText>
@@ -136,7 +132,7 @@ export const ReviewHotelScreen = ({ hotel }:Props ) => {
                                             <DynamicText style={ styles.hotelLabel }>{ Moment( calculateDates( item ).checkout ).format( 'llll' ) }</DynamicText>
                                         </View>
                                         <View style={{ flexDirection: 'row' }}>
-                                        <DynamicText fontFamily={ semibold } style={{ ...styles.hotelLabel, color: colors.primary }}> Días:  </DynamicText>
+                                        <DynamicText fontFamily={ semibold } style={{ ...styles.hotelLabel, color: colors.primary }}>{ `${ t( 'resNumeroDias' ) }: ` }</DynamicText>
                                             <DynamicText style={ styles.hotelLabel }>{ item.days }</DynamicText>
                                         </View>
                                     </View>
@@ -152,11 +148,10 @@ export const ReviewHotelScreen = ({ hotel }:Props ) => {
                                     </View>      
                                 </View>
                                 <View style={{ alignSelf: 'flex-end', flexDirection: 'row' }}>
-                                    <DynamicText fontFamily={ semibold } style={{ fontSize: 15, color: colors.primary }}>{ 'Subtotal: ' }</DynamicText>
+                                    <DynamicText fontFamily={ semibold } style={{ fontSize: 18, color: colors.primary }}>{ `${ t( 'resSubtotal' ) }: ` }</DynamicText>
                                     <NumberFormat value={ ( item.hotel.Fare * item.days ) } displayType='text' thousandSeparator={ true }  prefix={ ` ${ item.currency } ` }
                                         renderText={ valueRender => (
-                                            
-                                            <DynamicText style={{ fontSize: 15, color: colors.text }}>{ valueRender }</DynamicText>
+                                            <DynamicText fontFamily={ semibold } style={{ fontSize: 18, color: lightDark }}>{ valueRender }</DynamicText>
                                         )}
                                     />
                                     
@@ -197,31 +192,31 @@ export const ReviewHotelScreen = ({ hotel }:Props ) => {
                     </View>
                     <View style={{ maxWidth: '97%', marginHorizontal: 10, }}>
                         <View style={{ flexDirection: 'row' }}>
-                            <DynamicText fontFamily={ bold} style={{ color: colors.primary }}> { 'Nombre:' } </DynamicText>
+                            <DynamicText fontFamily={ bold} style={{ color: colors.primary }}> { `${ t( 'resNombre' ) }: ` } </DynamicText>
                             <DynamicText> { hotelOfflineInfo?.HotelInfo?.Name } </DynamicText>
                         </View>
                         <View style={{ flexDirection: 'row' }}>
-                            <DynamicText fontFamily={ bold} style={{ color: colors.primary }}> { 'Dirección:' } </DynamicText>
+                            <DynamicText fontFamily={ bold} style={{ color: colors.primary }}> { `${ t( 'resDireccion' ) }: ` } </DynamicText>
                             <DynamicText> { hotelOfflineInfo?.HotelInfo?.Address } </DynamicText>
                         </View>
                         <View style={{ flexDirection: 'row' }}>
-                        <DynamicText fontFamily={ bold} style={{ color: colors.primary }}> { 'Teléfono:' } </DynamicText>
+                        <DynamicText fontFamily={ bold} style={{ color: colors.primary }}> { `${ t( 'resTelefonoContacto' ) }: ` } </DynamicText>
                             <DynamicText> { hotelOfflineInfo?.HotelInfo?.Phone } </DynamicText>
                         </View>
                         <View style={{ flexDirection: 'row' }}>
-                            <DynamicText fontFamily={ bold} style={{ color: colors.primary }}> { 'Zona:' } </DynamicText>
+                            <DynamicText fontFamily={ bold} style={{ color: colors.primary }}> { `${ t( 'resZona' ) }: ` } </DynamicText>
                             <DynamicText> { hotelOfflineInfo?.HotelInfo?.Zone } </DynamicText>
                         </View>
                         <View style={{ flexDirection: 'row' }}>
-                            <DynamicText fontFamily={ bold} style={{ color: colors.primary }}> { 'Tipo de Habitación:' } </DynamicText>
+                            <DynamicText fontFamily={ bold} style={{ color: colors.primary }}> { `${ t( 'resTipoHabitacion' ) }: ` } </DynamicText>
                             <DynamicText> { hotelOfflineInfo?.HotelInfo?.RoomType } </DynamicText>
                         </View>
                         <View style={{ flexDirection: 'row' }}>
-                            <DynamicText fontFamily={ bold} style={{ color: colors.primary }}> { 'Tipo de Alimentación:' } </DynamicText>
+                            <DynamicText fontFamily={ bold} style={{ color: colors.primary }}> { `${ t( 'resTipoAlimentacion' ) }: ` } </DynamicText>
                             <DynamicText> { hotelOfflineInfo?.HotelInfo?.FeedingType } </DynamicText>
                         </View>
                         <View style={{ flexDirection: 'row' }}>
-                            <DynamicText fontFamily={ bold} style={{ color: colors.primary }}> { 'Politica:' } </DynamicText>
+                            <DynamicText fontFamily={ bold} style={{ color: colors.primary }}> { `${ t( 'resPolitica' ) }` } </DynamicText>
                             <DynamicText> { hotelOfflineInfo?.HotelInfo?.Policy } </DynamicText>
                         </View>
                     </View>

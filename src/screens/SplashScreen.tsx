@@ -48,9 +48,9 @@ export const SplashScreen = ({ navigation }: Props ) => {
             <Animatable.Image 
                 animation="bounceIn"
                 duration={ 1500 }
-                source={{ uri: `http://ideasfractal.com/wp-content/uploads/2017/04/Logo-IdeasFractal-transpararente.png` }}
+                source={ require( '../../assets/images/client/ts/tslogo1.png' ) }
                 style={styles.logo}
-                resizeMode='contain'
+                resizeMode='cover'
             />
         </View>
         <Animatable.View 
@@ -61,7 +61,7 @@ export const SplashScreen = ({ navigation }: Props ) => {
         >
             <DynamicText fontFamily={ semibold } style={[styles.title, {
                 color: colors.text
-            }]}>{ t( 'resViajesUnClic' ) }</DynamicText>
+            }]}>{ t( 'resViajaSeguroFlexible' ) }</DynamicText>
             <View style={styles.button}>
                 <TouchableOpacity onPress={() => { calculateNextScreen() }}>
                     <LinearGradient
@@ -105,7 +105,7 @@ const styles = StyleSheet.create({
     },
     logo: {
         width: width_logo,
-        height: height_logo
+        height: height_logo,
     },
     title: {
         color: '#05375a',

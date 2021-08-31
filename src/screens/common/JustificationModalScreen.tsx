@@ -28,7 +28,7 @@ export const JustificationModalScreen = ( { justified }:Props ) => {
         } else {
             Toast.show({
                 text1: 'Error',
-                text2: 'La justificacion esta vacia',
+                text2: t( 'resJustificacionVacia' ),
                 type: 'error',
                 visibilityTime: 2000,
             });
@@ -39,7 +39,7 @@ export const JustificationModalScreen = ( { justified }:Props ) => {
     return (
         <>
             <Header 
-                title={ 'Justificacion de Rechazo' }
+                title={ t( 'resJustificacionRechazo' ) }
                 onPressLeft={ () => {
                     justified( false );
                 } }
@@ -69,7 +69,7 @@ export const JustificationModalScreen = ( { justified }:Props ) => {
                 <View style={{ width: '90%', alignSelf: 'center', marginTop: 10 }}>
                     <FilledInputText 
                         disabled={ false }
-                        label='justificacion'
+                        label={ t( 'resJustificacion' ) }
                         onChangeText={ ( text ) => setJustification( text ) }
                         value={ justification }
                     />

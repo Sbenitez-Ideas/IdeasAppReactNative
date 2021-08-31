@@ -10,7 +10,6 @@ import { HomeScreen } from '../screens/HomeScreen';
 import { RegisterExpensesScreen } from '../screens/viatics/RegisterExpensesScreen';
 import { ProfileScreen } from '../screens/ProfileScreen';
 import { ProfileNavigation } from '../components/common/ProfileNavigation';
-import { HomeViaticsScreen } from '../screens/viatics/HomeViaticsScreen';
 import { ActivitiesListScreen } from '../screens/viatics/ActivitiesListScreen';
 import { FilterActivitiesScreen } from '../screens/viatics/FilterActivitiesScreen';
 import { BottomMenu } from '../components/common/BottomMenu';
@@ -22,8 +21,6 @@ import { CurrencyTypes } from '../model/classes/viatics/CurrencyTypes';
 import { Establishment } from '../model/classes/viatics/Establishment';
 import { RegisterActivityScreen } from '../screens/viatics/RegisterActivityScreen';
 import { GExpenses } from '../model/interfaces/viatics/GExpenses';
-import { HomeHelpScreen } from '../screens/common/HomeHelpScreen';
-import { HomeToolsScreen } from '../screens/common/HomeToolsScreen';
 import { CheckinScreen } from '../screens/common/CheckinScreen';
 import { useTranslation } from 'react-i18next';
 import { useRef } from 'react';
@@ -45,9 +42,21 @@ import { FlightSearchScreen } from '../screens/flights/FlightSearchScreen';
 import { FilterRequestsScreen } from '../screens/corporate/FilterRequestsScreen';
 import { GeoLocation } from '../model/interfaces/corporate/Geolocation';
 import { FlightAvailabilityScreen } from '../screens/flights/FlightAvailabilityScreen';
+import { ViaticSearchScreen } from '../screens/viatics/ViaticSearchScreen';
+import { Segment } from '../model/classes/flights/business-objects/Segment';
+import { Airport } from '../model/classes/flights/business-objects/Airport';
+import { FlightInfoScreen } from '../screens/flights/FlightInfoScreen';
+import { FlightPricingScreen } from '../screens/flights/FlightPricingScreen';
+import { FlightUpsellDetailScreen } from '../screens/flights/FlightUpsellDetailScreen';
+import { Option } from '../model/classes/flights/pricing/Option';
+import { FareFamily } from '../model/classes/flights/pricing/FareFamily';
+import { TotalFares } from '../model/classes/flights/business-objects/TotalFares';
+import { TestScreen } from '../screens/common/TestScreen';
+import { FlightFilterScreen } from '../screens/flights/FlightFilterScreen';
 
 
 export type RootStackParams = {
+    TestScreen: undefined,
     SplashScreen: undefined,
     LoginScreen: undefined,
     HomeScreen: undefined,
@@ -58,23 +67,29 @@ export type RootStackParams = {
     FilterActivitiesScreen: { activities: GActivities[], alreadyFiltered?: boolean, beforeFiltered?: { dateStart: string, dateEnd: string, state: string } },
     BottomMenu: undefined,
     ScreenSCS: undefined,
-    AutoCompleteSearch: { type: 'Activities' | 'Category' | 'CurrencyType' | 'Establishment' | 'Traveler' |  'Approvers' | 'CostCenter' | 'Location', screen: 'RegisterExpensesScreen' | 'RegisterActivityScreen' | 'RequestServices' | 'FlightSearchScreen', index?: number, typeSearch?: string },
+    AutoCompleteSearch: { type: 'Activities' | 'Category' | 'CurrencyType' | 'Establishment' | 'Traveler' |  'Approvers' | 'CostCenter' | 'Location', screen: 'RegisterExpensesScreen' | 'RegisterActivityScreen' | 'RequestServices' | 'FlightSearchScreen' | 'ViaticSearchScreen', index?: number, typeSearch?: string, segmentIndex?: number },
     RegisterActivityScreen: { currencyType?: CurrencyTypes, activity?: GActivities, type?: string},
     HomeHelpScreen: undefined,
     HomeToolsScreen: undefined,
     CheckinScreen: undefined,
     ExpensesScreen: {currentActivity: GActivities,  type?: 'allActivities' |  'pendingLegalize' | 'pendingApprove' | 'filter' },
     BookingListScreen: { type: 'flown' | 'approver' | 'others', dataFilter?: { dateStart: string, dateEnd: string, state: number, flow: string } },
-    ReviewScreen: { loc?: string, products?: string, booking?: Booking, typeScreen?: string },
+    ReviewScreen: { loc?: string, products?: string[], booking?: Booking, typeScreen?: string },
     Chat: undefined,
     MoreScreen: { items: Menu[] },
     ChangeLanguageScreen: undefined,
     MyServicesScreen: { dataFilter?: { dateStart: string, dateEnd: string, state: number, flow: string } },
     RequestServices: { traveler?: TravelerCorporate, approver?: ApproverListRS, costCenter?: GetCostCenterRS, index?: number },
     SlidesScreen: undefined,
-    FlightSearchScreen: { location?: GeoLocation, typeSearch?: string, index?: number },
+    FlightSearchScreen: { location?: GeoLocation, typeSearch?: string, index?: number, segmentIndex?: number },
     FilterRequestsScreen: { alreadyFiltered?: boolean, beforeFiltered?: { dateStart: string, dateEnd: string, state: number, flow: string } }
-    FlightAvailabilityScreen: { searchParams: { adults: number, childrens: number, babys: number, times: string, dates: string, departures: string, arrivals: string, baggage: string, cabine: { name: string, value: string }, direct: boolean}, type: 'price' | 'single' }
+    FlightAvailabilityScreen: { searchParams: { adults: number, childrens: number, babys: number, times: string, dates: string, departures: string, arrivals: string, baggage: string, cabine: { name: string, value: string }, direct: boolean, currency: string, language: string }, type: 'price' | 'single' },
+    ViaticSearchScreen: { location?: GeoLocation },
+    FlightInfoScreen: { data: { segment: Segment,  airports: Airport[] } },
+    FlightPricingScreen: undefined,
+    FlightUpsellDetailScreen: { options: Option[], fareFamily: FareFamily, faresTotal: number },
+    FlightFilterScreen: { type: 'price' | 'single' }
+
     
     
 
@@ -123,9 +138,6 @@ export const Navigator = () => {
                         <>
                             <Stack.Screen name="HomeScreen" component={ HomeScreen } />
                             <Stack.Screen name="BottomMenu" component={ BottomMenu } />
-                            <Stack.Screen name="HomeViaticsScreen" component={ HomeViaticsScreen } />
-                            <Stack.Screen name="HomeHelpScreen" component={ HomeHelpScreen } />
-                            <Stack.Screen name="HomeToolsScreen" component={ HomeToolsScreen } />
                             <Stack.Screen name="CheckinScreen" component={ CheckinScreen } />
                             <Stack.Screen name="RegisterExpensesScreen" component={ RegisterExpensesScreen } />
                             <Stack.Screen name="ProfileScreen" component={ ProfileScreen } />
@@ -139,6 +151,7 @@ export const Navigator = () => {
                             <Stack.Screen name="MoreScreen" component={ MoreScreen } />
                             <Stack.Screen name="ChangeLanguageScreen" component={ ChangeLanguageScreen } />
                             <Stack.Screen name="MyServicesScreen" component={ MyServicesScreen } />
+                            <Stack.Screen name="TestScreen" component={ TestScreen } />
                             <Stack.Screen 
                                 name="ReviewScreen" 
                                 component={ ReviewScreen }
@@ -155,6 +168,11 @@ export const Navigator = () => {
                             <Stack.Screen name="FlightSearchScreen" component={ FlightSearchScreen } />
                             <Stack.Screen name="FilterRequestsScreen" component={ FilterRequestsScreen } />
                             <Stack.Screen name="FlightAvailabilityScreen" component={ FlightAvailabilityScreen } />
+                            <Stack.Screen name="ViaticSearchScreen" component={ ViaticSearchScreen } />
+                            <Stack.Screen name="FlightInfoScreen" component={ FlightInfoScreen } />
+                            <Stack.Screen name="FlightPricingScreen" component={ FlightPricingScreen } />
+                            <Stack.Screen name="FlightUpsellDetailScreen" component={ FlightUpsellDetailScreen } />
+                            <Stack.Screen name="FlightFilterScreen" component={ FlightFilterScreen } />
                         </>
                     )
                 }                

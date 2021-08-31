@@ -15,7 +15,7 @@ export const QuantityPicker = ( { style, label, detail, values }: Props ) => {
 
     const [value, setValue] = useState(values);
 
-    const {theme:{ colors, fieldColor, grayColor } } = useContext( ThemeContext );
+    const {theme:{ colors, grayColor } } = useContext( ThemeContext );
 
     return (
         <View

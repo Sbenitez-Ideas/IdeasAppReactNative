@@ -7,6 +7,7 @@ import { Information } from './Information';
 import { navigate } from '../../navigator/RootNavigation';
 import { useNavigation } from '@react-navigation/core';
 import { ApproverListRS } from '../../model/classes/corporate/ApproverListRS';
+import { useTranslation } from 'react-i18next';
 
 
 interface Props  {
@@ -18,6 +19,7 @@ export const Approver = ({ approver }: Props) => {
     const navigation = useNavigation();
     const [currentPassenger, setCurrentPassenger] = useState<TravelerCorporate>( authContext.selectedTravelers[0] );
     const [approverName, setApproverName] = useState('');
+    const { t } = useTranslation();
 
 
     useEffect(() => {
@@ -75,7 +77,7 @@ export const Approver = ({ approver }: Props) => {
             <TouchableOpacity onPress={ () => openApprovers() }>
                 <FilledInputText 
                     disabled={ true }
-                    label={ 'Aprobador' }
+                    label={ t( 'resAprobador' ) }
                     value={  approverName }  
                 />  
             </TouchableOpacity>

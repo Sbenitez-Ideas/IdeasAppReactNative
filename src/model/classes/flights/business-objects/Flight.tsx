@@ -44,6 +44,7 @@ export class Flight {
     public CodeshareOperatingFlightNumber: string;
     public ConnectionSegmentIndex: string;
     public Terminal: string;
+    public WaitingTime: number;
 
     constructor() {
         this.FlightId = 0;
@@ -82,6 +83,7 @@ export class Flight {
         this.CodeshareInfo = '';
         this.ConnectionSegmentIndex = '';
         this.Terminal = '';
+        this.WaitingTime = 0;
     }
 
 }

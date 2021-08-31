@@ -14,6 +14,10 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import i18next from 'i18next';
 import i18n from '../../i18n/i18n';
 import Toast from 'react-native-toast-message';
+import moment from 'moment';
+import 'moment/locale/es';
+import 'moment/locale/en-ca';
+import 'moment/locale/pt';
 
 
 
@@ -62,6 +66,7 @@ export const ChangeLanguageScreen = ({ navigation }: Props ) => {
     const applyLanguage = () => {
         if ( language ) {
             i18n.changeLanguage( language )
+            moment.locale( language );
             Toast.show({
                 text1: t( 'resIdiomaCambiado' ),
                 text2: t( getCurrentLanguage( language )),
@@ -71,6 +76,7 @@ export const ChangeLanguageScreen = ({ navigation }: Props ) => {
             navigation.goBack();
         } else {
             i18n.changeLanguage( language )
+            moment.locale( language );
             Toast.show({
                 text1: 'Seleccione un idioma',
                 type: 'error',

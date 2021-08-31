@@ -15,7 +15,7 @@ interface Props {
 
 export const ReviewViaticsScreen = ( { viatic }: Props ) => {
     const { t } = useTranslation();
-    const { theme: { colors, whiteColor, buttonText, grayColor, fieldColor, accent} } = useContext( ThemeContext );
+    const { theme: { colors, whiteColor, buttonText, grayColor, lightDark, accent} } = useContext( ThemeContext );
     const { semibold, bold } = useFont();
 
     return (
@@ -23,11 +23,11 @@ export const ReviewViaticsScreen = ( { viatic }: Props ) => {
             <DynamicText fontFamily={ bold } style={{ fontSize: 20, color: colors.primary, marginHorizontal: 10, marginVertical: 5 }}>{ t( 'resViaticos' ) }</DynamicText>
             <DynamicText fontFamily={ semibold } style={{ alignSelf: 'center', color: colors.primary, ...styles.labelViatics }}> { Moment( viatic.startDate ).format( 'ddd DD MMM YYYY' )  } - { Moment( viatic.finalDate ).format( 'ddd DD MMM YYYY' ) } </DynamicText>
             <View style={ styles.labelInfo }>
-                <DynamicText fontFamily={ semibold } style={{ ...styles.labelViatics, color: colors.primary }}> Numero de dias: </DynamicText>
+                <DynamicText fontFamily={ semibold } style={{ ...styles.labelViatics, color: colors.primary }}> { `${ t( 'resNumeroDias' ) }: ` } </DynamicText>
                 <DynamicText style={ styles.labelViatics }>{ viatic.days }</DynamicText>
             </View>
             <View style={ styles.labelInfo }>
-                <DynamicText fontFamily={ semibold } style={{ ...styles.labelViatics, color: colors.primary }}> Total Manutencion: </DynamicText>
+                <DynamicText fontFamily={ semibold } style={{ ...styles.labelViatics, color: colors.primary }}>{ `${ t( 'resTotalManutencion' ) }: ` }</DynamicText>
                 <NumberFormat value={ viatic.expenseDefault?.FoodValue } displayType='text' thousandSeparator={ true } prefix='$'
                     renderText={ valueRender => (
                         <DynamicText style={ styles.labelViatics }>{ valueRender }</DynamicText>
@@ -35,7 +35,7 @@ export const ReviewViaticsScreen = ( { viatic }: Props ) => {
                 />
             </View>
             <View style={ styles.labelInfo }>
-                <DynamicText fontFamily={ semibold } style={{ ...styles.labelViatics, color: colors.primary }}> Total transporte: </DynamicText>
+                <DynamicText fontFamily={ semibold } style={{ ...styles.labelViatics, color: colors.primary }}>{ ` ${ t( 'resTotalTransporte' ) }: ` }</DynamicText>
                 <NumberFormat value={ viatic.expenseDefault?.TaxisValue  } displayType='text' thousandSeparator={ true } prefix='$'
                     renderText={ valueRender => (
                         <DynamicText style={ styles.labelViatics }>{ valueRender }</DynamicText>
@@ -44,10 +44,10 @@ export const ReviewViaticsScreen = ( { viatic }: Props ) => {
             </View>
             
             <View style={{ alignSelf: 'flex-end', flexDirection: 'row', marginHorizontal: 10 }}>
-                <DynamicText fontFamily={ semibold } style={{ ...styles.labelViatics, color: colors.primary }}> Total Viáticos: </DynamicText>
+                <DynamicText fontFamily={ semibold } style={{ fontSize: 18 , color: colors.primary }}>{` ${t( 'resTotalViaticos' ) }: `}</DynamicText>
                 <NumberFormat value={ viatic.expenseDefault?.ExpensesValue } displayType='text' thousandSeparator={ true } prefix='$'
                     renderText={ valueRender => (
-                        <DynamicText style={ styles.labelViatics }>{ valueRender }</DynamicText>
+                        <DynamicText fontFamily={ semibold } headline style={{ color: lightDark, fontSize: 18 }}>{ valueRender }</DynamicText>
                     )}
                 />
             </View>

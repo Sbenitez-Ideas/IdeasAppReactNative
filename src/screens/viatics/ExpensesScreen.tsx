@@ -34,6 +34,7 @@ import { AuthContext } from '../../contexts/auth/AuthContext';
 import { CategoriesEntity } from '../../model/classes/viatics/CategoriesEntity';
 import { ExpenseCategories } from '../../model/classes/viatics/ExpenseCategories';
 import { ChangeState } from '../../components/viatics/ChangeState';
+import { useFont } from '../../hooks/common/useFont';
 
 interface Props extends StackScreenProps<RootStackParams, 'ExpensesScreen'> {
     /* currentActivity: GActivities,
@@ -45,6 +46,7 @@ interface Props extends StackScreenProps<RootStackParams, 'ExpensesScreen'> {
 
 export const ExpensesScreen = ( { route, navigation }: Props ) => {
     const { t } = useTranslation();
+    const { semibold } = useFont();
     const [menus, setMenus] = useState({
         menuExpense: false,
         currentExpenseData: new GExpenses()
@@ -67,7 +69,7 @@ export const ExpensesScreen = ( { route, navigation }: Props ) => {
     const [categoriesList, setCategoriesList] = useState<ExpenseCategories[]>( [] );
     const [loading, setLoading] = useState(false);
     const [status, setStatus] = useState('');
-    const { theme: { colors, secondary, grayColor, buttonText } } = useContext( ThemeContext );
+    const { theme: { colors, secondary, grayColor, buttonText, lightDark } } = useContext( ThemeContext );
     const { getExpense, downloadImages, getCategories } = viaticsApi();
     const request: ExpensesRQ ={
         IDGroup: currentActivity?.IDGroup
@@ -120,6 +122,7 @@ export const ExpensesScreen = ( { route, navigation }: Props ) => {
         downloadImages( request )
             .then(( response ) => {
                 if ( response?.Links?.length > 0 )
+                console.log( 'imagenes',  response.Links );
                 setImages( response.Links );
                 showSupports();
             })
@@ -439,71 +442,69 @@ export const ExpensesScreen = ( { route, navigation }: Props ) => {
                         renderItem={ ({ item, index }) => (
                             <View style={{ marginTop: 10 }}>  
                                 <View
-                                    style={[styles.content, {backgroundColor: colors.card},]}>
-                                    <View style={[styles.contentTop, {borderBottomColor: colors.border}]}>
-                                        <View style={{flex: 1}}>
-                                        <DynamicText title2>{ item.Description }</DynamicText>
-                                            <View style={{ 
-                                                backgroundColor: setStateColor(item.State),
-                                                ...styles.stateContainer
-                                                }}>
-                                            <DynamicText style={{ ...styles.stateTitle,  color: 'white' }}>{ t( setStateActivity(item.State) ) }</DynamicText>
+                                    style={[styles.content, {backgroundColor: colors.card }]}
+                                >
+                                    <View style={{ borderLeftWidth: 5, paddingLeft: 4, borderLeftColor: setStateColor(item.State) }}>
+                                        <View style={[styles.contentTop, {borderBottomColor: colors.border}]}>
+                                            <View style={{flex: 1}}>
+                                            <DynamicText title2 fontFamily={ semibold } style={{ color: lightDark }}>{ item.Description }</DynamicText>
+                                            <DynamicText style={{ color: lightDark }}>{ t( setStateActivity(item.State) ) }</DynamicText>
+                                            </View>
+                                            <View style={{flex: 1, alignItems: 'flex-end'}}>
+                                            <TouchableOpacity
+                                                onPress={ () =>  setMenus({
+                                                    ...menus,                                                
+                                                    menuExpense: !menus.menuExpense,
+                                                    currentExpenseData: item
+                                                })}
+                                            >
+                                                <FontAwesomeIcon
+                                                    style={{ marginLeft: 50 }}
+                                                    icon={ faEllipsisH }
+                                                    color={ colors.primary }
+                                                    size={25}
+                                                />
+                                            </TouchableOpacity>
+                                            <DynamicText footnote light style={{ fontSize: 15 }}>
+                                                {Moment( item.Date ).format('ddd DD MMM YYYY')}
+                                            </DynamicText>
+                                            </View>
                                         </View>
-                                        </View>
-                                        <View style={{flex: 1, alignItems: 'flex-end'}}>
-                                        <TouchableOpacity
-                                            onPress={ () =>  setMenus({
-                                                ...menus,                                                
-                                                menuExpense: !menus.menuExpense,
-                                                currentExpenseData: item
-                                            })}
-                                        >
-                                            <FontAwesomeIcon
-                                                style={{ marginLeft: 50 }}
-                                                icon={ faEllipsisH }
-                                                color={ colors.primary }
-                                                size={25}
-                                            />
-                                        </TouchableOpacity>
-                                        <DynamicText footnote light>
-                                            {Moment( item.Date ).format('ll')}
-                                        </DynamicText>
-                                        </View>
-                                    </View>
-                                    <View style={styles.contentBottom}>
-                                        <View style={styles.bottomLeft}>
-                                            <Switch
-                                                trackColor={{ false: '#ECECEC', true: secondary }}
-                                                thumbColor={( selectExpense?.listExpense[index]?.selected ) ? colors.primary : "#ECECEC"}
-                                                onValueChange={(value) => {
-                                                    setSwitchValue(value, index)
-                                                }}
-                                                value={ selectExpense.listExpense[index].selected ? true : false }
-                                            ></Switch>
-                                            {  item.HasAttach &&
+                                        <View style={styles.contentBottom}>
+                                            <View style={styles.bottomLeft}>
+                                                <Switch
+                                                    trackColor={{ false: '#ECECEC', true: secondary }}
+                                                    thumbColor={( selectExpense?.listExpense[index]?.selected ) ? colors.primary : "#ECECEC"}
+                                                    onValueChange={(value) => {
+                                                        setSwitchValue(value, index)
+                                                    }}
+                                                    value={ selectExpense.listExpense[index].selected ? true : false }
+                                                ></Switch>
+                                                {  item.HasAttach &&
 
-                                                    <TouchableOpacity
-                                                        onPress={ () => getSupportImages( item ) }
-                                                    >
-                                                        <FontAwesomeIcon 
-                                                            icon={ faPaperclip } 
-                                                            size={ 16 }
-                                                            color={ grayColor }
-                                                        />    
-                                                    </TouchableOpacity>
-                                            }
+                                                        <TouchableOpacity
+                                                            onPress={ () => getSupportImages( item ) }
+                                                        >
+                                                            <FontAwesomeIcon 
+                                                                icon={ faPaperclip } 
+                                                                size={ 16 }
+                                                                color={ grayColor }
+                                                            />    
+                                                        </TouchableOpacity>
+                                                }
+                                                
+                                            </View>
+                                            <View style={{flexDirection: 'row', alignItems: 'flex-end'}}>
                                             
-                                        </View>
-                                        <View style={{flexDirection: 'row', alignItems: 'flex-end'}}>
-                                        
-                                        <NumberFormat value={ getTotalExpense(item) } displayType={'text'} thousandSeparator={true} prefix={'$'} 
-                                                                            renderText={
-                                                                            value => <DynamicText fontFamily='Raleway-SemiBold' title3 semibold primaryColor>{ value }</DynamicText>
-                                                                            } 
+                                            <NumberFormat value={ getTotalExpense(item) } displayType={'text'} thousandSeparator={true} prefix={'$'} 
+                                                renderText={
+                                                value => <DynamicText fontFamily='Raleway-SemiBold' title3 semibold primaryColor>{ value }</DynamicText>
+                                                } 
                                             />
-                                        <DynamicText caption1 light style={{marginLeft: 5}}>
-                                            { item.Currency }
-                                        </DynamicText>
+                                            <DynamicText fontFamily={ semibold } semibold caption1 light style={{marginLeft: 5, fontSize: 17, color: lightDark }}>
+                                                { item.Currency }
+                                            </DynamicText>
+                                            </View>
                                         </View>
                                     </View>
                                 </View>

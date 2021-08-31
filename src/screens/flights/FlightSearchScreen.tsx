@@ -22,12 +22,12 @@ import Toast from 'react-native-toast-message';
 import { commonStyles } from '../../styles/commonStyles';
 import { cabines } from '../../utils/cabines';
 import { currencys } from '../../utils/currencys';
-import { schedules } from '../../utils/schedules';
 import { AuthContext } from '../../contexts/auth/AuthContext';
 
 interface Props extends StackScreenProps<RootStackParams, 'FlightSearchScreen'>{};
 
 export const FlightSearchScreen = ({ navigation, route }: Props ) => {
+    const { t } = useTranslation();
     const { userData } = useContext( AuthContext );
     const { theme: { colors, fieldColor, secondary, whiteColor, grayColor, accent, cancelColor } } = useContext( ThemeContext );
     const {  regular, semibold } = useFont()
@@ -35,17 +35,18 @@ export const FlightSearchScreen = ({ navigation, route }: Props ) => {
     const { width, height } = Dimensions.get( 'window' );
     const  location = route?.params?.location;
     const typeSearch = route?.params?.typeSearch;
-    const indexSegment = route?.params?.index;
-    const [index, setIndex] = useState(0);
+    const indexTab = (route?.params?.index ?  route?.params?.index : 0);
+    const indexSegment = route?.params?.segmentIndex;
+    const [index, setIndex] = useState( indexTab );
     const [showOptions, setShowOptions] = useState( false );
     const [calendarComplete, setCalendarComplete] = useState({
         index: -1,
         show: false
     });
     const [routes] = useState([
-        { key: 'first', title: 'Ida y vuelta' },
-        { key: 'second', title: 'Sólo ida' },
-        { key: 'third', title: 'Multidestino' },
+        { key: 'first', title: t( 'resIdaVuelta' ) },
+        { key: 'second', title: t('resSoloIda') },
+        { key: 'third', title: t( 'resMultidestino' ) },
     ]);
     const today = new Date();
     const [segments, setSegments] = useState({
@@ -54,13 +55,13 @@ export const FlightSearchScreen = ({ navigation, route }: Props ) => {
             arrivalLocation: new GeoLocation(),
             departureDate: today,
             arrivalDate: today,
-            schedules: { arrival: {name: 'Todos', value: '3', selected: false}, departure: {name: 'Todos', value: '3', selected: false}  }
+            schedules: { arrival: {name: 'Todos', value: '3', selected: false}, departure: {name: 'Todos', value: '3', selected: false }  }
         }]
     });
 
     const [moreOptions, setMoreOptions] = useState({
         direct: false,
-        baggage: false,
+        baggage: true,
         cabine: { name: 'Economica', value: 'Economica' },
         currency: { name: 'Local', value: 'Local' },
         adults: 1,
@@ -78,22 +79,22 @@ export const FlightSearchScreen = ({ navigation, route }: Props ) => {
 
     const [schedulesDeparture, setschedulesDeparture] = useState( [
         {
-            name: 'Todos',
+            name: t( 'resTodos' ),
             value: '3',
             selected: true
         },
         {
-            name: 'Mañana',
+            name: t( 'resManhana' ),
             value: '0',
             selected: false
         },
         {
-            name: 'Tarde',
+            name: t( 'resTarde' ),
             value: '1',
             selected: false
         },
         {
-            name: 'Noche',
+            name: t( 'resNoche' ),
             value: '2',
             selected: false
         },
@@ -101,33 +102,32 @@ export const FlightSearchScreen = ({ navigation, route }: Props ) => {
 
     const [schedulesArrival, setschedulesArrival] = useState( [
         {
-            name: 'Todos',
+            name: t( 'resTodos' ),
             value: '3',
             selected: true
         },
         {
-            name: 'Mañana',
+            name: t( 'resManhana' ),
             value: '0',
             selected: false
         },
         {
-            name: 'Tarde',
+            name: t( 'resTarde' ),
             value: '1',
             selected: false
         },
         {
-            name: 'Noche',
+            name: t( 'resNoche' ),
             value: '2',
             selected: false
         },
-    ]    );
-
-    const { t } = useTranslation();
+    ]);
 
     useEffect(() => {
 
         if ( location ) {
             let newArray = [ ...segments.segments ];
+            console.log( 'indexSegment', indexSegment );
             switch( typeSearch ) {
                 case 'departure':
                     newArray[ indexSegment as number ].departureLocation = location;
@@ -189,8 +189,8 @@ export const FlightSearchScreen = ({ navigation, route }: Props ) => {
                 })
         } else {
             Toast.show({
-                text1: 'Información',
-                text2: 'Multi-trayecto debe tener mínimo 2 segments',
+                text1: t( 'resInformacion' ),
+                text2: t( 'resMultritrayectoDebeMinimo2Segmentos' ),
                 type: 'info',
                 visibilityTime: 1500
             })
@@ -258,7 +258,10 @@ export const FlightSearchScreen = ({ navigation, route }: Props ) => {
     const captureDates = ( dates: {  startDate: string, endDate: string }, index: number ) => {
         let newArray = [ ...segments.segments ];
         newArray[ index ].departureDate = new Date( dates.startDate );
+        newArray[ index ].departureDate.setDate( newArray[ index ].departureDate .getDate() + 1 );
         newArray[ index ].arrivalDate = new Date( dates.endDate );
+        newArray[ index ].arrivalDate.setDate( newArray[ index ].arrivalDate .getDate() + 1 );
+        console.log( 'aqui',  newArray[ index ].departureDate );
         setSegments({
             ...segments,
             segments: newArray
@@ -299,11 +302,10 @@ export const FlightSearchScreen = ({ navigation, route }: Props ) => {
 
     const validateFields = () => {
         segments.segments.map(( item, index ) => { 
-            console.log( 'item', item );
             if ( !item.departureLocation.name || !item.arrivalLocation.name ) {
                 Toast.show({
                     text1: 'Error!',
-                    text2: 'Debe incluir el origen y el destino',
+                    text2: t( 'resDebeIncluirOrigenDestino' ),
                     type: 'error',
                     visibilityTime: 1500
                 });
@@ -311,7 +313,7 @@ export const FlightSearchScreen = ({ navigation, route }: Props ) => {
             } else if ( item.departureLocation.id === item.arrivalLocation.id ) {
                 Toast.show({
                     text1: 'Error!',
-                    text2: 'El origen y el destino deben ser diferentes',
+                    text2: t( 'resOrigenDestinoDiferentes' ),
                     type: 'error',
                     visibilityTime: 1500
                 });
@@ -322,7 +324,7 @@ export const FlightSearchScreen = ({ navigation, route }: Props ) => {
         return false;
     }
 
-    const searchFlights = ( mode: 'price' ) => {
+    const searchFlights = ( mode: 'price' | 'single' ) => {
         if ( !validateFields() ) {
             let arrivals = '',
                 departures = '',
@@ -378,14 +380,16 @@ export const FlightSearchScreen = ({ navigation, route }: Props ) => {
             if ( availableDays.length > 0 && ( availableDays.indexOf( segments.segments[0].departureDate.getDate().toString()) === -1  ||
                     availableDays.indexOf(segments.segments[segments.segments.length - 1].arrivalDate.getDay().toString()) === -1 )) {
                 Toast.show({
-                    text1: 'Alerta',
-                    text2: 'Dia seleccionado fuera de los días hábiles',
+                    text1: t( 'resInformacion' ),
+                    text2: t( 'resDiasSeleccionadoFueraDiasHabiles' ),
                     type: 'error',
                     visibilityTime: 1500
                 });
             }
 
+            console.log( 'modo', mode );
             switch( mode ) {
+                
                 case 'price':
                     navigation.navigate('FlightAvailabilityScreen', {
                         searchParams: {
@@ -398,11 +402,31 @@ export const FlightSearchScreen = ({ navigation, route }: Props ) => {
                             arrivals: arrivals,
                             baggage: baggage,
                             cabine: moreOptions.cabine,
-                            direct: moreOptions.direct
+                            direct: moreOptions.direct,
+                            language: 'ES',
+                            currency: 'COP'
                         },
                         type: mode
                     });
                     break;
+                case 'single':
+                    navigation.navigate('FlightAvailabilityScreen', {
+                        searchParams: {
+                            adults: moreOptions.adults,
+                            childrens: moreOptions.childrens,
+                            babys: moreOptions.babys,
+                            times: times,
+                            dates: dates,
+                            departures: departures,
+                            arrivals: arrivals,
+                            baggage: baggage,
+                            cabine: moreOptions.cabine,
+                            direct: moreOptions.direct,
+                            language: 'ES',
+                            currency: 'COP'
+                        },
+                        type: mode 
+                    });
             }
         }
     }
@@ -449,44 +473,46 @@ export const FlightSearchScreen = ({ navigation, route }: Props ) => {
                                     { index === 2 &&
                                         <View style={[styles.contentTitle, { marginTop: 10, marginBottom: 10 }]}>
                                             <DynamicText fontFamily={ semibold } style={[ styles.text , { color: whiteColor, marginLeft: 10 } ]}  headline semibold>
-                                                { `Tramo ${ segmentIndex + 1 }` }
+                                                { `${ t( 'resTramo' ) } ${ segmentIndex + 1 }` }
                                             </DynamicText>
                                         </View>
                                     }
                                     <View style={[styles.contentTitle, { marginTop: 10, marginBottom: 10 }]}>
                                         <DynamicText fontFamily={ semibold } style={[ styles.text , { color: whiteColor, marginLeft: 10 } ]}  headline semibold>
-                                            Origen
+                                            { t( 'resOrigen' ) }
                                         </DynamicText>
                                     </View>
                                     <TouchableOpacity onPress={ () => navigation.navigate( 'AutoCompleteSearch',  {
                                         type: 'Location',
                                         screen: 'FlightSearchScreen',
                                         typeSearch: 'departure',
-                                        index: index
+                                        index: index,
+                                        segmentIndex: segmentIndex
                                     })}>
                                         <DynamicTextInput 
                                             editable={ false }
                                             style={{ height: 45, width: '95%', alignSelf: 'center' }}
                                             styleInput={{ fontSize: 17 }}
-                                            placeholder={ 'Ingresa tu ciudad de origen' }
+                                            placeholder={ t( 'resIngresaCiudadOrigen' ) }
                                             value={ segment.departureLocation?.name }
                                         />
                                     </TouchableOpacity>
                                     <View style={[styles.contentTitle, {  marginTop: 10, marginBottom: 10 }]}>
                                         <DynamicText fontFamily={ semibold } style={[ styles.text , { color: whiteColor, marginLeft: 10 } ]} headline semibold>
-                                            Destino
+                                            { t( 'resDestino' ) }
                                         </DynamicText>
                                     </View>
                                     <TouchableOpacity onPress={ () => navigation.navigate( 'AutoCompleteSearch',  {
                                         type: 'Location',
                                         screen: 'FlightSearchScreen',
                                         typeSearch: 'arrival',
-                                        index: index
+                                        index: index,
+                                        segmentIndex
                                     })}>
                                         <DynamicTextInput 
                                             style={{ height: 45, width: '95%', alignSelf: 'center' }}
                                             styleInput={{ fontSize: 17 }}
-                                            placeholder={ 'Ingresa tu ciudad de destino' }
+                                            placeholder={ t( 'resIngresaCiudadDestino' ) }
                                             editable={ false }
                                             value={ segment.arrivalLocation?.name }
                                         />
@@ -496,7 +522,7 @@ export const FlightSearchScreen = ({ navigation, route }: Props ) => {
                                 
                                     <View style={[styles.contentTitle, {  marginTop: 10, marginBottom: 10, marginLeft: 10 }]}>
                                         <DynamicText fontFamily={ semibold } style={[ styles.text , { color: whiteColor } ]} headline semibold>
-                                            Fechas
+                                            { t( 'resFechas' ) }
                                         </DynamicText>
                                     </View>
                                     <TouchableOpacity style={{ flexDirection: 'row', alignSelf: 'center' }} onPress={ () => showCalendarComplete( segmentIndex ) }>
@@ -507,11 +533,11 @@ export const FlightSearchScreen = ({ navigation, route }: Props ) => {
                                                 style={{ backgroundColor: fieldColor, borderBottomLeftRadius: 5, borderTopLeftRadius: 5, paddingTop: 10, paddingLeft: 5, color: grayColor }}
                                             />
                                             <DynamicTextInput
-                                                styleInput={{ fontSize: 17 }} 
+                                                styleInput={{ fontSize: 14 }} 
                                                 editable={ false }
                                                 style={{ height: 45, maxWidth: calculateWidth(), borderRadius: 0, borderBottomRightRadius: 5, borderTopRightRadius: 5, marginRight: 5, alignSelf: 'center' }}
-                                                placeholder={ 'Fecha partida' }
-                                                value={ Moment( segment.departureDate ).format( 'll' ) }
+                                                placeholder={ t( 'resFechaPartida' ) }
+                                                value={ Moment( segment.departureDate ).format( 'ddd DD MMM YYYY' ) }
                                             />
 
                                         { index === 0 &&
@@ -523,12 +549,12 @@ export const FlightSearchScreen = ({ navigation, route }: Props ) => {
                                                     style={{ backgroundColor: fieldColor, borderBottomLeftRadius: 5, borderTopLeftRadius:  5 , paddingTop: 10, paddingLeft: 5, color: grayColor }}
                                                 />
                                                 <DynamicTextInput 
-                                                    styleInput={{ fontSize: 17 }} 
+                                                    styleInput={{ fontSize: 14 }} 
                                                     editable={ false }
                                                     style={{ height: 45, maxWidth: '39%', borderRadius: 0, marginRight: 5,borderBottomRightRadius: 5, borderTopRightRadius: 5,  }}
-                                                    placeholder={ 'Fecha regreso' }
-                                                    value={ Moment( segment.arrivalDate ).format( 'll' ) } 
-                                                    />
+                                                    placeholder={ t( 'resFechaRegreso' ) }
+                                                    value={ Moment( segment.arrivalDate ).format( 'ddd DD MMM YYYY' ) } 
+                                                />
                                             </>
                                             
                                         }
@@ -537,7 +563,7 @@ export const FlightSearchScreen = ({ navigation, route }: Props ) => {
                                 </View>
                                 <View style={[styles.contentTitle, { marginTop: 10, marginBottom: 10, marginLeft: 10 }]}>
                                     <DynamicText fontFamily={ semibold } style={[ styles.text , { color: whiteColor } ]} headline semibold>
-                                        Horarios
+                                        { t( 'resHorarios' ) }
                                     </DynamicText>
                                 </View>
 
@@ -557,7 +583,7 @@ export const FlightSearchScreen = ({ navigation, route }: Props ) => {
                                         styleInput={{ fontSize: 17 }} 
                                         editable={ false }
                                         style={{ height: 45, maxWidth: calculateWidth(), borderRadius: 0, marginRight: 5,borderBottomRightRadius: 5, borderTopRightRadius: 5,  }}
-                                        placeholder={ 'Horario salida' }
+                                        placeholder={ t( 'resHorarioSalida' ) }
                                         value={ segment.schedules.departure.name } 
                                     />
                                     {
@@ -573,7 +599,7 @@ export const FlightSearchScreen = ({ navigation, route }: Props ) => {
                                                 styleInput={{ fontSize: 17 }} 
                                                 editable={ false }
                                                 style={{ height: 45, maxWidth: '39%', borderRadius: 0, marginRight: 5,borderBottomRightRadius: 5, borderTopRightRadius: 5,  }}
-                                                placeholder={ 'Horario Vuelta' }
+                                                placeholder={ t( 'resHorarioRegreso' ) }
                                                 value={ segment.schedules.arrival.name } 
                                             />
                                         </>
@@ -584,7 +610,7 @@ export const FlightSearchScreen = ({ navigation, route }: Props ) => {
                                         onPress={ () => removeSegment( segmentIndex ) }
                                     >
                                         <DynamicText fontFamily={ semibold } style={{ color: cancelColor }}>
-                                            { `- Eliminar Tramo` }
+                                            { `- ${ t( 'resEliminarTramo' ) }` }
                                         </DynamicText>
                                     </TouchableOpacity>
                                 }
@@ -598,7 +624,7 @@ export const FlightSearchScreen = ({ navigation, route }: Props ) => {
                         onPress={ () => addSegment() }
                     >
                         <DynamicText fontFamily={ semibold } style={{ color: whiteColor }}>
-                            { `+ Agregar Tramo` }
+                            { `+ ${ t( 'resAgregarTramo' ) }` }
                         </DynamicText>
                     </TouchableOpacity>
                 }
@@ -611,21 +637,23 @@ export const FlightSearchScreen = ({ navigation, route }: Props ) => {
                         color={ whiteColor }
                     />
                     <DynamicText fontFamily={ semibold } style={{ color: whiteColor, fontSize: 18 }}  headline semibold>
-                        Opciones
+                        { t( 'resOpciones' ) }
                     </DynamicText>
                 </TouchableOpacity>
 
-                <View style={{ flexDirection: 'row', marginTop: 20 }}>
+                <View style={{ flexDirection: 'row', marginTop: 20, alignSelf: 'center' }}>
                     <TouchableOpacity style={{ backgroundColor: accent, borderRadius: 5, marginHorizontal: 3 }}
                         onPress={ () => searchFlights( 'price' ) }
                     >
-                        <DynamicText fontFamily={ semibold } style={{ margin: 5, color: colors.primary }}> Buscar Precio </DynamicText>
+                        <DynamicText fontFamily={ semibold } style={{ margin: 5, color: colors.primary }}>{ t( 'resBuscarPrecio' ) }</DynamicText>
                     </TouchableOpacity>
-                    <TouchableOpacity style={{ backgroundColor: accent, borderRadius: 5, marginHorizontal: 3  }}>
-                        <DynamicText fontFamily={ semibold } style={{ margin: 5, color: colors.primary }}> Buscar Horario </DynamicText>
+                    <TouchableOpacity style={{ backgroundColor: accent, borderRadius: 5, marginHorizontal: 3  }}
+                        onPress={ () => searchFlights( 'single' ) }
+                    >
+                        <DynamicText fontFamily={ semibold } style={{ margin: 5, color: colors.primary }}>{ t( 'resBuscarHorario' ) }</DynamicText>
                     </TouchableOpacity>
                     <TouchableOpacity style={{ backgroundColor: accent, borderRadius: 5, marginHorizontal: 3 }}>
-                        <DynamicText fontFamily={ semibold } style={{ margin: 5, color: colors.primary }}> Buscar Familia </DynamicText>
+                        <DynamicText fontFamily={ semibold } style={{ margin: 5, color: colors.primary }}>{ t( 'resBuscarFamily' ) }</DynamicText>
                     </TouchableOpacity>
                 </View>
             </ScrollView>
@@ -674,7 +702,7 @@ export const FlightSearchScreen = ({ navigation, route }: Props ) => {
                 {...props}
                 renderLabel={({ route, focused, color }) => (
                     <View>
-                        <DynamicText fontFamily={ semibold } style={{ color: ( focused ) ? colors.primary : 'white' }}>
+                        <DynamicText fontFamily={ semibold } style={{ color: ( focused ) ? colors.primary : 'white', fontSize: 12 }}>
                             {route.title}
                         </DynamicText>
                     </View>
@@ -691,8 +719,8 @@ export const FlightSearchScreen = ({ navigation, route }: Props ) => {
     return (
         <View>
             <Header 
-                title={ 'Vuelos' }
-                subTitle={ 'Elige tus vuelos' }
+                title={ t( 'flights' ) }
+                subTitle={ t( 'resEligeVuelos' ) }
                 renderLeft={ () => {
                     return (
                         <FontAwesomeIcon 
@@ -739,8 +767,8 @@ export const FlightSearchScreen = ({ navigation, route }: Props ) => {
                             />
                         </TouchableOpacity>
                         <View style={{ flexDirection: 'row', alignSelf: 'center' }}>
-                            <DynamicText style={{ fontSize: 20, margin: 10 }}>Horario Salida</DynamicText>
-                            <DynamicText style={{ fontSize: 20, margin: 10 }}>Horario Vuelta</DynamicText>
+                            <DynamicText style={{ fontSize: 20, margin: 10 }}>{ t( 'resHorarioSalida' ) }</DynamicText>
+                            <DynamicText style={{ fontSize: 20, margin: 10 }}>{ t( 'resHorarioRegreso' ) }</DynamicText>
                         </View>
                         <View style={{ marginLeft: 10, alignSelf: 'center', flexDirection: 'row' }}>
                             <View>
@@ -774,12 +802,12 @@ export const FlightSearchScreen = ({ navigation, route }: Props ) => {
                             <TouchableOpacity style={[ styles.buttonSaveSchedule, { backgroundColor: colors.primary, marginRight: 10 } ]}
                                 onPress={ () => saveSchedules() }
                             >
-                                <DynamicText fontFamily={ semibold } style={{ fontSize: 15, color: whiteColor }}>Guardar</DynamicText>
+                                <DynamicText fontFamily={ semibold } style={{ fontSize: 15, color: whiteColor }}>{ t( 'resGuardar' ) }</DynamicText>
                             </TouchableOpacity>
                             <TouchableOpacity style={[ styles.buttonSaveSchedule,  { backgroundColor: colors.primary } ]}
                                 onPress={ () => cancelSchedules() }
                             >
-                                <DynamicText fontFamily={ semibold } style={{ fontSize: 15, color: whiteColor }}>Cancelar</DynamicText>
+                                <DynamicText fontFamily={ semibold } style={{ fontSize: 15, color: whiteColor }}>{ t( 'rescancelar') }</DynamicText>
                             </TouchableOpacity>
                         </View>
 
@@ -813,7 +841,7 @@ export const FlightSearchScreen = ({ navigation, route }: Props ) => {
                             >
                                 <DynamicText body1>{t( 'resCancelar' )}</DynamicText>
                             </TouchableOpacity>
-                            <TouchableOpacity /* onPress={() => setModalVisible(false)} */>
+                            <TouchableOpacity onPress={() =>  showMoreOptions() }>
                                 <DynamicText fontFamily={ semibold } body1 primaryColor>
                                     { t( 'resGuardar' ) }
                                 </DynamicText>
@@ -821,9 +849,9 @@ export const FlightSearchScreen = ({ navigation, route }: Props ) => {
                         </View>
                         <View style={[styles.lineRow, {marginBottom: 10}]}>
                             <View style={{alignItems: 'flex-start'}}>
-                                <DynamicText body1>{'Adultos'}</DynamicText>
+                                <DynamicText body1>{ t( 'resAdultos' ) }</DynamicText>
                                 <DynamicText caption1 greyColor>
-                                    {'Desde 18 años'}
+                                    { t( 'resApartir12Anhos' ) }
                                 </DynamicText>
                             </View>
                             <View style={styles.iconRight}>
@@ -856,9 +884,9 @@ export const FlightSearchScreen = ({ navigation, route }: Props ) => {
                         </View>
                         <View style={[styles.lineRow, {marginBottom: 10}]}>
                             <View style={{alignItems: 'flex-start'}}>
-                            <DynamicText body1>{'Niños'}</DynamicText>
+                            <DynamicText body1>{ t( 'resNinhos' ) }</DynamicText>
                             <DynamicText caption1 greyColor>
-                                {'Hasta 12 años'}
+                                { t( 'resHasta12Anhos' ) }
                             </DynamicText>
                             </View>
                             <View style={styles.iconRight}>
@@ -891,9 +919,9 @@ export const FlightSearchScreen = ({ navigation, route }: Props ) => {
                         </View>
                         <View style={[styles.lineRow, {marginBottom: 10}]}>
                             <View style={{alignItems: 'flex-start'}}>
-                            <DynamicText body1>{'Bebés'}</DynamicText>
+                            <DynamicText body1>{ t( 'resInfantes' ) }</DynamicText>
                             <DynamicText caption1 greyColor>
-                                {'Hasta 2 años'}
+                                { t( 'resHasta2Anhos' ) }
                             </DynamicText>
                             </View>
                             <View style={styles.iconRight}>
@@ -922,18 +950,19 @@ export const FlightSearchScreen = ({ navigation, route }: Props ) => {
                         </View>
                         <View style={{ borderBottomWidth: 1, borderBottomColor: grayColor }}>
                             <View style={{alignItems: 'flex-start', marginBottom: 10}}>
-                                <DynamicText fontFamily={ semibold } body1>{'Filtros de vuelos'}</DynamicText>
+                                <DynamicText fontFamily={ semibold } body1>{ t( 'resFiltrosVuelos' ) }</DynamicText>
                             </View>
                         </View>
-                        <View style={[styles.lineRow, {marginBottom: 10}]}>
+                        <View style={[styles.lineRow]}>
                             <View style={{alignItems: 'flex-start', marginTop: 5}}>
-                                <DynamicText body1>{'Vuelos directos'}</DynamicText>
+                                <DynamicText body1>{ t( 'resVuelosDirectos' ) }</DynamicText>
                                 <DynamicText caption1 greyColor>
-                                    {'Búsqueda de vuelos solo directos'}
+                                    { t( 'resBusquedaVuelosSoloDirectos' ) }
                                 </DynamicText>
                             </View>
                             <View style={{ justifyContent: 'flex-end' }}>
                                 <CheckBox 
+                                    style={{ backgroundColor: 'red' }}
                                     checked={ moreOptions.direct }
                                     onPress={ () => setMoreOptions({
                                         ...moreOptions,
@@ -943,11 +972,11 @@ export const FlightSearchScreen = ({ navigation, route }: Props ) => {
                                 />
                             </View>
                         </View>
-                        <View style={[styles.lineRow, {marginBottom: 10}]}>
+                        <View style={[styles.lineRow]}>
                             <View style={{alignItems: 'flex-start', marginTop: 5}}>
-                                <DynamicText body1>{'Vuelos con equipaje'}</DynamicText>
+                                <DynamicText body1>{ t( 'resVuelosConEquipaje' ) }</DynamicText>
                                 <DynamicText caption1 greyColor>
-                                    {'Búsqueda de vuelos solo con equipaje'}
+                                    { t( 'resBusquedaSoloEquipaje' ) }
                                 </DynamicText>
                             </View>
                             <View style={{ justifyContent: 'flex-end' }}>
@@ -963,9 +992,9 @@ export const FlightSearchScreen = ({ navigation, route }: Props ) => {
                         </View>
                         <View style={[styles.lineRow, {marginBottom: 10}]}>
                             <View style={{alignItems: 'flex-start'}}>
-                            <DynamicText body1>{'Cabina'}</DynamicText>
+                            <DynamicText body1>{t( 'resCabina' )}</DynamicText>
                             <DynamicText caption1 greyColor>
-                                {'Elige tu cabina'}
+                                { t( 'resEligeCabina' ) }
                             </DynamicText>
                             </View>
                             <TouchableOpacity style={{ justifyContent: 'flex-end', flexDirection: 'row' }}
@@ -980,9 +1009,9 @@ export const FlightSearchScreen = ({ navigation, route }: Props ) => {
                         </View>
                         <View style={[styles.lineRow, {marginBottom: 10, marginTop: 10}]}>
                             <View style={{alignItems: 'flex-start'}}>
-                                <DynamicText body1>{'Aerolínea'}</DynamicText>
+                                <DynamicText body1>{ t( 'resAerolinea' ) }</DynamicText>
                                 <DynamicText caption1 greyColor>
-                                    {'Elige tu aerolínea'}
+                                    { t( 'resEligeAreolinea' ) }
                                 </DynamicText>
                             </View>
                             <TouchableOpacity style={{ justifyContent: 'flex-end', flexDirection: 'row' }}
@@ -1004,7 +1033,7 @@ export const FlightSearchScreen = ({ navigation, route }: Props ) => {
                             <View style={{alignItems: 'flex-start'}}>
                             <DynamicText body1>{'Moneda'}</DynamicText>
                             <DynamicText caption1 greyColor>
-                                {'Elige tu moneda'}
+                                { t( 'resEligeMoneda' ) }
                             </DynamicText>
                             </View>
                             <TouchableOpacity style={{ justifyContent: 'flex-end', flexDirection: 'row' }}

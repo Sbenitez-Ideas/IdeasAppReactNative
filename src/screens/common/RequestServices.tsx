@@ -4,10 +4,9 @@ import { Header } from '../../components/common/Header';
 import { StackScreenProps } from '@react-navigation/stack';
 import { RootStackParams } from '../../navigator/Navigator';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faArrowLeft, faUser } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { ThemeContext } from '../../contexts/theme/ThemeContext';
 import { ProfileNavigation } from '../../components/common/ProfileNavigation';
-import * as Animatable from 'react-native-animatable';
 import { DynamicText } from '../../components/common/DynamicText';
 import { useFont } from '../../hooks/common/useFont';
 import { FilledInputText } from '../../components/common/FilledInputText';
@@ -195,18 +194,17 @@ export const RequestServices = ( { navigation, route }: Props) => {
     }
 
     const accept = () => {
-        console.log( 'travelrequestData', travelerRequestData.motive );
         if ( !travelerRequestData || !travelerRequestData.passenger ) {
             Toast.show({
                 text1: '¡Error!',
-                text2: 'Todos los campos son obligatorios',
+                text2: t( 'resTodosCamposObligatorios' ),
                 type: 'error'
             });
         } else if ( selectedTravelers[0].Approver1 === '' && selectedTravelers[0].Approver2 === '' && selectedTravelers[0].Approver3 === '' &&
             selectedTravelers[0].Approver4 === '' ) {
             Toast.show({
                 text1: '¡Error!',
-                text2: 'No hay un aprobador asignado.',
+                text2: t( 'resNoAprobadorAsignado' ),
                 type: 'error'
             });
         } else if ( travelerRequestData.motive === undefined ) {
@@ -220,7 +218,7 @@ export const RequestServices = ( { navigation, route }: Props) => {
         } else {
             Toast.show({
                 text1: 'Error!',
-                text2: 'Selecciona al menos un servicio',
+                text2: t( 'resSeleccioneAlmenosServicio' ),
                 type: 'error'
             })
         }
@@ -228,9 +226,9 @@ export const RequestServices = ( { navigation, route }: Props) => {
 
 
     const saveServices = () => {
-        const validateFlights = selectedServices.filter( serv => serv.service === 'flights' );
+        const validateFlights = selectedServices.filter( serv => serv.service === 'FlightSearchScreen' );
         const validateHotels = selectedServices.filter( serv =>  serv.service === 'hotels' );
-        const validateViatics = selectedServices.filter( serv =>  serv.service === 'viatics' );
+        const validateViatics = selectedServices.filter( serv =>  serv.service === 'ViaticSearchScreen' );
         const validateCars = selectedServices.filter( serv =>  serv.service === 'cars' );
 
         if ( switchServices.flights && validateFlights.length === 0 ) {
@@ -295,7 +293,7 @@ export const RequestServices = ( { navigation, route }: Props) => {
     return (
         <>
            <Header 
-                title={ 'Solicitud de Servicios' }
+                title={ t( 'resSolicitudServicios' ) }
                 onPressLeft={ () => {
                     navigation.goBack()
                 } }
@@ -318,7 +316,7 @@ export const RequestServices = ( { navigation, route }: Props) => {
 
             { approverInfo &&
                 <>
-                    <Information title={ '¡Información!' } type={ 'approver' } />
+                    <Information title={ t( 'resInformacion' ) } type={ 'approver' } />
                 </>
             }
 
@@ -330,7 +328,7 @@ export const RequestServices = ( { navigation, route }: Props) => {
                         <TouchableOpacity onPress={ () => openSearchModal() }>
                             <FilledInputText 
                                 disabled={ true }
-                                label={ 'Pasajero' }
+                                label={ t( 'resPasajero' ) }
                                 value={  passengerName }
                             />
                         </TouchableOpacity>

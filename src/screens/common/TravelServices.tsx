@@ -15,7 +15,7 @@ interface Props {
 
 export const TravelServices = ( { selectServices }: Props) => {
     const { t } = useTranslation();
-    const { theme: { colors, grayColor, accent, secondary } } = useContext( ThemeContext );
+    const { theme: { colors, accent, secondary } } = useContext( ThemeContext );
     const [switchServices, setSwitchServices] = useState({
         flights: false,
         hotels: false,
@@ -33,7 +33,7 @@ export const TravelServices = ( { selectServices }: Props) => {
     return (
         <View>
             <View style={{ backgroundColor: accent, alignItems: 'center', padding: 10, marginTop: 25  }}>
-                <DynamicText style={{ fontSize: 16 }}>Selecciona tus servicios de viaje</DynamicText>
+                <DynamicText style={{ fontSize: 16 }}>{ t( 'resSeleccionaServiciosViaje' ) }</DynamicText>
             </View>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 25}}>
                 <View style={{ width: '15%' }}>

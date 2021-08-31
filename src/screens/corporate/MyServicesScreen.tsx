@@ -1,11 +1,11 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { ImageBackground, Text, View, Dimensions, TouchableOpacity, ActivityIndicator, TextInput, StyleSheet } from 'react-native';
+import { ImageBackground, View, TouchableOpacity, ActivityIndicator, TextInput, StyleSheet } from 'react-native';
 import { Header } from '../../components/common/Header';
 import { ProfileNavigation } from '../../components/common/ProfileNavigation';
 import { StackScreenProps } from '@react-navigation/stack';
 import { RootStackParams } from '../../navigator/Navigator';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faTimes, faEdit, faFilter, faSearch, faArrowLeft, faAngleRight, faArrowRight, faTimesCircle, faInfoCircle } from '@fortawesome/free-solid-svg-icons';
+import { faTimes, faEdit, faFilter, faSearch, faTimesCircle, faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 import { ThemeContext } from '../../contexts/theme/ThemeContext';
 import { DynamicText } from '../../components/common/DynamicText';
 import { useFont } from '../../hooks/common/useFont';
@@ -20,8 +20,6 @@ import { setStateBookingList } from '../../helpers/bookings/setStateBookingList'
 import { useTranslation } from 'react-i18next';
 import { getServiceIcon } from '../../helpers/common/getServiceIcon';
 import Toast from 'react-native-toast-message';
-import { StatusCorporate } from '../../model/enums/StatusCorporate';
-import { CalendarComplete } from '../../components/common/CalendarComplete';
 
 interface Props extends StackScreenProps<RootStackParams, 'MyServicesScreen'>{};
 
@@ -35,7 +33,7 @@ export const MyServicesScreen = ({ navigation, route }: Props) => {
         edit: false,
         index: -1
     });
-    const { theme: { colors, whiteColor, buttonText, grayColor, fieldColor, } } = useContext( ThemeContext );
+    const { theme: { colors, whiteColor, grayColor, fieldColor, } } = useContext( ThemeContext );
     const { userData } = useContext( AuthContext );
     const { getBookings } = flightsApi();
     const [changeName, setChangeName] = useState({
@@ -118,27 +116,54 @@ export const MyServicesScreen = ({ navigation, route }: Props) => {
         const tempBookings: Booking[] = [];
         if( response ) {
             response?.Data?.forEach( booking => {
-                const newBooking: Booking = {
-                    products: booking.tiposource,
-                    company: booking.logocia,
-                    loc: booking.loc,
-                    internalLoc: booking.codreserva.toString(),
-                    creationDate: booking.dataCreacion,
-                    goingDate: booking.data,
-                    comingDate: new Date(),
-                    endDate: booking.plazoemissao,
-                    state: booking.status,
-                    flow: booking.statuscorporate,
-                    rute: booking.ruta,
-                    passengers: booking.paxnome,
-                    clientName: booking.nomeCliente,
-                    offline: booking.offline,
-                    destinationImage: 'https://www.pixelstalk.net/wp-content/uploads/2016/06/Miami-Background-Free-Download.jpg',
-                    ciaName: booking.nomecia
+                if( tempBookings.length > 0 ) {
+                    tempBookings.map(( item, index ) => {
+                        if ( item.loc === booking.loc ) {
+                            tempBookings[ index ].products.push( booking.tiposource )
+                        } else {
+                            const newBooking: Booking = {
+                                products: [booking.tiposource],
+                                company: booking.logocia,
+                                loc: booking.loc,
+                                internalLoc: booking.codreserva.toString(),
+                                creationDate: booking.dataCreacion,
+                                goingDate: booking.data,
+                                comingDate: new Date(),
+                                endDate: booking.plazoemissao,
+                                state: booking.status,
+                                flow: booking.statuscorporate,
+                                rute: booking.ruta,
+                                passengers: booking.paxnome,
+                                clientName: booking.nomeCliente,
+                                offline: booking.offline,
+                                destinationImage: 'https://www.pixelstalk.net/wp-content/uploads/2016/06/Miami-Background-Free-Download.jpg',
+                                ciaName: booking.nomecia
+                            }
+                            tempBookings.push( newBooking );
+                        }
+                    });
+                } else {
+                    const newBooking: Booking = {
+                        products: [booking.tiposource],
+                        company: booking.logocia,
+                        loc: booking.loc,
+                        internalLoc: booking.codreserva.toString(),
+                        creationDate: booking.dataCreacion,
+                        goingDate: booking.data,
+                        comingDate: new Date(),
+                        endDate: booking.plazoemissao,
+                        state: booking.status,
+                        flow: booking.statuscorporate,
+                        rute: booking.ruta,
+                        passengers: booking.paxnome,
+                        clientName: booking.nomeCliente,
+                        offline: booking.offline,
+                        destinationImage: 'https://www.pixelstalk.net/wp-content/uploads/2016/06/Miami-Background-Free-Download.jpg',
+                        ciaName: booking.nomecia
+                    }
+                    tempBookings.push( newBooking );
                 }
-
-                tempBookings.push( newBooking );
-            })
+            });
             setBookings( tempBookings );
         }        
     }
@@ -181,8 +206,8 @@ export const MyServicesScreen = ({ navigation, route }: Props) => {
             })
         if ( loc !== '' ) {
             Toast.show({
-                text1: 'Filtros aplicados',
-                text2: 'Se ha filtrado por localizador',
+                text1: t( 'resFiltrosAplicados' ),
+                text2: t( 'resFiltradoLocalizador' ),
                 type: 'success',
                 visibilityTime: 1000
             })
@@ -198,7 +223,6 @@ export const MyServicesScreen = ({ navigation, route }: Props) => {
                 alreadyCalculated = true;
             }
         }
-
         return alreadyCalculated;
     }
 
@@ -206,7 +230,7 @@ export const MyServicesScreen = ({ navigation, route }: Props) => {
     return (
         <>
             <Header 
-                title={ 'Mis servicios' }
+                title={ t( 'resMisServicios' ) }
                 onPressLeft={ () => {
                     navigation.goBack()
                 } }
@@ -238,8 +262,9 @@ export const MyServicesScreen = ({ navigation, route }: Props) => {
                         color={ grayColor }
                     /> 
                     <TextInput 
-                        style={{ fontSize: 13, }}
-                        placeholder={ 'Búsqueda por Loc' }
+                        style={{ fontSize: 13, color: grayColor }}
+                        placeholder={ t( 'resBusquedaLoc' ) }
+                        placeholderTextColor={ grayColor } 
                         onChangeText={ ( text ) => setLoc( text.toUpperCase() ) }
                         onSubmitEditing={ () =>  searchLoc() }
                         value={ loc }
@@ -298,7 +323,7 @@ export const MyServicesScreen = ({ navigation, route }: Props) => {
                         size={ 30 }
                         color={ colors.primary }
                     />
-                    <DynamicText fontFamily={ semibold } headline style={{ color: colors.primary, fontSize: 30 }}> No hay Datos </DynamicText>
+                    <DynamicText fontFamily={ semibold } headline style={{ color: colors.primary, fontSize: 30 }}>{ t( 'resNoDatos' ) }</DynamicText>
                 </View>
                 
             }
@@ -326,22 +351,36 @@ export const MyServicesScreen = ({ navigation, route }: Props) => {
                                     <View style={{ justifyContent: 'space-between', paddingHorizontal: 10, paddingVertical: 10, flexDirection: 'row' }}> 
                                         <DynamicText fontFamily={ semibold } style={{ color: whiteColor  }}> { item.loc } </DynamicText>
                                         <View style={{ flexDirection: 'row' }}>
-                                            <FontAwesomeIcon 
+                                            {/* <DynamicText>{ item.products }</DynamicText> */}
+                                            { item?.products?.map(( product, indexProduct ) => {
+                                                return (
+                                                    <FontAwesomeIcon 
+                                                        key={ indexProduct }
+                                                        style={{ marginLeft: 10 }}
+                                                        icon={ getServiceIcon( product ) }
+                                                        size={ 20 }
+                                                        color={ whiteColor }
+                                                    />
+                                                )
+                                            })
+
+                                            }
+                                            {/* <FontAwesomeIcon 
                                                 style={{ marginLeft: 10 }}
                                                 icon={ getServiceIcon( item.products ) }
                                                 size={ 20 }
                                                 color={ whiteColor }
-                                            />
+                                            /> */}
                                         </View>
                                     </View>
-                                    <View style={{ maxWidth: '100%', height: 70, justifyContent: 'center', marginLeft: 10, alignItems: 'center', flexDirection: 'row' }}>
+                                    <View style={{ maxWidth: '90%', height: 70, justifyContent: 'center', marginLeft: 10, alignSelf: 'center', flexDirection: 'row' }}>
                                         <TextInput
                                             underlineColorAndroid={ ( editServiceName.index === index && editServiceName.edit ) ? whiteColor : 'transparent' }
                                             onChangeText={ ( text ) =>  setChangeName({
                                                 name: text,
                                                 index: index
                                             }) }
-                                            style={{ color: whiteColor, fontSize: 30, fontFamily: semibold }}
+                                            style={{ color: whiteColor, fontSize: 25, fontFamily: semibold }}
                                             editable={ editServiceName.edit && editServiceName.index === index }
                                             value={  (editServiceName.edit && editServiceName.index === index) ? changeName.name : item.rute }
                                         /> 
@@ -350,7 +389,7 @@ export const MyServicesScreen = ({ navigation, route }: Props) => {
                                                 <FontAwesomeIcon 
                                                     icon={ faEdit }
                                                     size={ 20 }
-                                                    style={{ alignSelf: 'flex-end', marginRight: 10 }}
+                                                    style={{ alignSelf: 'flex-end', marginRight: 10, marginTop: 25 }}
                                                     color={ fieldColor }
                                                 />
                                             </TouchableOpacity>
@@ -360,7 +399,7 @@ export const MyServicesScreen = ({ navigation, route }: Props) => {
                                         { (editServiceName.edit  && editServiceName.index === index) &&
                                             <View style={{ flexDirection: 'row', marginRight: 5 }}>
                                                 <TouchableOpacity style={{ backgroundColor: colors.primary, borderRadius: 5, marginRight: 5 }}>
-                                                    <DynamicText fontFamily={ bold } style={{ color: whiteColor, padding: 5 }}>Guardar</DynamicText>
+                                                    <DynamicText fontFamily={ bold } style={{ color: whiteColor, padding: 5 }}>{ t( 'resGuardar' ) }</DynamicText>
                                                 </TouchableOpacity>
 
                                                 <TouchableOpacity
@@ -378,7 +417,7 @@ export const MyServicesScreen = ({ navigation, route }: Props) => {
                                                         }
                                                     }
                                                 >
-                                                    <DynamicText fontFamily={ bold } style={{ color: whiteColor, padding: 5 }}> Cancelar </DynamicText>
+                                                    <DynamicText fontFamily={ bold } style={{ color: whiteColor, padding: 5 }}>{ t( 'resCancelar' ) }</DynamicText>
                                                 </TouchableOpacity>
                                             </View>
                                         }
@@ -399,7 +438,7 @@ export const MyServicesScreen = ({ navigation, route }: Props) => {
                                     <View style={{ justifyContent: 'space-between', flexDirection: 'row' }}>
                                         <View>
                                             <DynamicText fontFamily={ bold } style={{ color: whiteColor, marginLeft: 5, marginTop: 30, fontSize: 15 }}> { item.passengers } </DynamicText>
-                                            <DynamicText fontFamily={ bold } style={{ marginLeft: 10, color: whiteColor, fontSize: 15 }}>{ Moment(item.goingDate).format('llll') }</DynamicText>
+                                            <DynamicText fontFamily={ bold } style={{ marginLeft: 10, color: whiteColor, fontSize: 15 }}>{ Moment(item.goingDate).format('ddd DD MMM YYYY, h:mm a') }</DynamicText>
                                         </View>
                                         <View>
                                             <DynamicText fontFamily={ bold } style={{ color: whiteColor, marginTop: 40, paddingHorizontal: 7 }}> { t( setStateBookingList( item.state ) )  } </DynamicText>

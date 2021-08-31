@@ -11,9 +11,10 @@ import { commonStyles } from '../../styles/commonStyles'
 import Icon from 'react-native-vector-icons/Ionicons';
 import { ThemeContext } from '../../contexts/theme/ThemeContext';
 import { ScrollView } from 'react-native-gesture-handler'
+import { useTranslation } from 'react-i18next'
 
 export const TravelMotive = () => {
-
+    const { t } = useTranslation()
     const { userData, assignMotive } = useContext( AuthContext );
     const { getTripReasons } = corporateApi();
     const [motives, setMotives] = useState<{ display: string, value: string }[]>([]);
@@ -85,9 +86,9 @@ export const TravelMotive = () => {
                             marginTop: 0,
                             marginBottom: 10
                         }}>
-                            Motivos de Viaje
+                            { t( 'resMotivoViaje' ) }
                         </DynamicText>
-                        <ScrollView>
+                        <ScrollView style={{ height: '80%' }}>
                             {
                                 motives.map(( motive, index ) => {
                                     return (
@@ -111,7 +112,7 @@ export const TravelMotive = () => {
             })}>
                 <FilledInputText 
                     disabled={ true }
-                    label={ 'Motivo de viaje' }
+                    label={ t( 'resMotivoViaje' ) }
                     value={  motiveSelected.Text }  
                 />  
             </TouchableOpacity>

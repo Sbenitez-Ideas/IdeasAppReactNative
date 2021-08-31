@@ -1,9 +1,9 @@
 import React, { useContext, useState } from 'react';
 import { Image, View, StyleSheet, TouchableOpacity } from 'react-native';
-import { Text, Dimensions } from 'react-native';
+import { Dimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Carousel, { Pagination } from 'react-native-snap-carousel';
-import { items, Slide } from '../../model/classes/common/SlidesData';
+import { Slide, slidesItems } from '../../model/classes/common/SlidesData';
 import { ThemeContext } from '../../contexts/theme/ThemeContext';
 import { DynamicText } from '../../components/common/DynamicText';
 import { useFont } from '../../hooks/common/useFont';
@@ -11,20 +11,22 @@ import LinearGradient from 'react-native-linear-gradient';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { StackScreenProps } from '@react-navigation/stack';
 import * as Animatable from 'react-native-animatable';
+import { useTranslation } from 'react-i18next';
 
 const  { width, height } = Dimensions.get( 'window' );
 
 interface Props extends StackScreenProps<any, any>{};
 
 export const SlidesScreen = ({ navigation }: Props) => {
+    const { t } = useTranslation();
     const { bold, semibold } = useFont()
     const [activeIndex, setActiveIndex] = useState(0);
-    const { theme: { colors, secondary, buttonText, grayColor, fieldColor, } } = useContext( ThemeContext );
+    const { theme: { colors, secondary } } = useContext( ThemeContext );
     const renderItem = ( item: Slide ) => {
         return (
             <View style={{ 
                 flex: 1, backgroundColor: 'white', borderRadius: 5, padding: 40, justifyContent: 'center', maxWidth: width
-             }}>
+            }}>
                 <Image 
                     source={ item.img }
                     style={{ width: 350, height: 400,}}
@@ -41,8 +43,7 @@ export const SlidesScreen = ({ navigation }: Props) => {
             style={{ flex:1 }}
         >
             <Carousel
-              /* ref={(c) => { this._carousel = c; }} */
-                data={ items }
+                data={ slidesItems() }
                 renderItem={ ({ item }) => renderItem( item ) }
                 sliderWidth={ width }
                 itemWidth={ height }
@@ -54,7 +55,7 @@ export const SlidesScreen = ({ navigation }: Props) => {
             
             
 
-            { activeIndex === items.length - 1 &&
+            { activeIndex === slidesItems().length - 1 &&
                 <Animatable.View 
                     style={styles.button}
                     animation="fadeIn"
@@ -64,7 +65,7 @@ export const SlidesScreen = ({ navigation }: Props) => {
                             colors={[colors.primary, secondary]}
                             style={styles.signIn}
                         >
-                            <DynamicText fontFamily={ semibold } style={styles.textSign}>{ 'Continuar' }</DynamicText>
+                            <DynamicText fontFamily={ semibold } style={styles.textSign}>{ t( 'resContinuar' ) }</DynamicText>
                             <Icon 
                                 name="chevron-forward-outline"
                                 color="#fff"
@@ -76,7 +77,7 @@ export const SlidesScreen = ({ navigation }: Props) => {
             }
 
             <Pagination 
-                dotsLength={ items.length }
+                dotsLength={ slidesItems().length }
                 activeDotIndex={ activeIndex }
                 dotStyle={{ width: 10, height: 10, borderRadius: 10, backgroundColor: colors.primary }}
             />

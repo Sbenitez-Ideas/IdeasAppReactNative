@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react'
 import { useTranslation } from 'react-i18next';
-import { Text, TouchableOpacity } from 'react-native';
+import { TouchableOpacity } from 'react-native';
 import { View } from 'react-native-animatable';
 import { Calendar, DateObject } from 'react-native-calendars';
 import LinearGradient from 'react-native-linear-gradient';
@@ -19,6 +19,8 @@ interface  Props{
 export const CalendarSingleDate = ({ showCalendar, setDate, minDate, maxDate }: Props) => {  
     const { t } = useTranslation();
     const { theme: { colors, secondary, buttonText } } = useContext( ThemeContext );
+    let dateMax = new Date( maxDate as string );
+    dateMax.setDate( dateMax.getDate() - 1 );
     const [dateSelected, setDateSelected] = useState<DateObject>({
         day: 0,
         dateString: '',
@@ -39,7 +41,7 @@ export const CalendarSingleDate = ({ showCalendar, setDate, minDate, maxDate }: 
         >
             <Calendar
                 minDate={ minDate }
-                maxDate={ maxDate }
+                maxDate={ dateMax.toString() }
                 markedDates={{
                     [ dateSelected.dateString ]: {selected: true, marked: true, selectedColor: colors.primary}
                 }}
@@ -54,44 +56,44 @@ export const CalendarSingleDate = ({ showCalendar, setDate, minDate, maxDate }: 
             </Calendar>
 
            <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-around' }}>
-                                <TouchableOpacity
-                                    onPress={ setNewDate }
-                                    style={{
-                                        ...commonStyles.entireButton,
-                                    }}>
-                                    <LinearGradient
-                                        colors={[colors.primary, secondary]}
-                                        style={{ 
-                                            ...commonStyles.smallButton,
-                                            width: 150,
-                                            height: 50
-                                        }}
-                                    >
-                                        <DynamicText fontFamily='Raleway-SemiBold' headline style={[commonStyles.buttonText, {
-                                            color: buttonText
-                                        }]}>{ t( 'resAceptar' ) }</DynamicText>
-                                    </LinearGradient>
-                                </TouchableOpacity>
-                                <TouchableOpacity
-                                    onPress={ () => showCalendar( false ) }
-                                    style={{
-                                        ...commonStyles.entireButton,
-                                        
-                                    }}>
-                                    <LinearGradient
-                                        colors={[colors.primary, secondary]}
-                                        style={{ 
-                                            ...commonStyles.smallButton,
-                                            width: 150,
-                                            height: 50
-                                        }}
-                                    >
-                                        <DynamicText fontFamily='Raleway-SemiBold' headline style={[commonStyles.buttonText, {
-                                            color: buttonText
-                                        }]}> { t( 'resCancelar' ) } </DynamicText>
-                                    </LinearGradient>
-                                </TouchableOpacity>
-                            </View>
+                <TouchableOpacity
+                    onPress={ setNewDate }
+                    style={{
+                        ...commonStyles.entireButton,
+                    }}>
+                    <LinearGradient
+                        colors={[colors.primary, secondary]}
+                        style={{ 
+                            ...commonStyles.smallButton,
+                            width: 150,
+                            height: 50
+                        }}
+                    >
+                        <DynamicText fontFamily='Raleway-SemiBold' headline style={[commonStyles.buttonText, {
+                            color: buttonText
+                        }]}>{ t( 'resAceptar' ) }</DynamicText>
+                    </LinearGradient>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    onPress={ () => showCalendar( false ) }
+                    style={{
+                        ...commonStyles.entireButton,
+                        
+                    }}>
+                    <LinearGradient
+                        colors={[colors.primary, secondary]}
+                        style={{ 
+                            ...commonStyles.smallButton,
+                            width: 150,
+                            height: 50
+                        }}
+                    >
+                        <DynamicText fontFamily='Raleway-SemiBold' headline style={[commonStyles.buttonText, {
+                            color: buttonText
+                        }]}> { t( 'resCancelar' ) } </DynamicText>
+                    </LinearGradient>
+                </TouchableOpacity>
+            </View>
         </Animatable.View>
     )
 }

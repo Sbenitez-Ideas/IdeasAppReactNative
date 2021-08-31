@@ -5,7 +5,7 @@ import { Header } from '../../components/common/Header';
 import { RootStackParams } from '../../navigator/Navigator';
 import { useTranslation } from 'react-i18next';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faTimes, faMoneyCheckAlt, faExchangeAlt, faInfoCircle, faSearch, faTimesCircle, faFilter } from '@fortawesome/free-solid-svg-icons';
+import { faTimes, faExchangeAlt, faInfoCircle, faSearch, faTimesCircle, faFilter } from '@fortawesome/free-solid-svg-icons';
 import { ThemeContext } from '../../contexts/theme/ThemeContext';
 import { ProfileNavigation } from '../../components/common/ProfileNavigation';
 import { BookingsRQ } from '../../model/classes/flights/BookingsRQ';
@@ -35,6 +35,7 @@ export const BookingListScreen = ( { navigation, route }: Props ) => {
     const [bookings, setBookings] = useState<Booking[]>([])
     const { theme: { colors, whiteColor, buttonText, grayColor, fieldColor, } } = useContext( ThemeContext );
     const [loc, setLoc] = useState<string>('');
+    const [passengerName, setPassengerName] = useState('');
     const { getBookings } = flightsApi()
     const dataFilter = route?.params?.dataFilter;
 
@@ -100,7 +101,8 @@ export const BookingListScreen = ( { navigation, route }: Props ) => {
 
                 })
         }
-    }, [loc])
+    }, [loc, passengerName])
+    
 
     const getBooking = ( request:  BookingsRQ ) => {
         setLoading( true );
@@ -129,25 +131,53 @@ export const BookingListScreen = ( { navigation, route }: Props ) => {
         if( response ) {
             response?.Data?.forEach( booking => {
                 if ( type !== 'approver' || booking.statuscorporate === 'P' ) {
-                    const newBooking: Booking = {
-                        products: booking.tiposource,
-                        company: booking.logocia,
-                        loc: booking.loc,
-                        internalLoc: booking.codreserva.toString(),
-                        creationDate: booking.dataCreacion,
-                        goingDate: booking.data,
-                        comingDate: new Date(),
-                        endDate: booking.plazoemissao,
-                        state: booking.status,
-                        flow: booking.statuscorporate,
-                        rute: booking.ruta,
-                        passengers: booking.paxnome,
-                        clientName: booking.nomeCliente,
-                        offline: booking.offline,
+                    if( tempBookings.length > 0 ) {
+                        tempBookings.map(( item, index ) => {
+                            if ( item.loc === booking.loc ) {
+                                tempBookings[ index ].products.push( booking.tiposource )
+                            } else {
+                                const newBooking: Booking = {
+                                    products: [booking.tiposource],
+                                    company: booking.logocia,
+                                    loc: booking.loc,
+                                    internalLoc: booking.codreserva.toString(),
+                                    creationDate: booking.dataCreacion,
+                                    goingDate: booking.data,
+                                    comingDate: new Date(),
+                                    endDate: booking.plazoemissao,
+                                    state: booking.status,
+                                    flow: booking.statuscorporate,
+                                    rute: booking.ruta,
+                                    passengers: booking.paxnome,
+                                    clientName: booking.nomeCliente,
+                                    offline: booking.offline,
+                                    destinationImage: 'https://www.pixelstalk.net/wp-content/uploads/2016/06/Miami-Background-Free-Download.jpg',
+                                    ciaName: booking.nomecia
+                                }
+                                tempBookings.push( newBooking );
+                            }
+                        });
+                    } else {
+                        const newBooking: Booking = {
+                            products: [booking.tiposource],
+                            company: booking.logocia,
+                            loc: booking.loc,
+                            internalLoc: booking.codreserva.toString(),
+                            creationDate: booking.dataCreacion,
+                            goingDate: booking.data,
+                            comingDate: new Date(),
+                            endDate: booking.plazoemissao,
+                            state: booking.status,
+                            flow: booking.statuscorporate,
+                            rute: booking.ruta,
+                            passengers: booking.paxnome,
+                            clientName: booking.nomeCliente,
+                            offline: booking.offline,
+                            destinationImage: 'https://www.pixelstalk.net/wp-content/uploads/2016/06/Miami-Background-Free-Download.jpg',
+                            ciaName: booking.nomecia
+                        }
+                        tempBookings.push( newBooking );
                     }
-
-                    tempBookings.push( newBooking );
-
                 }
             })
             setBookings( tempBookings );
@@ -171,13 +201,42 @@ export const BookingListScreen = ( { navigation, route }: Props ) => {
             })
         if ( loc !== '' ) {
             Toast.show({
-                text1: 'Filtros aplicados',
-                text2: 'Se ha filtrado por localizador',
+                text1: t( 'resFiltrosAplicados' ),
+                text2: t( 'resFiltradoLocalizador' ),
                 type: 'success',
                 visibilityTime: 1000
             })
         }
         
+    }
+
+    const searchPassenger = () => {
+        setLoading( true );
+        const request = new BookingsRQ( userData.IDUser, userData.IDEntityDefault );
+        request.pageIndex = 1;
+        request.showOwnedValue = true;
+        request.showApproverValue = false;
+        request.period = '12M';
+        request.passangerName = passengerName;
+        getBookings( request )
+            .then(( response ) => { 
+                if ( response.success ) {
+                    setResponse( response.list[0] );
+                    setBookingsData();
+                    setLoading( true );
+
+                }
+                setLoading( false );
+
+            })
+        if ( passengerName !== '' ) {
+            Toast.show({
+                text1: t( 'resFiltrosAplicados' ),
+                text2: t( 'resFiltradoPasajero' ),
+                type: 'success',
+                visibilityTime: 1000
+            })
+        }
     }
 
     const calculateFiltered = () => {
@@ -215,11 +274,21 @@ export const BookingListScreen = ( { navigation, route }: Props ) => {
                         <DynamicText style={{ fontSize: 20 }} whiteColor fontFamily={ 'semibold' }>
                             { item.loc }
                         </DynamicText>
-                        <FontAwesomeIcon
-                            icon={ getServiceIcon( item.products ) }
-                            color={ whiteColor }
-                            size={ 18 }
-                        />
+                        <View style={{ flexDirection: 'row' }}>
+                            { item?.products?.map(( product, indexProduct ) => {
+                                return (
+                                    <FontAwesomeIcon 
+                                        key={ indexProduct }
+                                        style={{ marginLeft: 10 }}
+                                        icon={ getServiceIcon( product ) }
+                                        size={ 20 }
+                                        color={ whiteColor }
+                                    />
+                                )
+                            })
+
+                            }    
+                        </View>
                     </View>
                     <View
                         style={[styles.mainContent, {backgroundColor: colors.primary}]}>
@@ -229,7 +298,7 @@ export const BookingListScreen = ( { navigation, route }: Props ) => {
                         <View style={{ flexDirection: 'row', marginTop: 5, marginBottom: 5 }}>
                             
                             <DynamicText body2 whiteColor>
-                            { Moment(item.goingDate).format('llll') }
+                            { Moment(item.goingDate).format('ddd DD MMM YYYY, h:mm a') }
                             </DynamicText>
                             <FontAwesomeIcon
                                 style={{ marginLeft: 5, marginRight: 5  }}
@@ -238,7 +307,7 @@ export const BookingListScreen = ( { navigation, route }: Props ) => {
                                 size={ 18 }
                             />
                             <DynamicText body2 whiteColor>
-                            { Moment(item.endDate).format('llll') }
+                            { Moment(item.endDate).format('ddd DD MMM YYYY, h:mm a') }
                             </DynamicText>
                         </View>
                         <DynamicText style={{ alignSelf: 'center', fontSize: 16 }} body2 whiteColor>
@@ -287,35 +356,69 @@ export const BookingListScreen = ( { navigation, route }: Props ) => {
                 } }
             />
             <View style={[styles.containFilter]}>
-                <View style={{ backgroundColor: fieldColor, borderRadius: 10, height: 35, flexDirection: 'row' }}>
-                    <FontAwesomeIcon 
-                        style={{ marginTop: 10, marginLeft: 5, marginRight: 10}}
-                        icon={ faSearch }
-                        size={ 12 }
-                        color={ grayColor }
-                    /> 
-                    <TextInput 
-                        style={{ fontSize: 13, }}
-                        placeholder={ 'Búsqueda por Loc' }
-                        onChangeText={ ( text ) => setLoc( text.toUpperCase() ) }
-                        onSubmitEditing={ () =>  searchLoc() }
-                        value={ loc }
-                    />
-                    { loc !== '' &&
-                        <TouchableOpacity
-                            onPress={ () => {
-                                setLoc( '' )
-                                setLoading( true )
-                            } }
-                        >
-                            <FontAwesomeIcon 
-                                style={{ marginTop: 10, marginRight: 10}}
-                                icon={ faTimesCircle }
-                                size={ 12 }
-                                color={ grayColor }
-                            /> 
-                        </TouchableOpacity>
-                    }
+                <View style={{ flexDirection: 'row' }}>
+                    <View style={{ backgroundColor: fieldColor, borderRadius: 10, height: 35, flexDirection: 'row' }}>
+                        <FontAwesomeIcon 
+                            style={{ marginTop: 10, marginLeft: 5, marginRight: 5 }}
+                            icon={ faSearch }
+                            size={ 12 }
+                            color={ grayColor }
+                        /> 
+                        <TextInput 
+                            style={{ fontSize: 13, }}
+                            placeholder={ t( 'resBusquedaLoc' ) }
+                            placeholderTextColor={ grayColor }
+                            onChangeText={ ( text ) => setLoc( text.toUpperCase() ) }
+                            onSubmitEditing={ () =>  searchLoc() }
+                            value={ loc }
+                        />
+                        { loc !== '' &&
+                            <TouchableOpacity
+                                onPress={ () => {
+                                    setLoc( '' )
+                                    setLoading( true )
+                                } }
+                            >
+                                <FontAwesomeIcon 
+                                    style={{ marginTop: 10, marginRight: 5 }}
+                                    icon={ faTimesCircle }
+                                    size={ 12 }
+                                    color={ grayColor }
+                                /> 
+                            </TouchableOpacity>
+                        }
+                    </View>
+                    <View style={{ backgroundColor: fieldColor, borderRadius: 10, height: 35, flexDirection: 'row', marginLeft: 5 }}>
+                        <FontAwesomeIcon 
+                            style={{ marginTop: 10, marginLeft: 5, marginRight: 5 }}
+                            icon={ faSearch }
+                            size={ 12 }
+                            color={ grayColor }
+                        /> 
+                        <TextInput 
+                            style={{ fontSize: 13, }}
+                            placeholder={ t( 'resBusquedaPasajero' ) }
+                            placeholderTextColor={ grayColor }
+                            onChangeText={ ( text ) => setPassengerName( text ) }
+                            onSubmitEditing={ () =>  searchPassenger() }
+                            value={ passengerName }
+                        />
+                        { passengerName !== '' &&
+                            <TouchableOpacity
+                                onPress={ () => {
+                                    setPassengerName( '' )
+                                    setLoading( true )
+                                } }
+                            >
+                                <FontAwesomeIcon 
+                                    style={{ marginTop: 10, marginRight: 5 }}
+                                    icon={ faTimesCircle }
+                                    size={ 12 }
+                                    color={ grayColor }
+                                /> 
+                            </TouchableOpacity>
+                        }
+                    </View>
                 </View>
                 <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>
                     <View style={{ ...styles.line, backgroundColor: grayColor}} />

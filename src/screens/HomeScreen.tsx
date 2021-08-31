@@ -16,18 +16,20 @@ import { faUserCircle } from '@fortawesome/free-solid-svg-icons';
 import { useFont } from '../hooks/common/useFont';
 import { Card } from '../components/common/Card';
 import Toast from 'react-native-toast-message';
+import { AuthContext } from '../contexts/auth/AuthContext';
+import { MenuInfo } from '../model/interfaces/common/MenuInfo';
 
 interface Props extends StackScreenProps<any, any>{};
 
 const { scaleWithPixel, heightHeader } = useUtils();
 
 export const HomeScreen = ({ navigation }: Props ) => {
-    const { theme: { colors, grayColor, whiteColor } } = useContext( ThemeContext );
+    const { theme: { colors, whiteColor } } = useContext( ThemeContext );
     const { semibold } = useFont();
     const { t } = useTranslation();
     const { getMainMenu } = commonApi();
     const [heightHeaders,  setHeightHeader] = useState( heightHeader());
-    const { height } = Dimensions.get('window');
+    const { userData: { ApproverExpenses } } = useContext( AuthContext );
     const deltaY = new Animated.Value(0);
     const [menu, setMenu] = useState<Menu[]>( [] );
     const setRoutes = ( item: any ) => {
@@ -85,21 +87,45 @@ export const HomeScreen = ({ navigation }: Props ) => {
             })
     }, [])
 
-
-    const setRouteParams = ( link: string ) => {
-        switch ( link ) {
+    const setRouteParams = ( item: Menu ) => {
+        switch ( item.Link ) {
             case 'ActivitiesListScreen':
-                return navigation.navigate( link, {
-                    type: 'allActivities'
-                });
+                switch ( item.MenuName ) {
+                    case 'allActivities':
+                        return navigation.navigate( item.Link, {
+                            type: 'allActivities'
+                        });
+                       
+                    case 'pendingApprove':
+                        if ( ApproverExpenses ) {
+                            return navigation.navigate( item.Link, {
+                                type: 'pendingApprove'
+                            });
+                        } else {
+                            return Toast.show({
+                                text2: t( 'resNoTienePermisosAprobador' ),
+                                type: 'info',
+                                visibilityTime: 1000,
+                                props: { height: 100 }
+                            })
+                        }          
+                    case 'pendingLegalize':
+                        return navigation.navigate( item.Link, {
+                            type: 'pendingLegalize'
+                        });
 
+                    default:
+                        return navigation.navigate( item.Link, {
+                            type: 'allActivities'
+                        });
+                }
             case 'MoreScreen': 
-                return navigation.navigate( link, {
+                return navigation.navigate( item.Link, {
                     items: menu
                 })
         
             default:
-                return navigation.navigate( link );
+                return navigation.navigate( item.Link );
                 
         }
     }
@@ -132,7 +158,7 @@ export const HomeScreen = ({ navigation }: Props ) => {
                 renderItem={ ({ item }) => (
                     <TouchableOpacity
                         style={styles.itemService}
-                        onPress={( ) => setRouteParams( item.Link ) }
+                        onPress={( ) => setRouteParams( item ) }
                     >
                         <View
                             style={[styles.iconContent, {backgroundColor: colors.card}]}
@@ -244,7 +270,7 @@ export const HomeScreen = ({ navigation }: Props ) => {
                                         style={{ ...styles.textInput,}}
                                     >
                                         <DynamicText  fontFamily={ semibold } body1 greyColor>
-                                            Búsqueda de Servicios
+                                            { t( 'resBusquedaServicios' ) }
                                         </DynamicText>
                                     </View>
                                 { renderIconService( ) }
@@ -264,7 +290,7 @@ export const HomeScreen = ({ navigation }: Props ) => {
                                         },
                                     ]}>
                                         <View
-                                            style={{ ...styles.textInput,}}
+                                            style={{ ...styles.textInput, height: 40 }}
                                         >
                                             <DynamicText  fontFamily={ semibold } body1 greyColor>
                                                 { t( 'resViaticosLegalizacionGastos' ) }
@@ -277,7 +303,7 @@ export const HomeScreen = ({ navigation }: Props ) => {
                         } 
                         <View>
                             <DynamicText title3 semibold style={styles.titleView}>
-                                Noticias
+                                { t( 'resNoticias' ) }
                             </DynamicText>
                             <FlatList
                             contentContainerStyle={{paddingLeft: 5, paddingRight: 20}}
@@ -289,7 +315,7 @@ export const HomeScreen = ({ navigation }: Props ) => {
                                 <Card
                                     style={[styles.promotionItem, {marginLeft: 15}]}
                                     image={item.image}
-                                    onPress={() => navigation.navigate('HotelDetail')}
+                                    onPress={() => Linking.openURL( 'https://ideas.kontroltravel.com' )}
                                 >
                                     <DynamicText subhead whiteColor>
                                         {item.title1}
@@ -314,7 +340,7 @@ export const HomeScreen = ({ navigation }: Props ) => {
                     </ScrollView>
                     <TouchableOpacity 
                         style={{position: 'absolute', bottom: 10, right: 10, alignSelf: 'flex-end', backgroundColor: whiteColor, borderRadius: 100 }}
-                        onPress={ () => Linking.openURL('whatsapp://send?text=Quieres conocer nuestros servicios&phone=573133869820')
+                        onPress={ () => Linking.openURL('whatsapp://send?text=Quiero conocer sus servicios&phone=573133869820')
                             .then((data) => {
                                 console.log('WhatsApp Opened');
                             }).catch(() => {

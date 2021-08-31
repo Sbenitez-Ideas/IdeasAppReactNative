@@ -9,7 +9,7 @@ export class RequestExpenses {
     location: GeoLocation;
     international: boolean;
     days: number;
-    expenseDefault: ExpenseAdvanceDefaultRS;
+    expenseDefault: ExpenseAdvanceDefaultRS | undefined;
     office: any;
     dataInternational: any;
     people: number;

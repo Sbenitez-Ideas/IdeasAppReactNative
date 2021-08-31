@@ -11,6 +11,7 @@ import { CustomUserSession } from '../../model/interfaces/auth/CustomUserSession
 import { EntityParams } from "../../model/interfaces/common/EntityParams";
 import Toast from 'react-native-toast-message';
 import { TravelerCorporate } from '../../model/classes/corporate/TravelerCorporate';
+import { useTranslation } from 'react-i18next';
 
 type AuthContextProps = {
     errorMessage: string;
@@ -228,7 +229,7 @@ const AuthInitialState: AuthState = {
 
 export const AuthContext = createContext( {} as AuthContextProps );
 export const AuthProvider = ({ children }: any) => {
-
+    const { t } = useTranslation();
     const [state, dispatch] = useReducer(authReducer, AuthInitialState);
 
     const getEnpointData = async(): Promise<IFTPEndPointRS> => {
@@ -239,6 +240,7 @@ export const AuthProvider = ({ children }: any) => {
 
     const signIn = async( request: UserCredentials ) => {
         const enpointData = await getEnpointData();
+        console.log(  )
         const tokenUrl = enpointData.AppEndPoint.EndPoint + '/auth/credentials';
         try {
             const { data } = await authApi.post<AuthenticateResponse>( tokenUrl, request );
@@ -263,7 +265,7 @@ export const AuthProvider = ({ children }: any) => {
         try{
             const { data } = await  authApi.post<any>( urlUserSession, {}, config );
             Toast.show({
-                text1: 'Bienvenido!',
+                text1: t( 'resBienvenido' ),
                 text2: `${ data.CurrentUserSession.FirstName } ${ data.CurrentUserSession.LastName }`,
                 type: 'info',
                 visibilityTime: 1000,
@@ -274,7 +276,7 @@ export const AuthProvider = ({ children }: any) => {
                 userData:  data.CurrentUserSession as CustomUserSession
             }})
         } catch( error ) {
-            dispatch({ type: 'addError', payload: 'Error al obtener datos de usuario' })
+            dispatch({ type: 'addError', payload: t( 'resErrorDatosUsuario' ) })
         }
         
     }

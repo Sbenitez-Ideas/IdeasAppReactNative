@@ -22,6 +22,8 @@ import { ExpensesSaveRQ } from '../model/interfaces/viatics/ExpensesSaveRQ';
 import { ExpensesSaveRS } from "../model/classes/viatics/ExpensesSaveRS";
 import { GetExpenseImage } from '../model/classes/viatics/GetExpenseImages';
 import { ExpenseGroupUpdateRQ } from '../model/classes/viatics/ExpenseGroupUpdateRQ';
+import { ExpenseAdvanceDefaultRQ } from '../model/classes/viatics/ExpenseAdvanceDefaultRQ';
+import { ExpenseAdvanceDefaultRS } from "../model/classes/expenses/ExpenseAdvanceDefaultRS";
 
 
 export const viaticsApi = () => {
@@ -62,6 +64,7 @@ export const viaticsApi = () => {
     }
 
     const downloadImages = async( request: DownloadImageRQ ) => {
+        console.log( 'request', request );
         const { data } =  await axios.post<DownloadImagesRS>( baseURL + '/DownloadImages', request, getHeader( token as string ));
         return data;
     }
@@ -81,9 +84,13 @@ export const viaticsApi = () => {
         return data;
     }
 
-    const alterExpenseGroupItem = async( request: ExpenseGroupUpdateRQ ) => {
-        
+    const alterExpenseGroupItem = async( request: ExpenseGroupUpdateRQ ) => {   
         const { data } = await axios.post<GetExpenseImage> (  baseURL + '/ExpenseGroupItem/Update', request, getHeader( token as string ) );
+        return data;
+    }
+
+    const getExpenseDefault = async( request: ExpenseAdvanceDefaultRQ ) => {
+        const { data } = await axios.post<ExpenseAdvanceDefaultRS>( baseURL + '/Advance/expenses/byuser', request, getHeader( token as string ) );
         return data;
     }
 
@@ -99,7 +106,8 @@ export const viaticsApi = () => {
         deleteExpense,
         saveExpenses,
         saveImage,
-        alterExpenseGroupItem
+        alterExpenseGroupItem,
+        getExpenseDefault
     }
 
 }

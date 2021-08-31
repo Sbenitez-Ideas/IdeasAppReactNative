@@ -39,7 +39,7 @@ export const FilterActivitiesScreen = ({ navigation, route }: Props) => {
         setShowcalendar( show );
     }
     const [state, setState] = useState([
-        { label:  'Todos' , value: 'All', selected: (!beforeFiltered?.state) },
+        { label:  t( 'resTodos' ) , value: 'All', selected: (!beforeFiltered?.state) },
         { label:  t( 'resEnviadoLegalizar' ) , value: 'R', selected: (beforeFiltered?.state === 'R') },
         { label: t( 'resPendienteLegalizar' ), value: 'P', selected: (beforeFiltered?.state === 'P') },
         { label: t( 'resCerrado' ), value: 'F', selected: (beforeFiltered?.state === 'F') },

@@ -67,34 +67,33 @@ export const AutoCompleteSearch = ({ route, navigation }: Props) => {
     const index = route.params.index;
     const screen = route.params.screen;
     const typeFlight = route.params.typeSearch;
-
-    console.log( 'index', route.params );
-
+    const segmentIndex = route.params.segmentIndex;
+    
     useEffect(() => {
         switch( type ) {
             case 'Activities':
-               setTitle('Búsqueda de Actividades')
+               setTitle( t( 'resBusquedaActividades' ) )
                 break;
             case 'Category':
-               setTitle('Búsqueda de Categorias')
+               setTitle( t( 'resBusquedaCategorias' ) )
                 break;
             case 'CurrencyType':
-               setTitle('Tipo de Moneda')
+               setTitle( t( 'resTipoMoneda' ) )
                 break;
             case 'Establishment':
-               setTitle('Establecimientos')
+               setTitle( t( 'resEstablecimiento' ) )
                 break;
             case 'Traveler': 
-               setTitle('Pasajeros')
+               setTitle( t( 'resPasajeros' ) )
                 break;
             case 'Approvers':
-                setTitle( 'Aprobadores' );
+                setTitle( t( 'resAprobadores' ) );
                 break;
             case 'CostCenter':
-                setTitle( 'Centros de Costos' );
+                setTitle( t( 'resCentroCostos' ) );
                 break;
             case 'Location': 
-                setTitle( 'Ubicación' )
+                setTitle( t( 'resUbicacion' ) )
             default:
                 break;         
         }
@@ -525,7 +524,8 @@ export const AutoCompleteSearch = ({ route, navigation }: Props) => {
                                         onPress={ () => navigation.navigate(screen, {
                                             location: item,
                                             typeSearch: typeFlight,
-                                            index: index
+                                            index: index,
+                                            segmentIndex: segmentIndex
                                         }) }
                                     >
                                         <Text

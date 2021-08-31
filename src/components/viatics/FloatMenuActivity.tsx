@@ -73,6 +73,7 @@ export const FloatMenuActivity = ({ activity, navigation, isSentEmail}: Props) =
         },
     ]
     const { findExpenseGroups, getEstablishments, sendEmailGroups } = viaticsApi();
+    
     const handleMenuToggle = () => {
         setShowItems( !showItems )
     }
